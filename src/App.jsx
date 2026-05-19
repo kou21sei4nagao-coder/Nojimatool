@@ -333,151 +333,163 @@ export default function App() {
   const accentColor = maker ? MAKER_COLORS[maker] : "#1E90FF";
 
   return (
-    <div style={{ minHeight:"100vh", background:"#080E1C", fontFamily:"'Noto Sans JP','Hiragino Sans',sans-serif", color:"#E8EDF5" }}>
+    <div style={{ height:"100vh", background:"#080E1C", fontFamily:"'Noto Sans JP','Hiragino Sans',sans-serif", color:"#E8EDF5", display:"flex", flexDirection:"column", overflow:"hidden" }}>
 
       {/* ヘッダー */}
       <div style={{
         background:"linear-gradient(135deg,#0C1830,#162040)",
         borderBottom:"1px solid rgba(100,160,255,0.12)",
-        padding:"14px 22px", display:"flex", alignItems:"center", justifyContent:"space-between",
-        position:"sticky", top:0, zIndex:100,
+        padding:"10px 22px", display:"flex", alignItems:"center", justifyContent:"space-between",
+        flexShrink:0,
       }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          <div style={{ width:36, height:36, borderRadius:10, background:"linear-gradient(135deg,#1E90FF,#00D4FF)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>❄️</div>
+          <div style={{ width:32, height:32, borderRadius:10, background:"linear-gradient(135deg,#1E90FF,#00D4FF)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>❄️</div>
           <div>
-            <div style={{ fontSize:16, fontWeight:700 }}>エアコン コンサルツール</div>
-            <div style={{ fontSize:10, color:"#4A6080", letterSpacing:1 }}>NOJIMA · AC GUIDE</div>
+            <div style={{ fontSize:15, fontWeight:700 }}>エアコン コンサルツール</div>
+            <div style={{ fontSize:9, color:"#4A6080", letterSpacing:1 }}>NOJIMA · AC GUIDE</div>
           </div>
         </div>
         <button onClick={() => setIsStaff(v => !v)} style={{
           background: isStaff ? "rgba(255,184,0,0.18)" : "rgba(255,255,255,0.06)",
           border:`1px solid ${isStaff ? "rgba(255,184,0,0.45)" : "rgba(255,255,255,0.1)"}`,
-          borderRadius:10, padding:"7px 14px", cursor:"pointer",
+          borderRadius:10, padding:"6px 14px", cursor:"pointer",
           color: isStaff ? "#FFB800" : "#6080A0", fontSize:12, fontWeight:700,
         }}>{isStaff ? "🔓 スタッフモード" : "🔒 スタッフモード"}</button>
       </div>
 
-      {/* タブ */}
-      <div style={{ display:"flex", borderBottom:"1px solid rgba(255,255,255,0.07)", background:"#0A1020" }}>
-        {[["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["guide","📚 機能ガイド"]].map(([key,label]) => (
-          <button key={key} onClick={() => setTab(key)} style={{
-            flex:1, padding:"13px 0", background:"none",
-            border:"none", borderBottom:`2px solid ${tab===key ? accentColor : "transparent"}`,
-            color: tab===key ? "#E8EDF5" : "#4A6080", fontSize:13, fontWeight: tab===key ? 700 : 400,
-            cursor:"pointer", transition:"all 0.2s",
-          }}>{label}</button>
-        ))}
-      </div>
+      {/* メインレイアウト：左サイドバー ＋ 右コンテンツ */}
+      <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
 
-      <div style={{ maxWidth:820, margin:"0 auto", padding:"26px 18px" }}>
+        {/* 左サイドバー：タブ＋絞り込み */}
+        <div style={{
+          width:260, flexShrink:0, background:"#0A1020",
+          borderRight:"1px solid rgba(255,255,255,0.07)",
+          display:"flex", flexDirection:"column", overflow:"hidden",
+        }}>
+          {/* タブ */}
+          <div style={{ display:"flex", flexDirection:"column", borderBottom:"1px solid rgba(255,255,255,0.07)" }}>
+            {[["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["guide","📚 機能ガイド"]].map(([key,label]) => (
+              <button key={key} onClick={() => setTab(key)} style={{
+                padding:"12px 18px", background:"none", textAlign:"left",
+                border:"none", borderLeft:`3px solid ${tab===key ? accentColor : "transparent"}`,
+                color: tab===key ? "#E8EDF5" : "#4A6080", fontSize:13, fontWeight: tab===key ? 700 : 400,
+                cursor:"pointer", transition:"all 0.2s",
+              }}>{label}</button>
+            ))}
+          </div>
 
-        {/* ══ 機種を絞り込む ══ */}
-        {tab === "filter" && !selectedModel && (
-          <div>
-            {/* STEP 1: メーカー */}
-            <FilterStep label="Step 1 ｜ メーカー">
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8 }}>
-                {MAKERS.map(m => (
-                  <Chip key={m} active={maker===m} color={MAKER_COLORS[m]} onClick={() => { setMaker(maker===m ? null : m); setTatami(null); setFilterOpt(null); setEcoOpt(null); }}>
-                    <div style={{ fontSize:13, fontWeight:700 }}>{m}</div>
-                  </Chip>
-                ))}
-              </div>
-            </FilterStep>
+          {/* 絞り込みパネル（filterタブ時のみ） */}
+          {tab === "filter" && !selectedModel && (
+            <div style={{ flex:1, overflowY:"auto", padding:"16px 14px" }}>
 
-            {/* STEP 2: 畳数 */}
-            <FilterStep label="Step 2 ｜ 畳数 / kW">
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8 }}>
-                {TATAMI_LIST.map(t => {
-                  const isDisplay = TATAMI_DISPLAY.includes(t);
-                  return (
-                    <Chip key={t} active={tatami===t} color={accentColor} onClick={() => setTatami(tatami===t ? null : t)}>
-                      <div style={{ fontSize:14, fontWeight:700 }}>{TATAMI_LABELS[t]}</div>
-                      <div style={{ fontSize:12, color:"#1E90FF", marginTop:2, fontWeight:600 }}>{TATAMI_KW[t]}kW</div>
-                      <div style={{ fontSize:10, marginTop:2, color: isDisplay ? "#4CAF50" : "#4A6080" }}>
-                        {isDisplay ? "🟢 展示あり" : "販売のみ"}
-                      </div>
+              {/* メーカー */}
+              <div style={{ marginBottom:20 }}>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 1 ｜ メーカー</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                  {MAKERS.map(m => (
+                    <Chip key={m} active={maker===m} color={MAKER_COLORS[m]} onClick={() => { setMaker(maker===m ? null : m); setTatami(null); setFilterOpt(null); setEcoOpt(null); }}>
+                      <div style={{ fontSize:11, fontWeight:700 }}>{m}</div>
                     </Chip>
-                  );
-                })}
-              </div>
-            </FilterStep>
-
-            {/* STEP 3: 自動フィルター */}
-            <FilterStep label="Step 3 ｜ 自動フィルター掃除">
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
-                {[[null,"指定なし","—"],[true,"あり ✨","手入れ不要"],[false,"なし","シンプル"]].map(([val,label,sub]) => (
-                  <Chip key={String(val)} active={filterOpt===val} color={accentColor} onClick={() => setFilterOpt(val)}>
-                    <div style={{ fontSize:14, fontWeight:700 }}>{label}</div>
-                    <div style={{ fontSize:11, color:"#4A6080", marginTop:2 }}>{sub}</div>
-                  </Chip>
-                ))}
-              </div>
-            </FilterStep>
-
-            {/* STEP 4: 省エネ */}
-            <FilterStep label="Step 4 ｜ 省エネモデル">
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
-                {[[null,"指定なし","—"],[true,"省エネ ⚡","電気代重視"],[false,"スタンダード","コスパ重視"]].map(([val,label,sub]) => (
-                  <Chip key={String(val)} active={ecoOpt===val} color={accentColor} onClick={() => setEcoOpt(val)}>
-                    <div style={{ fontSize:14, fontWeight:700 }}>{label}</div>
-                    <div style={{ fontSize:11, color:"#4A6080", marginTop:2 }}>{sub}</div>
-                  </Chip>
-                ))}
-              </div>
-            </FilterStep>
-
-            {/* リセット */}
-            {(maker || tatami || filterOpt !== null || ecoOpt !== null) && (
-              <button onClick={resetFilter} style={{
-                background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)",
-                borderRadius:10, padding:"8px 18px", color:"#5070A0", fontSize:12, cursor:"pointer", marginBottom:20,
-              }}>✕ 絞り込みをリセット</button>
-            )}
-
-            {/* 結果 */}
-            <div style={{ borderTop:"1px solid rgba(255,255,255,0.07)", paddingTop:22 }}>
-              <div style={{ fontSize:14, color:"#4A6080", marginBottom:14 }}>
-                絞り込み結果　<span style={{ fontSize:20, fontWeight:700, color:"#E8EDF5" }}>{results.length}</span> 件
-              </div>
-              {results.length === 0 ? (
-                <div style={{ textAlign:"center", padding:"48px 0", color:"#3A5070" }}>条件に合う機種が見つかりませんでした</div>
-              ) : (
-                <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-                  {results.map(m => (
-                    <button key={m.id} onClick={() => setSelectedModel(m)} style={{
-                      background:`${m.color}10`, border:`1px solid ${m.color}35`,
-                      borderRadius:16, padding:"16px 20px", cursor:"pointer", color:"#E8EDF5",
-                      textAlign:"left", display:"grid", gridTemplateColumns:"1fr auto",
-                      gap:12, alignItems:"center", transition:"all 0.18s",
-                    }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor = m.color}
-                      onMouseLeave={e => e.currentTarget.style.borderColor = m.color+"35"}
-                    >
-                      <div>
-                        <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
-                          <span style={{ fontSize:11, padding:"2px 8px", borderRadius:5, background:GRADE_COLORS[m.grade]+"22", color:GRADE_COLORS[m.grade], border:`1px solid ${GRADE_COLORS[m.grade]}40` }}>{m.grade}</span>
-                          <span style={{ fontSize:12, color:"#5070A0" }}>{m.maker}</span>
-                        </div>
-                        <div style={{ fontSize:17, fontWeight:700 }}>{m.series}</div>
-                        <div style={{ fontSize:12, color:"#5070A0", marginBottom:8 }}>
-                          {m.model}　<span style={{ color:"#4A6080" }}>{m.tatami}畳</span>　<span style={{ color:"#1E90FF", fontWeight:600 }}>{TATAMI_KW[m.tatami]}kW</span>
-                        </div>
-                        <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-                          {m.hasFilter && <span style={{ fontSize:11, padding:"3px 9px", borderRadius:8, background:"rgba(76,175,80,0.15)", color:"#81C784", border:"1px solid rgba(76,175,80,0.3)" }}>✨ 自動フィルター</span>}
-                          {m.isEco    && <span style={{ fontSize:11, padding:"3px 9px", borderRadius:8, background:"rgba(30,144,255,0.12)", color:"#64B5F6", border:"1px solid rgba(30,144,255,0.3)" }}>⚡ 省エネ</span>}
-                          {m.features.filter(k => k !== "filter").map(k => {
-                            const f = FEATURES_DB[k];
-                            return f ? <span key={k} style={{ fontSize:11, padding:"3px 9px", borderRadius:8, background:`${f.color}18`, color:f.color, border:`1px solid ${f.color}35` }}>{f.icon} {f.name}</span> : null;
-                          })}
-                        </div>
-                      </div>
-                      <div style={{ fontSize:12, color:m.color, whiteSpace:"nowrap" }}>詳細 →</div>
-                    </button>
                   ))}
                 </div>
+              </div>
+
+              {/* 畳数 */}
+              <div style={{ marginBottom:20 }}>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 2 ｜ 畳数 / kW</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                  {TATAMI_LIST.map(t => {
+                    const isDisplay = TATAMI_DISPLAY.includes(t);
+                    return (
+                      <Chip key={t} active={tatami===t} color={accentColor} onClick={() => setTatami(tatami===t ? null : t)}>
+                        <div style={{ fontSize:12, fontWeight:700 }}>{TATAMI_LABELS[t]}</div>
+                        <div style={{ fontSize:11, color:"#1E90FF", fontWeight:600 }}>{TATAMI_KW[t]}kW</div>
+                        <div style={{ fontSize:9, marginTop:1, color: isDisplay ? "#4CAF50" : "#4A6080" }}>{isDisplay ? "🟢 展示あり" : "販売のみ"}</div>
+                      </Chip>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* フィルター */}
+              <div style={{ marginBottom:20 }}>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 3 ｜ 自動フィルター掃除</div>
+                <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                  {[[null,"指定なし","—"],[true,"あり ✨","手入れ不要"],[false,"なし","シンプル"]].map(([val,label,sub]) => (
+                    <Chip key={String(val)} active={filterOpt===val} color={accentColor} onClick={() => setFilterOpt(val)}>
+                      <div style={{ fontSize:12, fontWeight:700 }}>{label}</div>
+                      <div style={{ fontSize:10, color:"#4A6080" }}>{sub}</div>
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+
+              {/* 省エネ */}
+              <div style={{ marginBottom:20 }}>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 4 ｜ 省エネモデル</div>
+                <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                  {[[null,"指定なし","—"],[true,"省エネ ⚡","電気代重視"],[false,"スタンダード","コスパ重視"]].map(([val,label,sub]) => (
+                    <Chip key={String(val)} active={ecoOpt===val} color={accentColor} onClick={() => setEcoOpt(val)}>
+                      <div style={{ fontSize:12, fontWeight:700 }}>{label}</div>
+                      <div style={{ fontSize:10, color:"#4A6080" }}>{sub}</div>
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+
+              {(maker || tatami || filterOpt !== null || ecoOpt !== null) && (
+                <button onClick={resetFilter} style={{
+                  background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)",
+                  borderRadius:10, padding:"8px", color:"#5070A0", fontSize:11, cursor:"pointer", width:"100%",
+                }}>✕ リセット</button>
               )}
             </div>
+          )}
+        </div>
+
+        {/* 右コンテンツエリア */}
+        <div style={{ flex:1, overflowY:"auto", padding:"20px 24px" }}>
+
+
+        {/* ══ 絞り込み結果 ══ */}
+        {tab === "filter" && !selectedModel && (
+          <div>
+            <div style={{ fontSize:13, color:"#4A6080", marginBottom:14 }}>
+              絞り込み結果　<span style={{ fontSize:22, fontWeight:700, color:"#E8EDF5" }}>{results.length}</span> 件
+            </div>
+            {results.length === 0 ? (
+              <div style={{ textAlign:"center", padding:"48px 0", color:"#3A5070" }}>条件に合う機種が見つかりませんでした</div>
+            ) : (
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+                {results.map(m => (
+                  <button key={m.id} onClick={() => setSelectedModel(m)} style={{
+                    background:`${m.color}10`, border:`1px solid ${m.color}35`,
+                    borderRadius:16, padding:"14px 18px", cursor:"pointer", color:"#E8EDF5",
+                    textAlign:"left", transition:"all 0.18s",
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = m.color}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = m.color+"35"}
+                  >
+                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                      <span style={{ fontSize:11, padding:"2px 8px", borderRadius:5, background:GRADE_COLORS[m.grade]+"22", color:GRADE_COLORS[m.grade], border:`1px solid ${GRADE_COLORS[m.grade]}40` }}>{m.grade}</span>
+                      <span style={{ fontSize:11, color:"#5070A0" }}>{m.maker}</span>
+                    </div>
+                    <div style={{ fontSize:16, fontWeight:700 }}>{m.series}</div>
+                    <div style={{ fontSize:12, color:"#5070A0", marginBottom:8 }}>
+                      {m.model}　{m.tatami}畳　<span style={{ color:"#1E90FF", fontWeight:600 }}>{TATAMI_KW[m.tatami]}kW</span>
+                    </div>
+                    <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
+                      {m.hasFilter && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:"rgba(76,175,80,0.15)", color:"#81C784", border:"1px solid rgba(76,175,80,0.3)" }}>✨ 自動フィルター</span>}
+                      {m.isEco    && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:"rgba(30,144,255,0.12)", color:"#64B5F6", border:"1px solid rgba(30,144,255,0.3)" }}>⚡ 省エネ</span>}
+                      {m.features.filter(k => k !== "filter").map(k => {
+                        const f = FEATURES_DB[k];
+                        return f ? <span key={k} style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:`${f.color}18`, color:f.color, border:`1px solid ${f.color}35` }}>{f.icon} {f.name}</span> : null;
+                      })}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -624,7 +636,8 @@ export default function App() {
             <FeatureCard featureKey={selectedFeature} isStaffMode={isStaff} highlight={false} />
           </div>
         )}
-      </div>
+        </div> {/* 右コンテンツエリア終わり */}
+      </div> {/* メインレイアウト終わり */}
     </div>
   );
 }
