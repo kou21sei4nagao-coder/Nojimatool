@@ -1,5 +1,11 @@
 import { useState } from "react";
 
+const globalStyle = `
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { margin: 0; padding: 0; overflow: hidden; }
+  html { margin: 0; padding: 0; }
+`;
+
 // ── 機能データベース ─────────────────────────────────────
 const FEATURES_DB = {
   nanoe: {
@@ -333,7 +339,8 @@ export default function App() {
   const accentColor = maker ? MAKER_COLORS[maker] : "#1E90FF";
 
   return (
-    <div style={{ height:"100vh", background:"#080E1C", fontFamily:"'Noto Sans JP','Hiragino Sans',sans-serif", color:"#E8EDF5", display:"flex", flexDirection:"column", overflow:"hidden" }}>
+    <div style={{ height:"100vh", background:"#080E1C", fontFamily:"'Noto Sans JP','Hiragino Sans',sans-serif", color:"#E8EDF5", display:"flex", flexDirection:"column", overflow:"hidden", width:"100vw" }}>
+      <style>{globalStyle}</style>
 
       {/* ヘッダー */}
       <div style={{
