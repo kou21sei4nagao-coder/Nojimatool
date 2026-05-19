@@ -4,6 +4,7 @@ const globalStyle = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { margin: 0; padding: 0; overflow: hidden; }
   html { margin: 0; padding: 0; }
+  #root { width: 100% !important; max-width: 100% !important; margin: 0 !important; border: none !important; text-align: left !important; }
 `;
 
 // ── 機能データベース ─────────────────────────────────────
@@ -234,9 +235,23 @@ const MAKER_GUIDE = {
   },
 };
 
-// ── サブコンポーネント ────────────────────────────────────
+// ── メーカー比較データ ────────────────────────────────────
+const RATINGS = {
+  "Panasonic": { 省エネ:4, 暖房:3, 空気清浄:5, お手入れ:4, コスパ:3, 耐久性:4 },
+  "ダイキン":  { 省エネ:4, 暖房:4, 空気清浄:3, お手入れ:3, コスパ:3, 耐久性:5 },
+  "三菱電機":  { 省エネ:4, 暖房:4, 空気清浄:3, お手入れ:4, コスパ:3, 耐久性:4 },
+  "日立":      { 省エネ:3, 暖房:3, 空気清浄:3, お手入れ:5, コスパ:4, 耐久性:4 },
+  "富士通":    { 省エネ:3, 暖房:5, 空気清浄:2, お手入れ:3, コスパ:4, 耐久性:3 },
+  "ゼネラル":  { 省エネ:3, 暖房:5, 空気清浄:2, お手入れ:3, コスパ:5, 耐久性:3 },
+  "シャープ":  { 省エネ:3, 暖房:3, 空気清浄:4, お手入れ:3, コスパ:5, 耐久性:3 },
+  "東芝":      { 省エネ:3, 暖房:3, 空気清浄:3, お手入れ:3, コスパ:4, 耐久性:3 },
+};
+const RATING_ITEMS = ["省エネ","暖房","空気清浄","お手入れ","コスパ","耐久性"];
+const RATING_ICONS = { 省エネ:"⚡", 暖房:"🔥", 空気清浄:"🌬️", お手入れ:"✨", コスパ:"💰", 耐久性:"🛡️" };
+const ratingLabel = (n) => n === 5 ? "◎" : n === 4 ? "○" : n === 3 ? "△" : "✕";
+const ratingColor = (n) => n === 5 ? "#4CAF50" : n === 4 ? "#64B5F6" : n === 3 ? "#888" : "#FF6B6B";
 
-function Chip({ active, color="#1E90FF", onClick, children }) {
+// ── サブコンポーネント ────────────────────────────────────
   return (
     <button onClick={onClick} style={{
       background: active ? `${color}28` : "rgba(255,255,255,0.05)",
@@ -532,79 +547,146 @@ export default function App() {
         {/* ══ メーカー特徴 ══ */}
         {tab === "makers" && !selectedMaker && (
           <div>
-            <div style={{ fontSize:13, color:"#4A6080", marginBottom:20 }}>各メーカーの強み・特徴をまとめました。他部門からのコンサル時にも活用してください。</div>
-            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              {MAKERS.map(m => {
-                const g = MAKER_GUIDE[m];
-                return (
-                  <button key={m} onClick={() => setSelectedMaker(m)} style={{
-                    background:`${g.color}12`, border:`1px solid ${g.color}35`,
-                    borderRadius:16, padding:"16px 20px", cursor:"pointer", color:"#E8EDF5",
-                    textAlign:"left", display:"flex", alignItems:"center", gap:14, transition:"all 0.18s",
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = g.color}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = g.color+"35"}
-                  >
-                    <span style={{ fontSize:26 }}>{g.icon}</span>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:16, fontWeight:700, marginBottom:3 }}>{m}</div>
-                      <div style={{ fontSize:13, color: g.color, fontWeight:600 }}>{g.catch}</div>
-                    </div>
-                    <span style={{ color:"#3A5070" }}>→</span>
-                  </button>
-                );
-              })}
+            {/* ① 比較表 */}
+            <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, marginBottom:12 }}>◼ メーカー比較表</div>
+            <div style={{ overflowX:"auto", marginBottom:20 }}>
+              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
+                <thead>
+                  <tr>
+                    <th style={{ padding:"10px 12px", textAlign:"left", color:"#4A6080", fontWeight:700, borderBottom:"1px solid rgba(255,255,255,0.08)", width:110 }}>メーカー</th>
+                    {RATING_ITEMS.map(item => (
+                      <th key={item} style={{ padding:"10px 8px", textAlign:"center", color:"#4A6080", fontWeight:700, borderBottom:"1px solid rgba(255,255,255,0.08)", fontSize:11 }}>
+                        {RATING_ICONS[item]} {item}
+                      </th>
+                    ))}
+                    <th style={{ padding:"10px 8px", textAlign:"center", color:"#4A6080", fontWeight:700, borderBottom:"1px solid rgba(255,255,255,0.08)" }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {MAKERS.map((m, i) => {
+                    const g = MAKER_GUIDE[m];
+                    const r = RATINGS[m];
+                    return (
+                      <tr key={m} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
+                        <td style={{ padding:"12px", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
+                          <div style={{ fontWeight:700, fontSize:14, color:g.color }}>{m}</div>
+                          <div style={{ fontSize:10, color:"#5070A0", marginTop:2 }}>{g.catch}</div>
+                        </td>
+                        {RATING_ITEMS.map(item => (
+                          <td key={item} style={{ padding:"12px 8px", textAlign:"center", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
+                            <span style={{ fontSize:17, fontWeight:700, color:ratingColor(r[item]) }}>{ratingLabel(r[item])}</span>
+                          </td>
+                        ))}
+                        <td style={{ padding:"12px 8px", textAlign:"center", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
+                          <button onClick={() => setSelectedMaker(m)} style={{
+                            background:`${g.color}20`, border:`1px solid ${g.color}50`,
+                            borderRadius:8, padding:"4px 12px", cursor:"pointer", color:g.color, fontSize:12, fontWeight:700,
+                          }}>詳細</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 凡例 */}
+            <div style={{ display:"flex", gap:20, marginBottom:24 }}>
+              {[["◎","最強","#4CAF50"],["○","得意","#64B5F6"],["△","普通","#888"],["✕","苦手","#FF6B6B"]].map(([mark,label,color]) => (
+                <div key={mark} style={{ display:"flex", alignItems:"center", gap:6, fontSize:12 }}>
+                  <span style={{ color, fontWeight:700, fontSize:16 }}>{mark}</span>
+                  <span style={{ color:"#5070A0" }}>{label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* ② こんなお客様には */}
+            <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, marginBottom:12 }}>◼ こんなお客様には…</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+              {[
+                ["💧","乾燥・加湿が気になる","ダイキン","#00A0E9"],
+                ["🌬️","空気清浄・アレルギー","Panasonic","#0047AA"],
+                ["👁️","風が苦手・快眠重視","三菱電機","#E60012"],
+                ["🧊","臭い・カビが気になる","日立","#CE0F0F"],
+                ["🌀","換気しながら冷暖房","東芝","#E60020"],
+                ["🔥","暖房重視・寒がり","富士通 / ゼネラル","#FF6B00"],
+                ["⚡","ペット・消臭重視","シャープ","#555"],
+                ["💰","コスパ重視","ゼネラル / シャープ","#888"],
+              ].map(([icon,label,maker,color]) => (
+                <div key={label} style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:12, padding:"12px 16px", display:"flex", alignItems:"center", gap:12 }}>
+                  <span style={{ fontSize:20 }}>{icon}</span>
+                  <div>
+                    <div style={{ fontSize:12, color:"#A0B8D0" }}>{label}</div>
+                    <div style={{ fontSize:14, fontWeight:700, color }}>{maker}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
         {tab === "makers" && selectedMaker && (() => {
           const g = MAKER_GUIDE[selectedMaker];
+          const r = RATINGS[selectedMaker];
           return (
             <div>
-              <button onClick={() => setSelectedMaker(null)} style={{ background:"none", border:"none", color:"#5070A0", cursor:"pointer", fontSize:13, marginBottom:20 }}>← メーカー一覧に戻る</button>
+              <button onClick={() => setSelectedMaker(null)} style={{ background:"none", border:"none", color:"#5070A0", cursor:"pointer", fontSize:13, marginBottom:16 }}>← 一覧に戻る</button>
+
               {/* ヘッダー */}
-              <div style={{ background:`${g.color}18`, border:`1px solid ${g.color}45`, borderRadius:20, padding:"20px 24px", marginBottom:20 }}>
-                <div style={{ fontSize:26, marginBottom:6 }}>{g.icon} {selectedMaker}</div>
-                <div style={{ fontSize:18, fontWeight:700, color: g.color }}>{g.catch}</div>
+              <div style={{ background:`linear-gradient(135deg, ${g.color}30, ${g.color}10)`, border:`1px solid ${g.color}60`, borderRadius:20, padding:"16px 24px", marginBottom:16 }}>
+                <div style={{ fontSize:22, fontWeight:700 }}>{selectedMaker}</div>
+                <div style={{ fontSize:15, color:g.color, fontWeight:700, marginTop:4 }}>「{g.catch}」</div>
               </div>
 
-              {/* 強み */}
-              <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:14, padding:"16px 18px", marginBottom:12 }}>
-                <div style={{ fontSize:11, color:"#4A6080", fontWeight:700, letterSpacing:1, marginBottom:8 }}>💪 強み</div>
-                <div style={{ fontSize:14, color:"#A0C0D8", lineHeight:1.75 }}>{g.strength}</div>
+              {/* スコア */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(6,1fr)", gap:8, marginBottom:16 }}>
+                {RATING_ITEMS.map(item => (
+                  <div key={item} style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${ratingColor(r[item])}40`, borderRadius:12, padding:"12px 8px", textAlign:"center" }}>
+                    <div style={{ fontSize:16 }}>{RATING_ICONS[item]}</div>
+                    <div style={{ fontSize:11, color:"#5070A0", margin:"4px 0" }}>{item}</div>
+                    <div style={{ fontSize:22, fontWeight:700, color:ratingColor(r[item]) }}>{ratingLabel(r[item])}</div>
+                  </div>
+                ))}
               </div>
 
-              {/* ターゲット */}
-              <div style={{ background:"rgba(30,144,255,0.07)", border:"1px solid rgba(30,144,255,0.2)", borderRadius:14, padding:"16px 18px", marginBottom:12 }}>
-                <div style={{ fontSize:11, color:"#4A80A0", fontWeight:700, letterSpacing:1, marginBottom:8 }}>🎯 刺さるお客様</div>
-                <div style={{ fontSize:14, color:"#7AAAC8", lineHeight:1.75 }}>{g.target}</div>
+              {/* 3カラム */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:16 }}>
+                <div style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${g.color}40`, borderRadius:16, padding:"16px" }}>
+                  <div style={{ fontSize:12, color:g.color, fontWeight:700, letterSpacing:1, marginBottom:10 }}>💪 強み</div>
+                  <div style={{ fontSize:13, color:"#A0C0D8", lineHeight:1.8 }}>{g.strength}</div>
+                </div>
+                <div style={{ background:"rgba(30,144,255,0.06)", border:"1px solid rgba(30,144,255,0.25)", borderRadius:16, padding:"16px" }}>
+                  <div style={{ fontSize:12, color:"#64B5F6", fontWeight:700, letterSpacing:1, marginBottom:10 }}>🎯 刺さるお客様</div>
+                  {g.target.split(" / ").map((t, i) => (
+                    <div key={i} style={{ fontSize:13, color:"#7AAAC8", lineHeight:1.8, display:"flex", gap:6 }}>
+                      <span style={{ color:"#1E90FF" }}>▶</span>{t}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ background:"rgba(255,80,80,0.05)", border:"1px solid rgba(255,80,80,0.2)", borderRadius:16, padding:"16px" }}>
+                  <div style={{ fontSize:12, color:"#FF8080", fontWeight:700, letterSpacing:1, marginBottom:10 }}>⚠️ 弱み・注意点</div>
+                  <div style={{ fontSize:13, color:"#A07070", lineHeight:1.8 }}>{g.weak}</div>
+                </div>
               </div>
 
-              {/* 注意点 */}
-              <div style={{ background:"rgba(255,100,100,0.06)", border:"1px solid rgba(255,100,100,0.18)", borderRadius:14, padding:"16px 18px", marginBottom:12 }}>
-                <div style={{ fontSize:11, color:"#804040", fontWeight:700, letterSpacing:1, marginBottom:8 }}>⚠️ 弱み・注意点</div>
-                <div style={{ fontSize:14, color:"#A07070", lineHeight:1.75 }}>{g.weak}</div>
-              </div>
-
-              {/* シリーズ一覧 */}
-              <div style={{ marginBottom:12 }}>
-                <div style={{ fontSize:13, fontWeight:700, color:"#4A6080", marginBottom:10, letterSpacing:1 }}>📋 シリーズ早見表</div>
-                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              {/* シリーズ早見表 */}
+              <div style={{ marginBottom:16 }}>
+                <div style={{ fontSize:12, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:10 }}>📋 シリーズ早見表</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                   {g.series.map(s => (
-                    <div key={s.name} style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:12, padding:"12px 16px", display:"flex", gap:12, alignItems:"flex-start" }}>
-                      <div style={{ fontSize:13, fontWeight:700, color: g.color, minWidth:140 }}>{s.name}</div>
-                      <div style={{ fontSize:13, color:"#7090A8", lineHeight:1.6 }}>{s.point}</div>
+                    <div key={s.name} style={{ background:"rgba(255,255,255,0.03)", border:`1px solid ${g.color}30`, borderRadius:12, padding:"12px 16px", display:"flex", gap:12, alignItems:"center" }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:g.color, minWidth:120 }}>{s.name}</div>
+                      <div style={{ fontSize:12, color:"#7090A8", lineHeight:1.6 }}>{s.point}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* スタッフTips */}
+              {/* 接客Tips */}
               {isStaff && (
-                <div style={{ background:"rgba(255,184,0,0.08)", border:"1px solid rgba(255,184,0,0.25)", borderRadius:14, padding:"16px 18px" }}>
-                  <div style={{ fontSize:11, color:"#FFB800", fontWeight:700, marginBottom:8 }}>📋 接客Tips（スタッフメモ）</div>
-                  <div style={{ fontSize:13, color:"#C09840", lineHeight:1.75 }}>{g.tip}</div>
+                <div style={{ background:"rgba(255,184,0,0.08)", border:"1px solid rgba(255,184,0,0.3)", borderRadius:16, padding:"16px 20px" }}>
+                  <div style={{ fontSize:12, color:"#FFB800", fontWeight:700, letterSpacing:1, marginBottom:8 }}>📋 接客Tips</div>
+                  <div style={{ fontSize:13, color:"#C09840", lineHeight:1.8 }}>{g.tip}</div>
                 </div>
               )}
             </div>
