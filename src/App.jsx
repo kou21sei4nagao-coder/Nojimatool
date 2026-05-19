@@ -140,6 +140,9 @@ const MAKER_GUIDE = {
     strength: "ナノイーXによる圧倒的な空気清浄・除菌力。アレルギーやペットが気になる家庭に強い。",
     target: "花粉症・アレルギー持ち / ペットがいる家庭 / 空気清浄機を別で持ちたくない人",
     weak: "加湿機能はなし（ダイキンのうるさらXに劣る）",
+    durability: "耐久性は業界トップクラス。故障率が低く修理対応も全国で充実。10年以上使えるケースも多い。",
+    airClean: "【ナノイーX】OHラジカルを含むナノサイズの水粒子を放出。菌・ウイルス・花粉・カビ菌・臭いを抑制。濃度は従来比48倍で業界最高レベル。空気清浄機いらずと言われるほどの実力。",
+    tech: "AIが部屋の環境・使用状況を学習して自動で最適運転。フィルター自動掃除はダストボックスに溜まる方式で手間いらず。",
     series: [
       { name:"Xシリーズ",  point:"最上位。ナノイーX＋自動掃除＋AI。全部入り。" },
       { name:"EXシリーズ", point:"X系の一つ下。自動掃除あり。コスパ良好。" },
@@ -154,6 +157,9 @@ const MAKER_GUIDE = {
     strength: "「うるさらX」は業界唯一の外気吸収加湿機能を搭載。給水不要で冬の乾燥をしっかりケア。",
     target: "乾燥が気になる人 / 肌・喉・目の乾燥に悩む人 / 加湿器を別で置きたくない人",
     weak: "うるさらXは価格が高め。ダクト工事が必要な場合も。",
+    durability: "業界トップクラスの耐久性。「ダイキンは壊れない」という評判が根強く、長期使用者が多い。修理部品の供給も長期間対応。",
+    airClean: "【ストリーマ】高速で電子を放出し、有害物質を酸化分解する独自技術。カビ・花粉・ウイルスを強力に分解。空気清浄機能単体としてはやや控えめだが、うるさらXの加湿との組み合わせで快適な空気環境を実現。",
+    tech: "「うるさらX」は室外機から外気の水分を取り込んで加湿。給水タンク不要で加湿器を別途買う必要なし。内部自動洗浄で熱交換器をウイルス・カビから守る。",
     series: [
       { name:"うるさらX",  point:"最上位。加湿機能搭載。乾燥に悩むお客様への最強提案。" },
       { name:"Eシリーズ",  point:"加湿なし。ベーシックなダイキン。" },
@@ -166,8 +172,11 @@ const MAKER_GUIDE = {
     strength: "「ムーブアイmirAI」が人の位置・体温を検知して風を自動制御。直接風が当たらず体が冷えにくい。",
     target: "エアコンの風が苦手な人 / 寝室に設置する人 / 小さい子供・高齢者がいる家庭",
     weak: "上位機種は価格が高め。",
+    durability: "耐久性は高く評価されている。霧ヶ峰ブランドは長年の実績があり、故障が少ないと現場での評判も良い。",
+    airClean: "【ムーブアイ＋花粉センサー】花粉や微細なホコリを検知して自動で運転強化。ナノイーXのような独自除菌技術はないが、センサーの精度が高く空気の汚れに素早く反応。",
+    tech: "「ムーブアイmirAI」は赤外線センサーで人の位置・姿勢・体温・日射を同時検知。風を当てたくない人には「人がいる方向から風を外す」設定も可能。快眠モードは就寝後に自動で温度調整。",
     series: [
-      { name:"霧ヶ峰Zシリーズ", point:"最上位。ムーブアイmirAI搭載。快眠サポートも充実。" },
+      { name:"霧ヶ峰Zシリーズ",  point:"最上位。ムーブアイmirAI搭載。快眠サポートも充実。" },
       { name:"霧ヶ峰GEシリーズ", point:"ベーシック。ムーブアイなし。コスパ重視向け。" },
     ],
     tip: "「エアコンの風で体が冷えすぎる」という悩みを持つお客様への切り口として最強。就寝中に温度を自動調整する快眠モードもセットで提案できる。",
@@ -178,6 +187,9 @@ const MAKER_GUIDE = {
     strength: "業界初の「凍結洗浄」で熱交換器を氷で洗浄。カビ・細菌が繁殖しにくく、嫌な臭いを防ぐ。",
     target: "エアコンの臭いが気になる人 / 清潔さを重視する人 / クリーニング費用を節約したい人",
     weak: "空気清浄・加湿など付加機能は他社に劣る場合も。",
+    durability: "耐久性は高水準。ステンレスを内部に使用した「ステンレス・クリーン」仕様で錆びにくく長持ち。修理対応も全国で充実している。",
+    airClean: "【ステンレス・クリーン＋凍結洗浄】空気清浄機能というより「内部清潔」に特化。熱交換器を凍らせて氷で汚れを洗い流す業界初の技術。カビ・細菌の繁殖を防いで嫌な臭いを根本から解消。くらしカメラAIで空気の汚れも検知。",
+    tech: "「凍結洗浄」は内部を意図的に凍らせ、溶けた水で汚れを洗い流す仕組み。ステンレス素材を使用することで錆びにくく衛生的。AIカメラが生活リズムを学習して自動運転。",
     series: [
       { name:"白くまくん Xシリーズ", point:"最上位。凍結洗浄＋AIフル搭載。" },
       { name:"白くまくん Wシリーズ", point:"凍結洗浄あり。コスパ良好なミドルレンジ。" },
@@ -191,6 +203,9 @@ const MAKER_GUIDE = {
     strength: "ハイパワー暖房が強み。寒冷地でも暖房能力が落ちにくく、「エアコンは寒い」イメージを覆す。",
     target: "暖房をメインで使いたい人 / 寒がりな人 / ガスヒーターから乗り換えたい人",
     weak: "空気清浄・加湿など他社独自機能は少なめ。",
+    durability: "耐久性は平均的。故障率は特別低いわけではないが、修理対応は充実。寒冷地での使用実績が豊富で信頼性は高い。",
+    airClean: "【プラズマイオン】独自のイオン技術で浮遊菌やカビ菌を抑制。パナソニックのナノイーXやシャープのプラズマクラスターほど有名ではないが、基本的な除菌・消臭効果はある。",
+    tech: "独自のハイパワー圧縮機で外気-25℃でも高い暖房能力を維持。フィルター自動掃除は10年相当掃除不要を謳う機種もあり。",
     series: [
       { name:"ノクリア Zシリーズ", point:"最上位。ハイパワー暖房＋自動掃除。" },
       { name:"ノクリア Cシリーズ", point:"ベーシック。コスパ重視向け。" },
@@ -199,10 +214,13 @@ const MAKER_GUIDE = {
   },
   "ゼネラル": {
     color: "#E87B00", icon: "🔥",
-    catch: "富士通と同じ性能・別ブランド展開",
-    strength: "富士通ゼネラル製造の別ブランド。暖房性能・省エネ性能は富士通と同等。",
+    catch: "富士通と同じ性能・お得な価格",
+    strength: "富士通ゼネラル製造の別ブランド。暖房性能・省エネ性能は富士通と同等でコスパが高い。",
     target: "富士通と同じ。暖房重視・コスパ重視向け。",
-    weak: "認知度が富士通より低め。",
+    weak: "認知度が富士通より低め。知らないお客様も多い。",
+    durability: "富士通と同じ工場・同じ部品で製造。耐久性・品質は富士通と同等。",
+    airClean: "【プラズマイオン】富士通と同じ技術を搭載。基本的な除菌・消臭効果あり。",
+    tech: "製造は富士通ゼネラルで富士通と同一。販売チャネルと価格帯が異なるだけで中身は同等。ゼネラルブランドの方が価格が抑えられているケースが多い。",
     series: [
       { name:"Aシリーズ", point:"ゼネラルの主力。性能は富士通ノクリアZと同等。" },
       { name:"Cシリーズ", point:"ベーシック。コスパ重視向け。" },
@@ -214,7 +232,10 @@ const MAKER_GUIDE = {
     catch: "消臭・ペット臭ならシャープ",
     strength: "「プラズマクラスター25000」で浮遊菌・ウイルス・臭いを抑制。ペットや料理の臭いに強い。",
     target: "ペットがいる家庭 / タバコ臭・料理臭が気になる人 / 小さい子供がいる家庭",
-    weak: "加湿・換気など独自機能は他社に劣る部分も。",
+    weak: "加湿・換気など独自機能は他社に劣る部分も。耐久性がやや心配という声も。",
+    durability: "耐久性はやや平均以下との声もあり。10年超の長期使用を前提にするなら他社の方が安心という意見も。価格が抑えめなのでコスパ重視なら選択肢。",
+    airClean: "【プラズマクラスター25000】プラス・マイナスのイオンを空気中に放出し、浮遊菌・ウイルスを99.9%以上（Sharp発表）抑制。数値が高いほど効果が高く「25000」は最上位グレード。ペット臭・タバコ臭・料理臭の消臭効果も高い。",
+    tech: "プラズマクラスターは空気清浄機でも広く採用されている実績ある技術。エアコン内部にも噴射して内部のカビ抑制にも効果あり。",
     series: [
       { name:"AYシリーズ H", point:"プラズマクラスター25000搭載。自動掃除あり。" },
       { name:"AYシリーズ",   point:"プラズマクラスター搭載。自動掃除なし。" },
@@ -227,6 +248,9 @@ const MAKER_GUIDE = {
     strength: "業界唯一の給気換気機能。窓を開けずに換気できるので、花粉シーズンや冷暖房中でも空気の入れ替えが可能。",
     target: "換気を重視する人 / 花粉が気になる人 / コロナ以降の換気ニーズ",
     weak: "換気以外の独自機能（空気清浄・加湿）は他社に劣る部分も。",
+    durability: "耐久性は平均的。特別弱いわけではないが、突出して強いわけでもない。修理対応は問題なし。",
+    airClean: "【エアフレッシュ（換気）】空気清浄というより「換気」に特化。外気を取り込んで室内の空気を入れ替える業界唯一の機能。ウイルスや汚染物質を薄める効果があり、コロナ以降特に注目されている。",
+    tech: "給気換気機能はダクト工事不要でエアコン本体だけで換気が可能。ムーブアイ極で人の体温・位置を検知して快適な温度制御も実現。",
     series: [
       { name:"大清快 Gシリーズ", point:"換気機能搭載。省エネ・自動掃除あり。" },
       { name:"大清快 Eシリーズ", point:"ベーシック。換気機能なし。" },
@@ -385,33 +409,6 @@ export default function App() {
         }}>{isStaff ? "🔓 スタッフモード" : "🔒 スタッフモード"}</button>
       </div>
 
-      {/* メーカー横スクロールバー */}
-      {tab === "filter" && (
-        <div style={{
-          background:"#0A1020", borderBottom:"1px solid rgba(255,255,255,0.07)",
-          padding:"8px 16px", flexShrink:0,
-          display:"flex", alignItems:"center", gap:8, overflowX:"auto",
-        }}>
-          <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, whiteSpace:"nowrap" }}>メーカー</div>
-          {MAKERS.map(m => (
-            <button key={m} onClick={() => { setMaker(maker===m ? null : m); setTatami(null); setFilterOpt(null); setEcoOpt(null); }} style={{
-              background: maker===m ? `${MAKER_COLORS[m]}30` : "rgba(255,255,255,0.05)",
-              border: `2px solid ${maker===m ? MAKER_COLORS[m] : "rgba(255,255,255,0.1)"}`,
-              borderRadius:20, padding:"6px 16px", cursor:"pointer", whiteSpace:"nowrap",
-              color: maker===m ? "#E8EDF5" : "#6080A0", fontWeight: maker===m ? 700 : 400,
-              fontSize:13, transition:"all 0.18s", flexShrink:0,
-            }}>{m}</button>
-          ))}
-          {maker && (
-            <button onClick={() => { setMaker(null); }} style={{
-              background:"rgba(255,80,80,0.1)", border:"1px solid rgba(255,80,80,0.3)",
-              borderRadius:20, padding:"6px 12px", cursor:"pointer", color:"#FF8080",
-              fontSize:12, flexShrink:0,
-            }}>✕ リセット</button>
-          )}
-        </div>
-      )}
-
       {/* メインレイアウト：左サイドバー ＋ 右コンテンツ */}
       <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
 
@@ -438,9 +435,21 @@ export default function App() {
           {tab === "filter" && !selectedModel && (
             <div style={{ flex:1, overflowY:"auto", padding:"16px 14px" }}>
 
+              {/* メーカー */}
+              <div style={{ marginBottom:20 }}>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 1 ｜ メーカー</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                  {MAKERS.map(m => (
+                    <Chip key={m} active={maker===m} color={MAKER_COLORS[m]} onClick={() => { setMaker(maker===m ? null : m); setTatami(null); setFilterOpt(null); setEcoOpt(null); }}>
+                      <div style={{ fontSize:11, fontWeight:700 }}>{m}</div>
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+
               {/* 畳数 */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 1 ｜ 畳数 / kW</div>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 2 ｜ 畳数 / kW</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
                   {TATAMI_LIST.map(t => {
                     const isDisplay = TATAMI_DISPLAY.includes(t);
@@ -457,7 +466,7 @@ export default function App() {
 
               {/* フィルター */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 2 ｜ 自動フィルター掃除</div>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 3 ｜ 自動フィルター掃除</div>
                 <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                   {[[null,"指定なし","—"],[true,"あり ✨","手入れ不要"],[false,"なし","シンプル"]].map(([val,label,sub]) => (
                     <Chip key={String(val)} active={filterOpt===val} color={accentColor} onClick={() => setFilterOpt(val)}>
@@ -470,7 +479,7 @@ export default function App() {
 
               {/* 省エネ */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 3 ｜ 省エネモデル</div>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 4 ｜ 省エネモデル</div>
                 <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                   {[[null,"指定なし","—"],[true,"省エネ ⚡","電気代重視"],[false,"スタンダード","コスパ重視"]].map(([val,label,sub]) => (
                     <Chip key={String(val)} active={ecoOpt===val} color={accentColor} onClick={() => setEcoOpt(val)}>
@@ -698,6 +707,22 @@ export default function App() {
                 <div style={{ background:"rgba(255,80,80,0.05)", border:"1px solid rgba(255,80,80,0.2)", borderRadius:16, padding:"16px" }}>
                   <div style={{ fontSize:12, color:"#FF8080", fontWeight:700, letterSpacing:1, marginBottom:10 }}>⚠️ 弱み・注意点</div>
                   <div style={{ fontSize:13, color:"#A07070", lineHeight:1.8 }}>{g.weak}</div>
+                </div>
+              </div>
+
+              {/* 耐久性・独自技術・空気清浄 */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:16 }}>
+                <div style={{ background:"rgba(255,184,0,0.06)", border:"1px solid rgba(255,184,0,0.25)", borderRadius:16, padding:"16px" }}>
+                  <div style={{ fontSize:12, color:"#FFB800", fontWeight:700, letterSpacing:1, marginBottom:10 }}>🛡️ 壊れにくさ・耐久性</div>
+                  <div style={{ fontSize:13, color:"#C0A060", lineHeight:1.8 }}>{g.durability}</div>
+                </div>
+                <div style={{ background:"rgba(0,200,100,0.06)", border:"1px solid rgba(0,200,100,0.25)", borderRadius:16, padding:"16px" }}>
+                  <div style={{ fontSize:12, color:"#4CAF90", fontWeight:700, letterSpacing:1, marginBottom:10 }}>🌬️ 空気清浄機能</div>
+                  <div style={{ fontSize:13, color:"#70A890", lineHeight:1.8 }}>{g.airClean}</div>
+                </div>
+                <div style={{ background:"rgba(150,100,255,0.06)", border:"1px solid rgba(150,100,255,0.25)", borderRadius:16, padding:"16px" }}>
+                  <div style={{ fontSize:12, color:"#A080FF", fontWeight:700, letterSpacing:1, marginBottom:10 }}>⚙️ 独自技術</div>
+                  <div style={{ fontSize:13, color:"#9080C0", lineHeight:1.8 }}>{g.tech}</div>
                 </div>
               </div>
 
