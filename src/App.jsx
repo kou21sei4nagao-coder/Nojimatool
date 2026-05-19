@@ -252,6 +252,7 @@ const ratingLabel = (n) => n === 5 ? "◎" : n === 4 ? "○" : n === 3 ? "△" :
 const ratingColor = (n) => n === 5 ? "#4CAF50" : n === 4 ? "#64B5F6" : n === 3 ? "#888" : "#FF6B6B";
 
 // ── サブコンポーネント ────────────────────────────────────
+function Chip({ active, color="#1E90FF", onClick, children }) {
   return (
     <button onClick={onClick} style={{
       background: active ? `${color}28` : "rgba(255,255,255,0.05)",
@@ -379,6 +380,33 @@ export default function App() {
         }}>{isStaff ? "🔓 スタッフモード" : "🔒 スタッフモード"}</button>
       </div>
 
+      {/* メーカー横スクロールバー */}
+      {tab === "filter" && (
+        <div style={{
+          background:"#0A1020", borderBottom:"1px solid rgba(255,255,255,0.07)",
+          padding:"8px 16px", flexShrink:0,
+          display:"flex", alignItems:"center", gap:8, overflowX:"auto",
+        }}>
+          <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, whiteSpace:"nowrap" }}>メーカー</div>
+          {MAKERS.map(m => (
+            <button key={m} onClick={() => { setMaker(maker===m ? null : m); setTatami(null); setFilterOpt(null); setEcoOpt(null); }} style={{
+              background: maker===m ? `${MAKER_COLORS[m]}30` : "rgba(255,255,255,0.05)",
+              border: `2px solid ${maker===m ? MAKER_COLORS[m] : "rgba(255,255,255,0.1)"}`,
+              borderRadius:20, padding:"6px 16px", cursor:"pointer", whiteSpace:"nowrap",
+              color: maker===m ? "#E8EDF5" : "#6080A0", fontWeight: maker===m ? 700 : 400,
+              fontSize:13, transition:"all 0.18s", flexShrink:0,
+            }}>{m}</button>
+          ))}
+          {maker && (
+            <button onClick={() => { setMaker(null); }} style={{
+              background:"rgba(255,80,80,0.1)", border:"1px solid rgba(255,80,80,0.3)",
+              borderRadius:20, padding:"6px 12px", cursor:"pointer", color:"#FF8080",
+              fontSize:12, flexShrink:0,
+            }}>✕ リセット</button>
+          )}
+        </div>
+      )}
+
       {/* メインレイアウト：左サイドバー ＋ 右コンテンツ */}
       <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
 
@@ -404,21 +432,9 @@ export default function App() {
           {tab === "filter" && !selectedModel && (
             <div style={{ flex:1, overflowY:"auto", padding:"16px 14px" }}>
 
-              {/* メーカー */}
-              <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 1 ｜ メーカー</div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
-                  {MAKERS.map(m => (
-                    <Chip key={m} active={maker===m} color={MAKER_COLORS[m]} onClick={() => { setMaker(maker===m ? null : m); setTatami(null); setFilterOpt(null); setEcoOpt(null); }}>
-                      <div style={{ fontSize:11, fontWeight:700 }}>{m}</div>
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-
               {/* 畳数 */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 2 ｜ 畳数 / kW</div>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 1 ｜ 畳数 / kW</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
                   {TATAMI_LIST.map(t => {
                     const isDisplay = TATAMI_DISPLAY.includes(t);
@@ -435,7 +451,7 @@ export default function App() {
 
               {/* フィルター */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 3 ｜ 自動フィルター掃除</div>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 2 ｜ 自動フィルター掃除</div>
                 <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                   {[[null,"指定なし","—"],[true,"あり ✨","手入れ不要"],[false,"なし","シンプル"]].map(([val,label,sub]) => (
                     <Chip key={String(val)} active={filterOpt===val} color={accentColor} onClick={() => setFilterOpt(val)}>
@@ -448,7 +464,7 @@ export default function App() {
 
               {/* 省エネ */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 4 ｜ 省エネモデル</div>
+                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 3 ｜ 省エネモデル</div>
                 <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                   {[[null,"指定なし","—"],[true,"省エネ ⚡","電気代重視"],[false,"スタンダード","コスパ重視"]].map(([val,label,sub]) => (
                     <Chip key={String(val)} active={ecoOpt===val} color={accentColor} onClick={() => setEcoOpt(val)}>
@@ -547,45 +563,54 @@ export default function App() {
         {/* ══ メーカー特徴 ══ */}
         {tab === "makers" && !selectedMaker && (
           <div>
-            {/* ① 比較表 */}
+            {/* ① 比較表（メーカーが上） */}
             <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, marginBottom:12 }}>◼ メーカー比較表</div>
-            <div style={{ overflowX:"auto", marginBottom:20 }}>
-              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
+            <div style={{ overflowX:"auto", marginBottom:16 }}>
+              <table style={{ borderCollapse:"collapse", fontSize:13, minWidth:"100%" }}>
                 <thead>
                   <tr>
-                    <th style={{ padding:"10px 12px", textAlign:"left", color:"#4A6080", fontWeight:700, borderBottom:"1px solid rgba(255,255,255,0.08)", width:110 }}>メーカー</th>
-                    {RATING_ITEMS.map(item => (
-                      <th key={item} style={{ padding:"10px 8px", textAlign:"center", color:"#4A6080", fontWeight:700, borderBottom:"1px solid rgba(255,255,255,0.08)", fontSize:11 }}>
-                        {RATING_ICONS[item]} {item}
-                      </th>
-                    ))}
-                    <th style={{ padding:"10px 8px", textAlign:"center", color:"#4A6080", fontWeight:700, borderBottom:"1px solid rgba(255,255,255,0.08)" }}></th>
+                    <th style={{ padding:"10px 12px", textAlign:"left", color:"#4A6080", fontWeight:700, borderBottom:"1px solid rgba(255,255,255,0.08)", minWidth:90 }}></th>
+                    {MAKERS.map(m => {
+                      const g = MAKER_GUIDE[m];
+                      return (
+                        <th key={m} style={{ padding:"10px 12px", textAlign:"center", borderBottom:"1px solid rgba(255,255,255,0.08)", minWidth:90 }}>
+                          <div style={{ fontSize:14, fontWeight:700, color:g.color }}>{m}</div>
+                          <div style={{ fontSize:10, color:"#4A6080", marginTop:2, fontWeight:400 }}>{g.catch.slice(0,8)}…</div>
+                        </th>
+                      );
+                    })}
                   </tr>
                 </thead>
                 <tbody>
-                  {MAKERS.map((m, i) => {
-                    const g = MAKER_GUIDE[m];
-                    const r = RATINGS[m];
-                    return (
-                      <tr key={m} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
-                        <td style={{ padding:"12px", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
-                          <div style={{ fontWeight:700, fontSize:14, color:g.color }}>{m}</div>
-                          <div style={{ fontSize:10, color:"#5070A0", marginTop:2 }}>{g.catch}</div>
-                        </td>
-                        {RATING_ITEMS.map(item => (
-                          <td key={item} style={{ padding:"12px 8px", textAlign:"center", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
-                            <span style={{ fontSize:17, fontWeight:700, color:ratingColor(r[item]) }}>{ratingLabel(r[item])}</span>
+                  {RATING_ITEMS.map((item, i) => (
+                    <tr key={item} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
+                      <td style={{ padding:"12px", borderBottom:"1px solid rgba(255,255,255,0.05)", color:"#7090A8", fontWeight:700, fontSize:12, whiteSpace:"nowrap" }}>
+                        {RATING_ICONS[item]} {item}
+                      </td>
+                      {MAKERS.map(m => {
+                        const r = RATINGS[m];
+                        return (
+                          <td key={m} style={{ padding:"12px", textAlign:"center", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
+                            <span style={{ fontSize:18, fontWeight:700, color:ratingColor(r[item]) }}>{ratingLabel(r[item])}</span>
                           </td>
-                        ))}
-                        <td style={{ padding:"12px 8px", textAlign:"center", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                  <tr>
+                    <td style={{ padding:"10px 12px" }}></td>
+                    {MAKERS.map(m => {
+                      const g = MAKER_GUIDE[m];
+                      return (
+                        <td key={m} style={{ padding:"10px 8px", textAlign:"center" }}>
                           <button onClick={() => setSelectedMaker(m)} style={{
                             background:`${g.color}20`, border:`1px solid ${g.color}50`,
                             borderRadius:8, padding:"4px 12px", cursor:"pointer", color:g.color, fontSize:12, fontWeight:700,
                           }}>詳細</button>
                         </td>
-                      </tr>
-                    );
-                  })}
+                      );
+                    })}
+                  </tr>
                 </tbody>
               </table>
             </div>
