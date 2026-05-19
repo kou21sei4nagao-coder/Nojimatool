@@ -352,6 +352,7 @@ export default function App() {
     return true;
   });
 
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const accentColor = maker ? MAKER_COLORS[maker] : "#1E90FF";
 
   return (
@@ -366,6 +367,10 @@ export default function App() {
         flexShrink:0,
       }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          <button onClick={() => setSidebarOpen(v => !v)} style={{
+            background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)",
+            borderRadius:8, padding:"6px 10px", cursor:"pointer", color:"#7090A8", fontSize:16,
+          }}>{sidebarOpen ? "◀" : "▶"}</button>
           <div style={{ width:32, height:32, borderRadius:10, background:"linear-gradient(135deg,#1E90FF,#00D4FF)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>❄️</div>
           <div>
             <div style={{ fontSize:15, fontWeight:700 }}>エアコン コンサルツール</div>
@@ -411,6 +416,7 @@ export default function App() {
       <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
 
         {/* 左サイドバー：タブ＋絞り込み */}
+        {sidebarOpen && (
         <div style={{
           width:260, flexShrink:0, background:"#0A1020",
           borderRight:"1px solid rgba(255,255,255,0.07)",
@@ -484,6 +490,7 @@ export default function App() {
             </div>
           )}
         </div>
+        )} {/* sidebarOpen終わり */}
 
         {/* 右コンテンツエリア */}
         <div style={{ flex:1, overflowY:"auto", padding:"20px 24px" }}>
