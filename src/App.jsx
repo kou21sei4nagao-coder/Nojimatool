@@ -463,7 +463,7 @@ function AirPurifyCompare() {
       {/* 3カード */}
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:16 }}>
         {techs.map(t => (
-          <div key={t.id} style={{ background:"#F7FAFC", borderRadius:12, padding:"14px", border:`1.5px solid ${selected===t.id ? t.color : "#E2E8F0"}`, transition:"all 0.2s" }}>
+          <div key={t.id} style={{ background:"#F7FAFC", borderRadius:12, padding:"14px", border:`1.5px solid #E2E8F0`, transition:"all 0.2s" }}>
             <div style={{ fontSize:11, fontWeight:700, color:t.color, marginBottom:4 }}>{t.maker}</div>
             <div style={{ fontSize:14, fontWeight:700, color:"#1A202C", marginBottom:2 }}>{t.name}</div>
             <div style={{ fontSize:11, color:"#718096", marginBottom:12 }}>{t.tagline}</div>
@@ -604,34 +604,34 @@ function FeatureCard({ featureKey, isStaffMode, highlight }) {
   if (!f) return null;
   return (
     <div style={{
-      background: highlight ? `${f.color}18` : "rgba(255,255,255,0.03)",
-      border: `1px solid ${highlight ? f.color+"55" : "rgba(255,255,255,0.08)"}`,
+      background: "#FFFFFF",
+      border: `1px solid ${highlight ? f.color+"55" : "#E2E8F0"}`,
       borderRadius: 16, padding: "18px 20px",
+      boxShadow:"0 1px 3px rgba(0,0,0,0.05)",
     }}>
       <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
         <span style={{ fontSize:26 }}>{f.icon}</span>
         <div style={{ flex:1 }}>
-          <div style={{ fontSize:15, fontWeight:700 }}>{f.name}
-            <span style={{ fontSize:11, color:"#5070A0", fontWeight:400, marginLeft:8 }}>{f.maker}</span>
+          <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{f.name}
+            <span style={{ fontSize:11, color:"#718096", fontWeight:400, marginLeft:8 }}>{f.maker}</span>
           </div>
-          <div style={{ fontSize:12, color:"#5A7A9A" }}>{f.tagline}</div>
+          <div style={{ fontSize:12, color:"#718096" }}>{f.tagline}</div>
         </div>
-        {highlight && <span style={{ fontSize:11, color:f.color, background:f.color+"20", padding:"2px 8px", borderRadius:6, border:`1px solid ${f.color}40` }}>搭載機能</span>}
+        {highlight && <span style={{ fontSize:11, color:f.color, background:f.color+"15", padding:"2px 8px", borderRadius:6, border:`1px solid ${f.color}40` }}>搭載機能</span>}
       </div>
 
-      <div style={{ fontSize:13, color:"#9AB8D0", lineHeight:1.75, marginBottom:10 }}>{f.customer}</div>
+      <div style={{ fontSize:13, color:"#4A5568", lineHeight:1.75, marginBottom:10 }}>{f.customer}</div>
 
       {isStaffMode && (
-        <div style={{ background:"rgba(255,184,0,0.08)", border:"1px solid rgba(255,184,0,0.25)", borderRadius:10, padding:"10px 14px", marginBottom:10 }}>
-          <div style={{ fontSize:11, color:"#FFB800", fontWeight:700, marginBottom:4 }}>📋 スタッフメモ</div>
-          <div style={{ fontSize:12, color:"#C09840", lineHeight:1.75 }}>{f.staff}</div>
+        <div style={{ background:"#FFFBEB", border:"1px solid #F6E05E", borderRadius:10, padding:"10px 14px", marginBottom:10 }}>
+          <div style={{ fontSize:11, color:"#B7791F", fontWeight:700, marginBottom:4 }}>📋 スタッフメモ</div>
+          <div style={{ fontSize:12, color:"#744210", lineHeight:1.75 }}>{f.staff}</div>
         </div>
       )}
 
       <button onClick={() => setOpen(v => !v)} style={{
-        background: open ? "rgba(255,60,60,0.15)" : "rgba(255,60,60,0.08)",
-        border:"1px solid rgba(255,80,80,0.3)", borderRadius:10,
-        padding:"7px 14px", color:"#FF7070", fontSize:12, cursor:"pointer",
+        background:"#FEF2F2", border:"1px solid #FEB2B2", borderRadius:10,
+        padding:"7px 14px", color:"#C53030", fontSize:12, cursor:"pointer",
         display:"flex", alignItems:"center", gap:6,
       }}>▶ {open ? "動画を閉じる" : "公式動画を見る（YouTube）"}</button>
 
@@ -1164,19 +1164,20 @@ export default function App() {
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {Object.entries(FEATURES_DB).map(([key, f]) => (
                 <button key={key} onClick={() => setSelectedFeature(key)} style={{
-                  background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)",
-                  borderRadius:16, padding:"14px 18px", cursor:"pointer", color:"#E8EDF5",
+                  background:"#FFFFFF", border:"1px solid #E2E8F0",
+                  borderRadius:16, padding:"14px 18px", cursor:"pointer", color:"#1A202C",
                   textAlign:"left", display:"flex", alignItems:"center", gap:14, transition:"all 0.18s",
+                  boxShadow:"0 1px 3px rgba(0,0,0,0.05)",
                 }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = f.color}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = f.color; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "#E2E8F0"; }}
                 >
                   <span style={{ fontSize:26 }}>{f.icon}</span>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontSize:15, fontWeight:700 }}>{f.name}</div>
-                    <div style={{ fontSize:12, color:"#4A6080" }}>{f.maker}　·　{f.tagline}</div>
+                    <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{f.name}</div>
+                    <div style={{ fontSize:12, color:"#718096" }}>{f.maker}　·　{f.tagline}</div>
                   </div>
-                  <span style={{ color:"#3A5070", fontSize:14 }}>→</span>
+                  <span style={{ color:"#A0AEC0", fontSize:14 }}>→</span>
                 </button>
               ))}
             </div>
