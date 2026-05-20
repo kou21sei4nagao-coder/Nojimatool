@@ -2,9 +2,12 @@ import { useState } from "react";
 
 const globalStyle = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { margin: 0; padding: 0; overflow: hidden; }
+  body { margin: 0; padding: 0; overflow: hidden; background: #F5F7FA; }
   html { margin: 0; padding: 0; }
   #root { width: 100% !important; max-width: 100% !important; margin: 0 !important; border: none !important; text-align: left !important; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #F0F2F5; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E0; border-radius: 3px; }
 `;
 
 // ── 機能データベース ─────────────────────────────────────
@@ -363,14 +366,224 @@ const FEATURE_ITEMS = ["空気清浄","内部洗浄","加湿","換気","セン�
 const FEATURE_ICONS = { 空気清浄:"🌬️", 内部洗浄:"🧊", 加湿:"💧", 換気:"🌀", センサー:"👁️", 耐久性:"🛡️" };
 const markColor = (m) => m === "◎" ? "#4CAF50" : m === "○" ? "#64B5F6" : m === "△" ? "#888" : "#444";
 
-// ── サブコンポーネント ────────────────────────────────────
+// ── Top3データ（仮）────────────────────────────────────────
+const TOP3 = {
+  "small": { // 6・10畳
+    noFilter: [
+      { rank:1, maker:"ダイキン",   model:"AN226AES-W / AN286AES-W",   series:"Eシリーズ",    point:"ダイキンの安心感。壊れにくさ業界トップクラス。シンプルで使いやすい。" },
+      { rank:2, maker:"Panasonic", model:"CS-226DJR-W / CS-286DJR-W", series:"エオリア DJR",  point:"パナソニックの信頼性。ナノイー搭載でコスパ良好。" },
+      { rank:3, maker:"日立",      model:"RAS-DR2226S / RAS-DR2826S", series:"白くまくん DR", point:"日立の清潔設計。ステンレス素材で長持ち。" },
+    ],
+    hasFilter: [
+      { rank:1, maker:"Panasonic", model:"CS-EX226D-W / CS-EX286D-W",     series:"エオリア EX",  point:"自動掃除＋ナノイーX搭載。手入れ楽でコスパ最良。" },
+      { rank:2, maker:"ダイキン",   model:"AN226AFNS-W / AN286AFNS-W",    series:"Fシリーズ（ノジマモデル）", point:"ダイキンの耐久性＋自動掃除。ノジマオリジナルモデル。" },
+      { rank:3, maker:"日立",      model:"RAS-WN2225S / RAS-WN2825S",    series:"白くまくん WN（ノジマモデル）", point:"凍結洗浄＋自動掃除。臭いが気になる人に最強。ノジマモデル。" },
+    ],
+    eco: [
+      { rank:1, maker:"Panasonic", model:"CS-X226D-W / CS-X286D-W",   series:"エオリア X",   point:"省エネトップクラス。ナノイーX全部入り。" },
+      { rank:2, maker:"ダイキン",   model:"AN226ARP-W / AN286ARP-W",   series:"うるさらX",    point:"省エネ＋加湿機能。乾燥対策も同時に。" },
+      { rank:3, maker:"富士通",    model:"AS-Z226N / AS-Z286N",       series:"ノクリア Z",   point:"省エネ＋暖房強力。冬場も安心。" },
+    ],
+  },
+  "large": { // 14・18畳
+    noFilter: [
+      { rank:1, maker:"Panasonic", model:"CS-GX404D-W",  series:"エオリア GX",  point:"省エネ性能が高くコスパ◎。自動掃除なしでシンプル。" },
+      { rank:2, maker:"ダイキン",  model:"AN404AES-W",   series:"Eシリーズ",   point:"ダイキンの安心感。広い部屋でも安定。" },
+      { rank:3, maker:"東芝",      model:"RAS-E404DRH",  series:"大清快 E",    point:"換気なしベーシック。コスパ重視向け。" },
+    ],
+    hasFilter: [
+      { rank:1, maker:"Panasonic", model:"CS-EX404D-W",  series:"エオリア EX",  point:"自動掃除＋ナノイーX。広いLDKに最適。" },
+      { rank:2, maker:"日立",      model:"RAS-W404M",    series:"白くまくん W", point:"凍結洗浄＋自動掃除。大空間も清潔に保つ。" },
+      { rank:3, maker:"東芝",      model:"RAS-G404DRH",  series:"大清快 G",    point:"換気機能＋自動掃除。LDKの換気ニーズに。" },
+    ],
+    eco: [
+      { rank:1, maker:"Panasonic", model:"CS-X404D-W",   series:"エオリア X",   point:"省エネトップクラス。大空間でも電気代抑制。" },
+      { rank:2, maker:"ダイキン",  model:"AN404ARP-W",   series:"うるさらX",    point:"省エネ＋加湿。広いLDKの乾燥対策に。" },
+      { rank:3, maker:"三菱電機",  model:"MSZ-ZW404S",   series:"霧ヶ峰Z",     point:"省エネ＋ムーブアイ。大空間でも快適制御。" },
+    ],
+  },
+};
+
+// ── 空気浄化技術比較コンポーネント ──────────────────────────
+function AirPurifyCompare() {
+  const techs = [
+    {
+      id:"daikin", maker:"ダイキン", name:"ストリーマ", color:"#178BE0",
+      tagline:"吸い込んで内部で「焼き切る」",
+      bars: [
+        { label:"カビ・内部清潔", pct:95 },
+        { label:"ウイルス分解",   pct:90 },
+        { label:"ニオイ除去",     pct:60 },
+        { label:"花粉・ホコリ",   pct:50 },
+      ],
+      target:"エアコン内部のカビをゼロにしたい人",
+      points: [
+        { title:"吸い込んで内部で強力分解", desc:"空気中のウイルスや花粉を吸い込み、エアコン内部のストリーマ放電で芯から「焼き切って」無力化します。" },
+        { title:"フィルターや内部の部品も除菌", desc:"部屋の空気だけでなく、汚れが溜まりやすいエアコン内部のフィルターや熱交換器も同時に除菌し、常に清潔な風をキープします。" },
+      ],
+    },
+    {
+      id:"panasonic", maker:"Panasonic", name:"ナノイーX", color:"#0047AA",
+      tagline:"水の力で繊維の奥まで「染み込む」",
+      bars: [
+        { label:"カビ・内部清潔", pct:55 },
+        { label:"ウイルス分解",   pct:85 },
+        { label:"ニオイ除去",     pct:95 },
+        { label:"花粉・ホコリ",   pct:70 },
+      ],
+      target:"ペット・料理・タバコのニオイが気になる人",
+      points: [
+        { title:"繊維の奥まで入り込む脱臭力", desc:"極小の水カプセルが、ソファやカーテンの繊維の奥深くまで入り込み、染み付いた料理やタバコ、ペットのニオイを元から脱臭します。" },
+        { title:"日本の主要な花粉を抑制", desc:"スギやヒノキなど、日本全国の主要な花粉を無力化する効果が高く、一年中空気を綺麗に保ちます。" },
+        { title:"肌や髪のうるおいキープ", desc:"空気中の汚れを抑えつつ、水由来のイオンがお肌や髪にうるおいを与える美容効果も備えています。" },
+      ],
+    },
+    {
+      id:"sharp", maker:"シャープ", name:"プラズマクラスター", color:"#D4820A",
+      tagline:"部屋中に飛ばして「静電気を消す」",
+      bars: [
+        { label:"カビ・内部清潔", pct:40 },
+        { label:"ウイルス分解",   pct:75 },
+        { label:"ニオイ除去",     pct:80 },
+        { label:"花粉・ホコリ",   pct:95 },
+      ],
+      target:"花粉症・ホコリが部屋に舞うのが気になる人",
+      points: [
+        { title:"空間まるごと除菌", desc:"自然界と同じプラスとマイナスのイオンを部屋中に一気に放出し、空中に浮遊しているカビ菌やウイルスの働きを抑え込みます。" },
+        { title:"静電気を抑えてホコリを落とす", desc:"静電気をスッと消し去る効果があるため、壁やカーテンに花粉やホコリが張り付くのを防ぎ、床に落として掃除機で吸いやすくします。" },
+        { title:"部屋干し臭のスポット消臭", desc:"部屋干しのイヤな生乾き臭や、服に付いた汗のニオイなどを消臭するのにも優れています。" },
+      ],
+    },
+  ];
+  return (
+    <div style={{ background:"#FFFFFF", borderRadius:16, border:"0.5px solid #E2E8F0", padding:"18px 20px", marginBottom:20 }}>
+      <div style={{ fontSize:13, fontWeight:700, color:"#1A202C", marginBottom:4 }}>3大空気浄化技術の比較</div>
+      <div style={{ fontSize:12, color:"#718096", marginBottom:16 }}>お客様のお悩みに合わせて選べます</div>
+
+      {/* 3カード */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:16 }}>
+        {techs.map(t => (
+          <div key={t.id} style={{ background:"#F7FAFC", borderRadius:12, padding:"14px", border:`1.5px solid ${selected===t.id ? t.color : "#E2E8F0"}`, transition:"all 0.2s" }}>
+            <div style={{ fontSize:11, fontWeight:700, color:t.color, marginBottom:4 }}>{t.maker}</div>
+            <div style={{ fontSize:14, fontWeight:700, color:"#1A202C", marginBottom:2 }}>{t.name}</div>
+            <div style={{ fontSize:11, color:"#718096", marginBottom:12 }}>{t.tagline}</div>
+            {t.bars.map(b => (
+              <div key={b.label} style={{ marginBottom:7 }}>
+                <div style={{ fontSize:10, color:"#718096", marginBottom:3 }}>{b.label}</div>
+                <div style={{ height:7, background:"#E2E8F0", borderRadius:4, overflow:"hidden" }}>
+                  <div style={{ height:"100%", width:`${b.pct}%`, background:t.color, borderRadius:4, opacity: b.pct >= 80 ? 1 : 0.5 }} />
+                </div>
+              </div>
+            ))}
+            <div style={{ marginTop:10, fontSize:11, color:"#4A5568", background:`${t.color}10`, borderRadius:8, padding:"6px 8px" }}>
+              👤 {t.target}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 質問フロー */}
+      <div style={{ borderTop:"0.5px solid #E2E8F0", paddingTop:14 }}>
+        <div style={{ fontSize:12, fontWeight:700, color:"#4A5568", marginBottom:10 }}>お客様への質問：どれが一番気になりますか？</div>
+        <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+          {techs.map(t => (
+            <div key={t.id} style={{ background:`${t.color}08`, border:`1px solid ${t.color}35`, borderRadius:12, padding:"12px 16px" }}>
+              <div style={{ fontSize:13, fontWeight:700, color:t.color, marginBottom:8 }}>{t.maker}「{t.name}」→ {t.target}</div>
+              {t.points.map((p, i) => (
+                <div key={i} style={{ marginBottom:8 }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:"#1A202C", marginBottom:2 }}>▶ {p.title}</div>
+                  <div style={{ fontSize:12, color:"#4A5568", lineHeight:1.75, paddingLeft:12 }}>{p.desc}</div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Top3展開コンポーネント ──────────────────────────────────
+function Top3Card({ item, color }) {
+  const [open, setOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState({});
+  const model = AC_MODELS.find(m => m.model === item.model);
+
+  return (
+    <div style={{ marginBottom:8 }}>
+      <button onClick={() => setOpen(v => !v)} style={{
+        display:"flex", gap:8, alignItems:"flex-start", width:"100%", textAlign:"left",
+        background: open ? `${color}08` : "rgba(0,0,0,0.02)",
+        border: `1px solid ${open ? color+"50" : "#E2E8F0"}`,
+        borderRadius: open ? "10px 10px 0 0" : "10px",
+        padding:"10px", cursor:"pointer", transition:"all 0.15s",
+      }}>
+        <div style={{
+          width:22, height:22, borderRadius:6, flexShrink:0,
+          background: item.rank===1 ? "#FFD700" : item.rank===2 ? "#C0C0C0" : "#CD7F32",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          fontSize:12, fontWeight:700, color:"#fff",
+        }}>{item.rank}</div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:12, fontWeight:700, color:"#1A202C" }}>{item.maker} {item.series}</div>
+          <div style={{ fontSize:10, color:"#718096" }}>{item.model}</div>
+          <div style={{ fontSize:11, color:"#4A5568", marginTop:2, lineHeight:1.5 }}>{item.point}</div>
+        </div>
+        <span style={{ color, fontSize:13, flexShrink:0 }}>{open ? "▲" : "▼"}</span>
+      </button>
+
+      {open && (
+        <div style={{ background:"#F8FAFC", border:`1px solid ${color}30`, borderTop:"none", borderRadius:"0 0 10px 10px", padding:"12px 14px" }}>
+          {model ? (
+            <>
+              <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:10 }}>
+                {model.hasFilter && <span style={{ fontSize:11, padding:"3px 8px", borderRadius:8, background:"#F0FFF4", color:"#38A169", border:"1px solid #C6F6D5" }}>✨ 自動フィルター</span>}
+                {model.isEco    && <span style={{ fontSize:11, padding:"3px 8px", borderRadius:8, background:"#EBF8FF", color:"#3182CE", border:"1px solid #BEE3F8" }}>⚡ 省エネ</span>}
+                {model.features.filter(k => k !== "filter").map(k => {
+                  const f = FEATURES_DB[k];
+                  return f ? <span key={k} style={{ fontSize:11, padding:"3px 8px", borderRadius:8, background:`${f.color}10`, color:f.color, border:`1px solid ${f.color}30` }}>{f.icon} {f.name}</span> : null;
+                })}
+              </div>
+              {model.features.filter(k => k !== "filter").map(k => {
+                const f = FEATURES_DB[k];
+                if (!f) return null;
+                return (
+                  <div key={k} style={{ marginBottom:8 }}>
+                    <div style={{ fontSize:12, color:"#4A5568", lineHeight:1.7, marginBottom:6 }}>{f.customer}</div>
+                    <button onClick={() => setVideoOpen(v => ({...v, [k]: !v[k]}))} style={{
+                      background:"#FFF5F5", border:"1px solid #FEB2B2",
+                      borderRadius:8, padding:"5px 12px",
+                      color:"#C53030", fontSize:11, cursor:"pointer",
+                    }}>▶ {f.name}の動画{videoOpen[k] ? "を閉じる" : "を見る"}</button>
+                    {videoOpen[k] && (
+                      <div style={{ marginTop:8, borderRadius:8, overflow:"hidden", aspectRatio:"16/9" }}>
+                        <iframe width="100%" height="100%"
+                          src={`https://www.youtube.com/embed/${f.youtubeId}?rel=0`}
+                          title={f.name} frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen style={{ display:"block" }} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </>
+          ) : (
+            <div style={{ fontSize:12, color:"#718096" }}>※ 型番をAC_MODELSに登録すると詳細が表示されます</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Chip({ active, color="#1E90FF", onClick, children }) {
   return (
     <button onClick={onClick} style={{
-      background: active ? `${color}28` : "rgba(255,255,255,0.05)",
-      border: `2px solid ${active ? color : "rgba(255,255,255,0.1)"}`,
+      background: active ? `${color}15` : "#F7FAFC",
+      border: `2px solid ${active ? color : "#E2E8F0"}`,
       borderRadius: 12, padding: "11px 16px", cursor: "pointer",
-      color: active ? "#E8EDF5" : "#6080A0", fontWeight: active ? 700 : 400,
+      color: active ? "#1A202C" : "#718096", fontWeight: active ? 700 : 400,
       fontSize: 14, transition: "all 0.18s", textAlign:"left",
     }}>{children}</button>
   );
@@ -452,6 +665,7 @@ export default function App() {
 
   // メーカー特徴
   const [selectedMaker, setSelectedMaker] = useState(null);
+  const [top3View, setTop3View] = useState(null); // { group, key } or null
 
   const resetFilter = () => { setMaker(null); setTatami(null); setFilterOpt(null); setEcoOpt(null); setSelectedModel(null); };
 
@@ -468,32 +682,32 @@ export default function App() {
   const accentColor = maker ? MAKER_COLORS[maker] : "#1E90FF";
 
   return (
-    <div style={{ height:"100vh", background:"#080E1C", fontFamily:"'Noto Sans JP','Hiragino Sans',sans-serif", color:"#E8EDF5", display:"flex", flexDirection:"column", overflow:"hidden", width:"100vw" }}>
+    <div style={{ height:"100vh", background:"#F5F7FA", fontFamily:"'Noto Sans JP','Hiragino Sans',sans-serif", color:"#1A202C", display:"flex", flexDirection:"column", overflow:"hidden", width:"100vw" }}>
       <style>{globalStyle}</style>
 
       {/* ヘッダー */}
       <div style={{
-        background:"linear-gradient(135deg,#0C1830,#162040)",
-        borderBottom:"1px solid rgba(100,160,255,0.12)",
+        background:"#FFFFFF",
+        borderBottom:"1px solid #E2E8F0",
         padding:"10px 22px", display:"flex", alignItems:"center", justifyContent:"space-between",
-        flexShrink:0,
+        flexShrink:0, boxShadow:"0 1px 4px rgba(0,0,0,0.06)",
       }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <button onClick={() => setSidebarOpen(v => !v)} style={{
-            background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,255,255,0.1)",
-            borderRadius:8, padding:"6px 10px", cursor:"pointer", color:"#7090A8", fontSize:16,
+            background:"#F7FAFC", border:"1px solid #E2E8F0",
+            borderRadius:8, padding:"6px 10px", cursor:"pointer", color:"#718096", fontSize:16,
           }}>{sidebarOpen ? "◀" : "▶"}</button>
           <div style={{ width:32, height:32, borderRadius:10, background:"linear-gradient(135deg,#1E90FF,#00D4FF)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>❄️</div>
           <div>
-            <div style={{ fontSize:15, fontWeight:700 }}>エアコン コンサルツール</div>
-            <div style={{ fontSize:9, color:"#4A6080", letterSpacing:1 }}>NOJIMA · AC GUIDE</div>
+            <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>エアコン コンサルツール</div>
+            <div style={{ fontSize:9, color:"#A0AEC0", letterSpacing:1 }}>nagao · AC GUIDE</div>
           </div>
         </div>
         <button onClick={() => setIsStaff(v => !v)} style={{
-          background: isStaff ? "rgba(255,184,0,0.18)" : "rgba(255,255,255,0.06)",
-          border:`1px solid ${isStaff ? "rgba(255,184,0,0.45)" : "rgba(255,255,255,0.1)"}`,
+          background: isStaff ? "#FFFBEB" : "#F7FAFC",
+          border:`1px solid ${isStaff ? "#F6AD55" : "#E2E8F0"}`,
           borderRadius:10, padding:"6px 14px", cursor:"pointer",
-          color: isStaff ? "#FFB800" : "#6080A0", fontSize:12, fontWeight:700,
+          color: isStaff ? "#C05621" : "#718096", fontSize:12, fontWeight:700,
         }}>{isStaff ? "🔓 スタッフモード" : "🔒 スタッフモード"}</button>
       </div>
 
@@ -503,17 +717,17 @@ export default function App() {
         {/* 左サイドバー：タブ＋絞り込み */}
         {sidebarOpen && (
         <div style={{
-          width:260, flexShrink:0, background:"#0A1020",
-          borderRight:"1px solid rgba(255,255,255,0.07)",
+          width:260, flexShrink:0, background:"#FFFFFF",
+          borderRight:"1px solid #E2E8F0",
           display:"flex", flexDirection:"column", overflow:"hidden",
         }}>
           {/* タブ */}
-          <div style={{ display:"flex", flexDirection:"column", borderBottom:"1px solid rgba(255,255,255,0.07)" }}>
+          <div style={{ display:"flex", flexDirection:"column", borderBottom:"1px solid #E2E8F0" }}>
             {[["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["guide","📚 機能ガイド"]].map(([key,label]) => (
               <button key={key} onClick={() => setTab(key)} style={{
-                padding:"12px 18px", background:"none", textAlign:"left",
+                padding:"12px 18px", background: tab===key ? "#EBF8FF" : "none", textAlign:"left",
                 border:"none", borderLeft:`3px solid ${tab===key ? accentColor : "transparent"}`,
-                color: tab===key ? "#E8EDF5" : "#4A6080", fontSize:13, fontWeight: tab===key ? 700 : 400,
+                color: tab===key ? "#1A202C" : "#718096", fontSize:13, fontWeight: tab===key ? 700 : 400,
                 cursor:"pointer", transition:"all 0.2s",
               }}>{label}</button>
             ))}
@@ -525,7 +739,7 @@ export default function App() {
 
               {/* メーカー */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 1 ｜ メーカー</div>
+                <div style={{ fontSize:10, color:"#718096", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 1 ｜ メーカー</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
                   {MAKERS.map(m => (
                     <Chip key={m} active={maker===m} color={MAKER_COLORS[m]} onClick={() => { setMaker(maker===m ? null : m); setTatami(null); setFilterOpt(null); setEcoOpt(null); }}>
@@ -590,14 +804,58 @@ export default function App() {
         )} {/* sidebarOpen終わり */}
 
         {/* 右コンテンツエリア */}
-        <div style={{ flex:1, overflowY:"auto", padding:"20px 24px" }}>
+        <div style={{ flex:1, overflowY:"auto", padding:"20px 24px", background:"#F5F7FA" }}>
 
 
         {/* ══ 絞り込み結果 ══ */}
-        {tab === "filter" && !selectedModel && (
+        {tab === "filter" && !selectedModel && !top3View && (
           <div>
-            <div style={{ fontSize:13, color:"#4A6080", marginBottom:14 }}>
-              絞り込み結果　<span style={{ fontSize:22, fontWeight:700, color:"#E8EDF5" }}>{results.length}</span> 件
+            {/* Top3セクション */}
+            {[
+              { label:"6・10畳 おすすめ", group:"small" },
+              { label:"14・18畳 おすすめ", group:"large" },
+            ].map(({ label, group }) => (
+              <div key={group} style={{ marginBottom:24 }}>
+                <div style={{ fontSize:13, fontWeight:700, color:"#4A5568", marginBottom:10 }}>⭐ {label}</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
+                  {[
+                    { key:"noFilter", label:"自動掃除なし", color:"#718096", icon:"🔲" },
+                    { key:"hasFilter", label:"自動掃除あり ✨", color:"#38A169", icon:"✨" },
+                    { key:"eco", label:"省エネモデル ⚡", color:"#3182CE", icon:"⚡" },
+                  ].map(({ key, label: catLabel, color }) => (
+                    <button key={key} onClick={() => setTop3View({ group, key })} style={{
+                      background:"#FFFFFF", border:`2px solid ${color}30`,
+                      borderRadius:14, padding:"14px 16px", cursor:"pointer", textAlign:"left",
+                      boxShadow:"0 2px 6px rgba(0,0,0,0.06)", transition:"all 0.18s",
+                    }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.boxShadow = `0 4px 12px ${color}20`; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = color+"30"; e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.06)"; }}
+                    >
+                      <div style={{ fontSize:12, fontWeight:700, color, marginBottom:10 }}>{catLabel}</div>
+                      {TOP3[group][key].map(item => (
+                        <div key={item.rank} style={{ display:"flex", gap:8, alignItems:"center", marginBottom:6 }}>
+                          <div style={{
+                            width:20, height:20, borderRadius:6, flexShrink:0,
+                            background: item.rank===1 ? "#FFD700" : item.rank===2 ? "#C0C0C0" : "#CD7F32",
+                            display:"flex", alignItems:"center", justifyContent:"center",
+                            fontSize:11, fontWeight:700, color:"#fff",
+                          }}>{item.rank}</div>
+                          <div>
+                            <div style={{ fontSize:11, fontWeight:700, color:"#1A202C" }}>{item.maker} {item.series}</div>
+                            <div style={{ fontSize:10, color:"#718096" }}>{item.model}</div>
+                          </div>
+                        </div>
+                      ))}
+                      <div style={{ fontSize:11, color, marginTop:8, fontWeight:600, textAlign:"right" }}>詳細を比較する →</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* 絞り込み結果 */}
+            <div style={{ fontSize:13, color:"#718096", marginBottom:14 }}>
+              絞り込み結果　<span style={{ fontSize:22, fontWeight:700, color:"#1A202C" }}>{results.length}</span> 件
             </div>
             {results.length === 0 ? (
               <div style={{ textAlign:"center", padding:"48px 0", color:"#3A5070" }}>条件に合う機種が見つかりませんでした</div>
@@ -605,19 +863,20 @@ export default function App() {
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
                 {results.map(m => (
                   <button key={m.id} onClick={() => setSelectedModel(m)} style={{
-                    background:`${m.color}10`, border:`1px solid ${m.color}35`,
-                    borderRadius:16, padding:"14px 18px", cursor:"pointer", color:"#E8EDF5",
+                    background:"#FFFFFF", border:`1px solid ${m.color}40`,
+                    borderRadius:16, padding:"14px 18px", cursor:"pointer", color:"#1A202C",
                     textAlign:"left", transition:"all 0.18s",
+                    boxShadow:"0 1px 3px rgba(0,0,0,0.06)",
                   }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = m.color}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = m.color+"35"}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = m.color; e.currentTarget.style.boxShadow = `0 4px 12px ${m.color}25`; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = m.color+"40"; e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.06)"; }}
                   >
                     <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
                       <span style={{ fontSize:11, padding:"2px 8px", borderRadius:5, background:GRADE_COLORS[m.grade]+"22", color:GRADE_COLORS[m.grade], border:`1px solid ${GRADE_COLORS[m.grade]}40` }}>{m.grade}</span>
                       <span style={{ fontSize:11, color:"#5070A0" }}>{m.maker}</span>
                     </div>
-                    <div style={{ fontSize:16, fontWeight:700 }}>{m.series}</div>
-                    <div style={{ fontSize:12, color:"#5070A0", marginBottom:8 }}>
+                    <div style={{ fontSize:16, fontWeight:700, color:"#1A202C" }}>{m.series}</div>
+                    <div style={{ fontSize:12, color:"#718096", marginBottom:8 }}>
                       {m.model}　{m.tatami}畳　<span style={{ color:"#1E90FF", fontWeight:600 }}>{TATAMI_KW[m.tatami]}kW</span>
                     </div>
                     <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
@@ -634,6 +893,77 @@ export default function App() {
             )}
           </div>
         )}
+
+        {/* ══ Top3比較ページ ══ */}
+        {tab === "filter" && !selectedModel && top3View && (() => {
+          const catLabels = { noFilter:"自動掃除なし", hasFilter:"自動掃除あり ✨", eco:"省エネモデル ⚡" };
+          const catColors = { noFilter:"#718096", hasFilter:"#38A169", eco:"#3182CE" };
+          const groupLabels = { small:"6・10畳", large:"14・18畳" };
+          const items = TOP3[top3View.group][top3View.key];
+          const color = catColors[top3View.key];
+          return (
+            <div>
+              <button onClick={() => setTop3View(null)} style={{ background:"none", border:"none", color:"#718096", cursor:"pointer", fontSize:13, marginBottom:16 }}>← 戻る</button>
+              <div style={{ fontSize:16, fontWeight:700, color:"#1A202C", marginBottom:4 }}>
+                {groupLabels[top3View.group]}　{catLabels[top3View.key]}
+              </div>
+              <div style={{ fontSize:12, color:"#718096", marginBottom:20 }}>おすすめTop3の比較</div>
+
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:14 }}>
+                {items.map(item => {
+                  const model = AC_MODELS.find(m => m.model === item.model);
+                  return (
+                    <div key={item.rank} style={{ background:"#FFFFFF", borderRadius:16, boxShadow:"0 2px 8px rgba(0,0,0,0.08)", border:`2px solid ${color}30`, overflow:"hidden" }}>
+                      {/* ランク */}
+                      <div style={{ background:`${color}15`, padding:"12px 16px", display:"flex", alignItems:"center", gap:10 }}>
+                        <div style={{
+                          width:28, height:28, borderRadius:8,
+                          background: item.rank===1 ? "#FFD700" : item.rank===2 ? "#C0C0C0" : "#CD7F32",
+                          display:"flex", alignItems:"center", justifyContent:"center",
+                          fontSize:14, fontWeight:700, color:"#fff",
+                        }}>{item.rank}</div>
+                        <div>
+                          <div style={{ fontSize:13, fontWeight:700, color:"#1A202C" }}>{item.maker}</div>
+                          <div style={{ fontSize:12, color:"#4A5568" }}>{item.series}</div>
+                        </div>
+                      </div>
+
+                      <div style={{ padding:"14px 16px" }}>
+                        {/* 型番・kW */}
+                        <div style={{ fontSize:11, color:"#718096", marginBottom:8 }}>
+                          {item.model}　{model ? `${model.tatami}畳 / ${TATAMI_KW[model.tatami]}kW` : ""}
+                        </div>
+                        {/* おすすめポイント */}
+                        <div style={{ fontSize:12, color:"#4A5568", lineHeight:1.7, marginBottom:12, padding:"8px 10px", background:"#F7FAFC", borderRadius:8 }}>
+                          {item.point}
+                        </div>
+                        {/* 機能タグ */}
+                        {model && (
+                          <div style={{ display:"flex", gap:5, flexWrap:"wrap", marginBottom:12 }}>
+                            {model.hasFilter && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:"#F0FFF4", color:"#38A169", border:"1px solid #C6F6D5" }}>✨ 自動フィルター</span>}
+                            {model.isEco    && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:"#EBF8FF", color:"#3182CE", border:"1px solid #BEE3F8" }}>⚡ 省エネ</span>}
+                            {model.features.filter(k => k !== "filter").map(k => {
+                              const f = FEATURES_DB[k];
+                              return f ? <span key={k} style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:`${f.color}10`, color:f.color, border:`1px solid ${f.color}30` }}>{f.icon} {f.name}</span> : null;
+                            })}
+                          </div>
+                        )}
+                        {/* 機能説明・動画 */}
+                        {model && model.features.filter(k => k !== "filter").map(k => {
+                          const f = FEATURES_DB[k];
+                          if (!f) return null;
+                          return (
+                            <FeatureCard key={k} featureKey={k} isStaffMode={false} highlight={false} />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ══ 機種詳細 ══ */}
         {tab === "filter" && selectedModel && (
@@ -714,31 +1044,6 @@ export default function App() {
 
             {/* こんなお客様には */}
             <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, margin:"24px 0 12px" }}>◼ お悩み別おすすめメーカー</div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-              {[
-                ["💧","乾燥・加湿が気になる","ダイキン","#00A0E9"],
-                ["🌬️","空気清浄・アレルギー","Panasonic","#0047AA"],
-                ["👁️","風が苦手・快眠重視","三菱電機","#E60012"],
-                ["🧊","臭い・カビが気になる","日立","#CE0F0F"],
-                ["🌀","換気しながら冷暖房","東芝","#E60020"],
-                ["🔥","暖房重視・寒がり","富士通 / ゼネラル","#FF6B00"],
-                ["⚡","ペット・消臭重視","シャープ","#555"],
-                ["💰","コスパ重視","ゼネラル / シャープ","#888"],
-              ].map(([icon,label,maker,color]) => (
-                <div key={label} style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:12, padding:"12px 16px", display:"flex", alignItems:"center", gap:12 }}>
-                  <span style={{ fontSize:20 }}>{icon}</span>
-                  <div>
-                    <div style={{ fontSize:12, color:"#A0B8D0" }}>{label}</div>
-                    <div style={{ fontSize:14, fontWeight:700, color }}>{maker}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-            {/* ② こんなお客様には */}
-            <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, marginBottom:12 }}>◼ こんなお客様には…</div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
               {[
                 ["💧","乾燥・加湿が気になる","ダイキン","#00A0E9"],
@@ -852,7 +1157,10 @@ export default function App() {
 
         {tab === "guide" && !selectedFeature && (
           <div>
-            <div style={{ fontSize:13, color:"#4A6080", marginBottom:20 }}>各メーカーの独自機能を確認できます。動画で説明してお客様にわかりやすく伝えましょう。</div>
+            {/* 空気浄化技術比較 */}
+            <AirPurifyCompare />
+
+            <div style={{ fontSize:12, fontWeight:700, color:"#718096", letterSpacing:2, margin:"24px 0 12px" }}>◼ 機能ガイド一覧</div>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {Object.entries(FEATURES_DB).map(([key, f]) => (
                 <button key={key} onClick={() => setSelectedFeature(key)} style={{
