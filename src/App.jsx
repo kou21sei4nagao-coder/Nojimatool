@@ -143,6 +143,11 @@ const MAKER_GUIDE = {
     durability: "耐久性は業界トップクラス。故障率が低く修理対応も全国で充実。10年以上使えるケースも多い。",
     airClean: "【ナノイーX】OHラジカルを含むナノサイズの水粒子を放出。菌・ウイルス・花粉・カビ菌・臭いを抑制。濃度は従来比48倍で業界最高レベル。空気清浄機いらずと言われるほどの実力。",
     tech: "AIが部屋の環境・使用状況を学習して自動で最適運転。フィルター自動掃除はダストボックスに溜まる方式で手間いらず。",
+    consulPoints: [
+      { title:"「空気清浄機いらずになりますよ」", desc:"ナノイーXは業界最高レベルの空気清浄・除菌力。別途空気清浄機を買う必要がなくなる可能性がある。" },
+      { title:"花粉・アレルギーに一番強い", desc:"OHラジカルが花粉・ウイルス・ペットの毛を抑制。アレルギー持ちのお客様には真っ先に提案。" },
+      { title:"耐久性トップクラスで長く使える", desc:"故障率が低く10年以上使えるケースも多い。長期コスパで見るとお得感を出せる。" },
+    ],
     series: [
       { name:"Xシリーズ",  point:"最上位。ナノイーX＋自動掃除＋AI。全部入り。" },
       { name:"EXシリーズ", point:"X系の一つ下。自動掃除あり。コスパ良好。" },
@@ -160,6 +165,11 @@ const MAKER_GUIDE = {
     durability: "業界トップクラスの耐久性。「ダイキンは壊れない」という評判が根強く、長期使用者が多い。修理部品の供給も長期間対応。",
     airClean: "【ストリーマ】高速で電子を放出し、有害物質を酸化分解する独自技術。カビ・花粉・ウイルスを強力に分解。空気清浄機能単体としてはやや控えめだが、うるさらXの加湿との組み合わせで快適な空気環境を実現。",
     tech: "「うるさらX」は室外機から外気の水分を取り込んで加湿。給水タンク不要で加湿器を別途買う必要なし。内部自動洗浄で熱交換器をウイルス・カビから守る。",
+    consulPoints: [
+      { title:"「加湿器いらずになりますよ」", desc:"うるさらXは外気から水分を集めて加湿。給水タンク不要。冬の乾燥に悩む人への最強提案。" },
+      { title:"肌・喉・目の乾燥が気になる人に", desc:"就寝中も自動で加湿してくれるので寝室・子供部屋に最適。" },
+      { title:"ダイキンは壊れにくいで有名", desc:"業界最高レベルの耐久性。「長く使いたい」お客様への安心感が違う。" },
+    ],
     series: [
       { name:"うるさらX",  point:"最上位。加湿機能搭載。乾燥に悩むお客様への最強提案。" },
       { name:"Eシリーズ",  point:"加湿なし。ベーシックなダイキン。" },
@@ -175,6 +185,11 @@ const MAKER_GUIDE = {
     durability: "耐久性は高く評価されている。霧ヶ峰ブランドは長年の実績があり、故障が少ないと現場での評判も良い。",
     airClean: "【ムーブアイ＋花粉センサー】花粉や微細なホコリを検知して自動で運転強化。ナノイーXのような独自除菌技術はないが、センサーの精度が高く空気の汚れに素早く反応。",
     tech: "「ムーブアイmirAI」は赤外線センサーで人の位置・姿勢・体温・日射を同時検知。風を当てたくない人には「人がいる方向から風を外す」設定も可能。快眠モードは就寝後に自動で温度調整。",
+    consulPoints: [
+      { title:"「エアコンの風が苦手」人への切り札", desc:"ムーブアイmirAIが人を感知して風を自動コントロール。直接風が当たらないから体が冷えすぎない。" },
+      { title:"寝室に設置するなら三菱電機", desc:"快眠モードで就寝後に自動で温度調整。朝まで快適な睡眠をサポート。" },
+      { title:"子供・高齢者がいる家庭に最適", desc:"人の体温・姿勢を検知して自動調整。温度変化に敏感な人がいる家庭に特におすすめ。" },
+    ],
     series: [
       { name:"霧ヶ峰Zシリーズ",  point:"最上位。ムーブアイmirAI搭載。快眠サポートも充実。" },
       { name:"霧ヶ峰GEシリーズ", point:"ベーシック。ムーブアイなし。コスパ重視向け。" },
@@ -190,6 +205,11 @@ const MAKER_GUIDE = {
     durability: "耐久性は高水準。ステンレスを内部に使用した「ステンレス・クリーン」仕様で錆びにくく長持ち。修理対応も全国で充実している。",
     airClean: "【ステンレス・クリーン＋凍結洗浄】空気清浄機能というより「内部清潔」に特化。熱交換器を凍らせて氷で汚れを洗い流す業界初の技術。カビ・細菌の繁殖を防いで嫌な臭いを根本から解消。くらしカメラAIで空気の汚れも検知。",
     tech: "「凍結洗浄」は内部を意図的に凍らせ、溶けた水で汚れを洗い流す仕組み。ステンレス素材を使用することで錆びにくく衛生的。AIカメラが生活リズムを学習して自動運転。",
+    consulPoints: [
+      { title:"「エアコンつけると臭い」人への最強提案", desc:"凍結洗浄で内部のカビ・汚れを氷で一気に洗浄。業界唯一の技術で嫌な臭いを根本から解消。" },
+      { title:"年1回のプロ洗浄が不要になる可能性", desc:"凍結洗浄で内部を常に清潔に保つのでクリーニング費用の節約になる点も訴求できる。" },
+      { title:"ステンレス素材で長持ち・清潔", desc:"内部にステンレスを使用しているので錆びにくく衛生的。清潔さを重視するお客様に刺さる。" },
+    ],
     series: [
       { name:"白くまくん Xシリーズ", point:"最上位。凍結洗浄＋AIフル搭載。" },
       { name:"白くまくん Wシリーズ", point:"凍結洗浄あり。コスパ良好なミドルレンジ。" },
@@ -206,6 +226,10 @@ const MAKER_GUIDE = {
     durability: "耐久性は平均的。故障率は特別低いわけではないが、修理対応は充実。寒冷地での使用実績が豊富で信頼性は高い。",
     airClean: "【プラズマイオン】独自のイオン技術で浮遊菌やカビ菌を抑制。パナソニックのナノイーXやシャープのプラズマクラスターほど有名ではないが、基本的な除菌・消臭効果はある。",
     tech: "独自のハイパワー圧縮機で外気-25℃でも高い暖房能力を維持。フィルター自動掃除は10年相当掃除不要を謳う機種もあり。",
+    consulPoints: [
+      { title:"「エアコンの暖房は寒い」を覆せる", desc:"ハイパワー暖房で外気-25℃でも能力が落ちにくい。「ガスヒーターじゃないと温まらない」というお客様への切り返しに使える。" },
+      { title:"暖房メインで使いたい人に最適", desc:"冬場の暖房性能に特化したモデル。寒がりなお客様や北向きの部屋に設置するケースに強い。" },
+    ],
     series: [
       { name:"ノクリア Zシリーズ", point:"最上位。ハイパワー暖房＋自動掃除。" },
       { name:"ノクリア Cシリーズ", point:"ベーシック。コスパ重視向け。" },
@@ -221,6 +245,10 @@ const MAKER_GUIDE = {
     durability: "富士通と同じ工場・同じ部品で製造。耐久性・品質は富士通と同等。",
     airClean: "【プラズマイオン】富士通と同じ技術を搭載。基本的な除菌・消臭効果あり。",
     tech: "製造は富士通ゼネラルで富士通と同一。販売チャネルと価格帯が異なるだけで中身は同等。ゼネラルブランドの方が価格が抑えられているケースが多い。",
+    consulPoints: [
+      { title:"「富士通と同じ性能で少し安い」", desc:"富士通ゼネラルが同じ工場で製造。性能は同等でお得感を出せる。知名度が低いので説明が必要。" },
+      { title:"暖房重視かつコスパを求める人に", desc:"富士通のハイパワー暖房と同等性能。価格が抑えめなのでコスパで訴求できる。" },
+    ],
     series: [
       { name:"Aシリーズ", point:"ゼネラルの主力。性能は富士通ノクリアZと同等。" },
       { name:"Cシリーズ", point:"ベーシック。コスパ重視向け。" },
@@ -236,6 +264,10 @@ const MAKER_GUIDE = {
     durability: "耐久性はやや平均以下との声もあり。10年超の長期使用を前提にするなら他社の方が安心という意見も。価格が抑えめなのでコスパ重視なら選択肢。",
     airClean: "【プラズマクラスター25000】プラス・マイナスのイオンを空気中に放出し、浮遊菌・ウイルスを99.9%以上（Sharp発表）抑制。数値が高いほど効果が高く「25000」は最上位グレード。ペット臭・タバコ臭・料理臭の消臭効果も高い。",
     tech: "プラズマクラスターは空気清浄機でも広く採用されている実績ある技術。エアコン内部にも噴射して内部のカビ抑制にも効果あり。",
+    consulPoints: [
+      { title:"ペット臭・タバコ臭・料理臭に一番強い", desc:"プラズマクラスター25000でウイルス99.9%抑制・消臭効果も高い。ペットがいるお客様に特に刺さる。" },
+      { title:"「25000」は最高グレード", desc:"数値が高いほど効果が高い。「25000」はシャープの最上位グレードであることを強調すると納得感が出る。" },
+    ],
     series: [
       { name:"AYシリーズ H", point:"プラズマクラスター25000搭載。自動掃除あり。" },
       { name:"AYシリーズ",   point:"プラズマクラスター搭載。自動掃除なし。" },
@@ -251,6 +283,11 @@ const MAKER_GUIDE = {
     durability: "耐久性は平均的。特別弱いわけではないが、突出して強いわけでもない。修理対応は問題なし。",
     airClean: "【エアフレッシュ（換気）】空気清浄というより「換気」に特化。外気を取り込んで室内の空気を入れ替える業界唯一の機能。ウイルスや汚染物質を薄める効果があり、コロナ以降特に注目されている。",
     tech: "給気換気機能はダクト工事不要でエアコン本体だけで換気が可能。ムーブアイ極で人の体温・位置を検知して快適な温度制御も実現。",
+    consulPoints: [
+      { title:"「窓を開けずに換気できる」唯一のメーカー", desc:"エアコンをつけたまま外気を取り込める業界唯一の機能。冷暖房効率を下げずに換気できる。" },
+      { title:"花粉・虫が入らずに換気できる", desc:"「窓を開けると花粉が入る」「虫が入る」「冷気が逃げる」というお客様の悩みを一気に解決。" },
+      { title:"コロナ以降の換気ニーズに対応", desc:"感染対策として換気を意識するお客様が増えている。リビング・LDKへの設置に特に刺さる。" },
+    ],
     series: [
       { name:"大清快 Gシリーズ", point:"換気機能搭載。省エネ・自動掃除あり。" },
       { name:"大清快 Eシリーズ", point:"ベーシック。換気機能なし。" },
@@ -260,20 +297,71 @@ const MAKER_GUIDE = {
 };
 
 // ── メーカー比較データ ────────────────────────────────────
-const RATINGS = {
-  "Panasonic": { 省エネ:4, 暖房:3, 空気清浄:5, お手入れ:4, コスパ:3, 耐久性:4 },
-  "ダイキン":  { 省エネ:4, 暖房:4, 空気清浄:3, お手入れ:3, コスパ:3, 耐久性:5 },
-  "三菱電機":  { 省エネ:4, 暖房:4, 空気清浄:3, お手入れ:4, コスパ:3, 耐久性:4 },
-  "日立":      { 省エネ:3, 暖房:3, 空気清浄:3, お手入れ:5, コスパ:4, 耐久性:4 },
-  "富士通":    { 省エネ:3, 暖房:5, 空気清浄:2, お手入れ:3, コスパ:4, 耐久性:3 },
-  "ゼネラル":  { 省エネ:3, 暖房:5, 空気清浄:2, お手入れ:3, コスパ:5, 耐久性:3 },
-  "シャープ":  { 省エネ:3, 暖房:3, 空気清浄:4, お手入れ:3, コスパ:5, 耐久性:3 },
-  "東芝":      { 省エネ:3, 暖房:3, 空気清浄:3, お手入れ:3, コスパ:4, 耐久性:3 },
+const MAKER_FEATURES = {
+  空気清浄: {
+    "Panasonic": { mark:"◎", text:"ナノイーX｜菌・ウイルス・花粉を抑制。業界最高レベル" },
+    "ダイキン":  { mark:"○", text:"ストリーマ｜有害物質を酸化分解" },
+    "三菱電機":  { mark:"△", text:"花粉センサー｜検知して自動強化" },
+    "日立":      { mark:"△", text:"くらしカメラ｜空気の汚れを検知" },
+    "富士通":    { mark:"△", text:"プラズマイオン｜基本的な除菌・消臭" },
+    "ゼネラル":  { mark:"△", text:"プラズマイオン｜基本的な除菌・消臭" },
+    "シャープ":  { mark:"○", text:"プラズマクラスター25000｜ウイルス99.9%抑制・消臭" },
+    "東芝":      { mark:"—", text:"なし" },
+  },
+  内部洗浄: {
+    "Panasonic": { mark:"○", text:"フィルター自動掃除｜ダストボックスに自動収集" },
+    "ダイキン":  { mark:"○", text:"水内部クリーン｜内部を水で自動洗浄" },
+    "三菱電機":  { mark:"○", text:"フィルター自動掃除｜自動でホコリを除去" },
+    "日立":      { mark:"◎", text:"凍結洗浄｜熱交換器を凍らせて一気に洗浄。業界唯一" },
+    "富士通":    { mark:"○", text:"フィルター自動掃除｜10年相当掃除不要の機種も" },
+    "ゼネラル":  { mark:"○", text:"フィルター自動掃除｜自動でホコリを除去" },
+    "シャープ":  { mark:"○", text:"フィルター自動掃除｜自動でホコリを除去" },
+    "東芝":      { mark:"○", text:"フィルター自動掃除｜自動でホコリを除去" },
+  },
+  加湿: {
+    "Panasonic": { mark:"—", text:"なし" },
+    "ダイキン":  { mark:"◎", text:"うるさらX｜外気から水分を取り込む業界唯一の加湿機能。給水不要" },
+    "三菱電機":  { mark:"—", text:"なし" },
+    "日立":      { mark:"—", text:"なし" },
+    "富士通":    { mark:"—", text:"なし" },
+    "ゼネラル":  { mark:"—", text:"なし" },
+    "シャープ":  { mark:"—", text:"なし" },
+    "東芝":      { mark:"—", text:"なし" },
+  },
+  換気: {
+    "Panasonic": { mark:"—", text:"なし" },
+    "ダイキン":  { mark:"—", text:"なし" },
+    "三菱電機":  { mark:"—", text:"なし" },
+    "日立":      { mark:"—", text:"なし" },
+    "富士通":    { mark:"—", text:"なし" },
+    "ゼネラル":  { mark:"—", text:"なし" },
+    "シャープ":  { mark:"—", text:"なし" },
+    "東芝":      { mark:"◎", text:"エアフレッシュ｜窓を開けずに換気できる業界唯一の機能" },
+  },
+  センサー: {
+    "Panasonic": { mark:"○", text:"AIセンサー｜部屋の環境を学習して自動運転" },
+    "ダイキン":  { mark:"○", text:"AIセンサー｜生活リズムを学習" },
+    "三菱電機":  { mark:"◎", text:"ムーブアイmirAI｜人の位置・体温・姿勢を検知。風を自動制御" },
+    "日立":      { mark:"○", text:"くらしカメラAI｜生活リズムを学習して自動運転" },
+    "富士通":    { mark:"△", text:"基本センサー｜温度・湿度検知のみ" },
+    "ゼネラル":  { mark:"△", text:"基本センサー｜温度・湿度検知のみ" },
+    "シャープ":  { mark:"△", text:"AI快適自動｜基本的な自動運転" },
+    "東芝":      { mark:"○", text:"ムーブアイ極｜人の体温・位置を検知" },
+  },
+  耐久性: {
+    "Panasonic": { mark:"◎", text:"業界トップクラス。故障率低く修理対応も充実" },
+    "ダイキン":  { mark:"◎", text:"「ダイキンは壊れない」評判。長期使用者が多い" },
+    "三菱電機":  { mark:"○", text:"霧ヶ峰ブランドの実績あり。故障少ない" },
+    "日立":      { mark:"○", text:"ステンレス素材で錆びにくく長持ち" },
+    "富士通":    { mark:"△", text:"平均的。寒冷地での使用実績は豊富" },
+    "ゼネラル":  { mark:"△", text:"富士通と同等。平均的な耐久性" },
+    "シャープ":  { mark:"△", text:"やや平均以下との声も。価格が抑えめ" },
+    "東芝":      { mark:"△", text:"平均的。特別弱いわけではない" },
+  },
 };
-const RATING_ITEMS = ["省エネ","暖房","空気清浄","お手入れ","コスパ","耐久性"];
-const RATING_ICONS = { 省エネ:"⚡", 暖房:"🔥", 空気清浄:"🌬️", お手入れ:"✨", コスパ:"💰", 耐久性:"🛡️" };
-const ratingLabel = (n) => n === 5 ? "◎" : n === 4 ? "○" : n === 3 ? "△" : "✕";
-const ratingColor = (n) => n === 5 ? "#4CAF50" : n === 4 ? "#64B5F6" : n === 3 ? "#888" : "#FF6B6B";
+const FEATURE_ITEMS = ["空気清浄","内部洗浄","加湿","換気","センサー","耐久性"];
+const FEATURE_ICONS = { 空気清浄:"🌬️", 内部洗浄:"🧊", 加湿:"💧", 換気:"🌀", センサー:"👁️", 耐久性:"🛡️" };
+const markColor = (m) => m === "◎" ? "#4CAF50" : m === "○" ? "#64B5F6" : m === "△" ? "#888" : "#444";
 
 // ── サブコンポーネント ────────────────────────────────────
 function Chip({ active, color="#1E90FF", onClick, children }) {
@@ -579,67 +667,75 @@ export default function App() {
         {/* ══ メーカー特徴 ══ */}
         {tab === "makers" && !selectedMaker && (
           <div>
-            {/* ① 比較表（メーカーが上） */}
-            <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, marginBottom:12 }}>◼ メーカー比較表</div>
-            <div style={{ overflowX:"auto", marginBottom:16 }}>
-              <table style={{ borderCollapse:"collapse", fontSize:13, minWidth:"100%" }}>
-                <thead>
-                  <tr>
-                    <th style={{ padding:"10px 12px", textAlign:"left", color:"#4A6080", fontWeight:700, borderBottom:"1px solid rgba(255,255,255,0.08)", minWidth:90 }}></th>
-                    {MAKERS.map(m => {
-                      const g = MAKER_GUIDE[m];
-                      return (
-                        <th key={m} style={{ padding:"10px 12px", textAlign:"center", borderBottom:"1px solid rgba(255,255,255,0.08)", minWidth:90 }}>
-                          <div style={{ fontSize:14, fontWeight:700, color:g.color }}>{m}</div>
-                          <div style={{ fontSize:10, color:"#4A6080", marginTop:2, fontWeight:400 }}>{g.catch.slice(0,8)}…</div>
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-                <tbody>
-                  {RATING_ITEMS.map((item, i) => (
-                    <tr key={item} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
-                      <td style={{ padding:"12px", borderBottom:"1px solid rgba(255,255,255,0.05)", color:"#7090A8", fontWeight:700, fontSize:12, whiteSpace:"nowrap" }}>
-                        {RATING_ICONS[item]} {item}
-                      </td>
-                      {MAKERS.map(m => {
-                        const r = RATINGS[m];
-                        return (
-                          <td key={m} style={{ padding:"12px", textAlign:"center", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
-                            <span style={{ fontSize:18, fontWeight:700, color:ratingColor(r[item]) }}>{ratingLabel(r[item])}</span>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                  <tr>
-                    <td style={{ padding:"10px 12px" }}></td>
-                    {MAKERS.map(m => {
-                      const g = MAKER_GUIDE[m];
-                      return (
-                        <td key={m} style={{ padding:"10px 8px", textAlign:"center" }}>
-                          <button onClick={() => setSelectedMaker(m)} style={{
-                            background:`${g.color}20`, border:`1px solid ${g.color}50`,
-                            borderRadius:8, padding:"4px 12px", cursor:"pointer", color:g.color, fontSize:12, fontWeight:700,
-                          }}>詳細</button>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                </tbody>
-              </table>
+            <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, marginBottom:16 }}>◼ メーカー別コンサルポイント</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+              {MAKERS.map(m => {
+                const g = MAKER_GUIDE[m];
+                return (
+                  <div key={m} style={{ background:`${g.color}10`, border:`1px solid ${g.color}40`, borderRadius:18, padding:"18px 20px" }}>
+                    {/* ヘッダー */}
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+                      <div>
+                        <div style={{ fontSize:16, fontWeight:700, color:g.color }}>{m}</div>
+                        <div style={{ fontSize:11, color:"#5070A0", marginTop:2 }}>「{g.catch}」</div>
+                      </div>
+                      <button onClick={() => setSelectedMaker(m)} style={{
+                        background:`${g.color}20`, border:`1px solid ${g.color}50`,
+                        borderRadius:8, padding:"4px 12px", cursor:"pointer", color:g.color, fontSize:11, fontWeight:700,
+                      }}>詳細</button>
+                    </div>
+
+                    {/* コンサルポイント */}
+                    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                      {g.consulPoints.map((point, i) => (
+                        <div key={i} style={{ display:"flex", gap:8, alignItems:"flex-start" }}>
+                          <span style={{ color:g.color, fontSize:14, marginTop:1, flexShrink:0 }}>▶</span>
+                          <div>
+                            <div style={{ fontSize:13, fontWeight:700, color:"#E8EDF5" }}>{point.title}</div>
+                            <div style={{ fontSize:12, color:"#6080A0", lineHeight:1.6, marginTop:2 }}>{point.desc}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* 刺さるお客様 */}
+                    <div style={{ marginTop:14, paddingTop:12, borderTop:`1px solid ${g.color}25` }}>
+                      <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:1, marginBottom:6 }}>🎯 こんなお客様に</div>
+                      <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                        {g.target.split(" / ").map((t, i) => (
+                          <span key={i} style={{ fontSize:11, padding:"3px 10px", borderRadius:10, background:`${g.color}18`, color:g.color, border:`1px solid ${g.color}35` }}>{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* 凡例 */}
-            <div style={{ display:"flex", gap:20, marginBottom:24 }}>
-              {[["◎","最強","#4CAF50"],["○","得意","#64B5F6"],["△","普通","#888"],["✕","苦手","#FF6B6B"]].map(([mark,label,color]) => (
-                <div key={mark} style={{ display:"flex", alignItems:"center", gap:6, fontSize:12 }}>
-                  <span style={{ color, fontWeight:700, fontSize:16 }}>{mark}</span>
-                  <span style={{ color:"#5070A0" }}>{label}</span>
+            {/* こんなお客様には */}
+            <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, margin:"24px 0 12px" }}>◼ お悩み別おすすめメーカー</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+              {[
+                ["💧","乾燥・加湿が気になる","ダイキン","#00A0E9"],
+                ["🌬️","空気清浄・アレルギー","Panasonic","#0047AA"],
+                ["👁️","風が苦手・快眠重視","三菱電機","#E60012"],
+                ["🧊","臭い・カビが気になる","日立","#CE0F0F"],
+                ["🌀","換気しながら冷暖房","東芝","#E60020"],
+                ["🔥","暖房重視・寒がり","富士通 / ゼネラル","#FF6B00"],
+                ["⚡","ペット・消臭重視","シャープ","#555"],
+                ["💰","コスパ重視","ゼネラル / シャープ","#888"],
+              ].map(([icon,label,maker,color]) => (
+                <div key={label} style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:12, padding:"12px 16px", display:"flex", alignItems:"center", gap:12 }}>
+                  <span style={{ fontSize:20 }}>{icon}</span>
+                  <div>
+                    <div style={{ fontSize:12, color:"#A0B8D0" }}>{label}</div>
+                    <div style={{ fontSize:14, fontWeight:700, color }}>{maker}</div>
+                  </div>
                 </div>
               ))}
             </div>
+          </div>
+        )}
 
             {/* ② こんなお客様には */}
             <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, marginBottom:12 }}>◼ こんなお客様には…</div>
@@ -668,7 +764,6 @@ export default function App() {
 
         {tab === "makers" && selectedMaker && (() => {
           const g = MAKER_GUIDE[selectedMaker];
-          const r = RATINGS[selectedMaker];
           return (
             <div>
               <button onClick={() => setSelectedMaker(null)} style={{ background:"none", border:"none", color:"#5070A0", cursor:"pointer", fontSize:13, marginBottom:16 }}>← 一覧に戻る</button>
@@ -680,14 +775,18 @@ export default function App() {
               </div>
 
               {/* スコア */}
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(6,1fr)", gap:8, marginBottom:16 }}>
-                {RATING_ITEMS.map(item => (
-                  <div key={item} style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${ratingColor(r[item])}40`, borderRadius:12, padding:"12px 8px", textAlign:"center" }}>
-                    <div style={{ fontSize:16 }}>{RATING_ICONS[item]}</div>
-                    <div style={{ fontSize:11, color:"#5070A0", margin:"4px 0" }}>{item}</div>
-                    <div style={{ fontSize:22, fontWeight:700, color:ratingColor(r[item]) }}>{ratingLabel(r[item])}</div>
-                  </div>
-                ))}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:16 }}>
+                {FEATURE_ITEMS.map(item => {
+                  const f = MAKER_FEATURES[item][selectedMaker];
+                  return (
+                    <div key={item} style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${markColor(f.mark)}40`, borderRadius:12, padding:"12px" }}>
+                      <div style={{ fontSize:14 }}>{FEATURE_ICONS[item]}</div>
+                      <div style={{ fontSize:11, color:"#5070A0", margin:"4px 0" }}>{item}</div>
+                      <div style={{ fontSize:18, fontWeight:700, color:markColor(f.mark), marginBottom:4 }}>{f.mark}</div>
+                      {f.mark !== "—" && <div style={{ fontSize:11, color:"#5070A0", lineHeight:1.5 }}>{f.text}</div>}
+                    </div>
+                  );
+                })}
               </div>
 
               {/* 3カラム */}
