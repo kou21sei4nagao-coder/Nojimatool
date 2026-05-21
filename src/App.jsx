@@ -2,12 +2,14 @@ import { useState } from "react";
 
 const globalStyle = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { margin: 0; padding: 0; overflow: hidden; background: #F5F7FA; }
+  body { margin: 0; padding: 0; overflow: hidden; background: #F5F7FA; font-size: 16px; }
   html { margin: 0; padding: 0; }
   #root { width: 100% !important; max-width: 100% !important; margin: 0 !important; border: none !important; text-align: left !important; }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: #F0F2F5; }
   ::-webkit-scrollbar-thumb { background: #CBD5E0; border-radius: 3px; }
+  /* 全体フォントサイズ底上げ */
+  button, div, span, a, p { -webkit-font-smoothing: antialiased; }
 `;
 
 // ── 機能データベース ─────────────────────────────────────
@@ -674,8 +676,8 @@ function AirPurifyCompare() {
 
   return (
     <div style={{ background:'#FFFFFF', borderRadius:16, border:'0.5px solid #E2E8F0', padding:'18px 20px', marginBottom:20 }}>
-      <div style={{ fontSize:13, fontWeight:700, color:'#1A202C', marginBottom:4 }}>3大空気浄化技術の比較</div>
-      <div style={{ fontSize:12, color:'#718096', marginBottom:16 }}>お客様のお悩みに合わせて選べます</div>
+      <div style={{ fontSize:15, fontWeight:700, color:'#1A202C', marginBottom:4 }}>3大空気浄化技術の比較</div>
+      <div style={{ fontSize:14, color:'#718096', marginBottom:16 }}>お客様のお悩みに合わせて選べます</div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
         {techs.map(t => (
           <div key={t.id} style={{ background:t.color+'06', borderRadius:14, padding:'16px', border:'1.5px solid '+t.color+'30' }}>
@@ -686,24 +688,24 @@ function AirPurifyCompare() {
               </div>
               <span style={{ fontSize:18 }}>{t.icon}</span>
               <div>
-                <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>{t.rank}</div>
-                <div style={{ fontSize:10, color:'rgba(255,255,255,0.8)' }}>{t.rankDesc}</div>
+                <div style={{ fontSize:15, fontWeight:700, color:'#fff' }}>{t.rank}</div>
+                <div style={{ fontSize:14, color:'rgba(255,255,255,0.8)' }}>{t.rankDesc}</div>
               </div>
             </div>
-            <div style={{ fontSize:11, fontWeight:700, color:t.color, marginBottom:4 }}>{t.maker}「{t.name}」</div>
+            <div style={{ fontSize:15, fontWeight:700, color:t.color, marginBottom:4 }}>{t.maker}「{t.name}」</div>
             <div style={{ fontSize:15, fontWeight:700, color:'#1A202C', lineHeight:1.4, marginBottom:10, whiteSpace:'pre-line' }}>{t.catchCopy}</div>
-            <div style={{ display:'inline-block', fontSize:11, fontWeight:700, padding:'4px 10px', borderRadius:20, background:t.color+'15', color:t.color, border:'1px solid '+t.color+'30', marginBottom:14 }}>
+            <div style={{ display:'inline-block', fontSize:15, fontWeight:700, padding:'4px 10px', borderRadius:20, background:t.color+'15', color:t.color, border:'1px solid '+t.color+'30', marginBottom:14 }}>
               ✓ {t.strong}
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
               {t.points.map((p, i) => (
                 <div key={i}>
-                  <div style={{ fontSize:12, fontWeight:700, color:'#1A202C', marginBottom:2 }}>▶ {p.title}</div>
-                  <div style={{ fontSize:11, color:'#4A5568', lineHeight:1.7, paddingLeft:10 }}>{p.desc}</div>
+                  <div style={{ fontSize:14, fontWeight:700, color:'#1A202C', marginBottom:2 }}>▶ {p.title}</div>
+                  <div style={{ fontSize:15, color:'#4A5568', lineHeight:1.7, paddingLeft:10 }}>{p.desc}</div>
                 </div>
               ))}
             </div>
-            <div style={{ marginTop:14, paddingTop:10, borderTop:'1px solid '+t.color+'20', fontSize:11, color:t.color, fontWeight:600 }}>
+            <div style={{ marginTop:14, paddingTop:10, borderTop:'1px solid '+t.color+'20', fontSize:15, color:t.color, fontWeight:600 }}>
               👤 {t.target}
             </div>
           </div>
@@ -731,14 +733,14 @@ function Top3Card({ item, color }) {
           width:22, height:22, borderRadius:6, flexShrink:0,
           background: item.rank===1 ? "#FFD700" : item.rank===2 ? "#C0C0C0" : "#CD7F32",
           display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:12, fontWeight:700, color:"#fff",
+          fontSize:14, fontWeight:700, color:"#fff",
         }}>{item.rank}</div>
         <div style={{ flex:1 }}>
-          <div style={{ fontSize:12, fontWeight:700, color:"#1A202C" }}>{item.maker} {item.series}</div>
-          <div style={{ fontSize:10, color:"#718096" }}>{item.model}</div>
-          <div style={{ fontSize:11, color:"#4A5568", marginTop:2, lineHeight:1.5 }}>{item.point}</div>
+          <div style={{ fontSize:14, fontWeight:700, color:"#1A202C" }}>{item.maker} {item.series}</div>
+          <div style={{ fontSize:14, color:"#4A5568" }}>{item.model}</div>
+          <div style={{ fontSize:15, color:"#4A5568", marginTop:2, lineHeight:1.5 }}>{item.point}</div>
         </div>
-        <span style={{ color, fontSize:13, flexShrink:0 }}>{open ? "▲" : "▼"}</span>
+        <span style={{ color, fontSize:15, flexShrink:0 }}>{open ? "▲" : "▼"}</span>
       </button>
 
       {open && (
@@ -746,11 +748,11 @@ function Top3Card({ item, color }) {
           {model ? (
             <>
               <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:10 }}>
-                {model.hasFilter && <span style={{ fontSize:11, padding:"3px 8px", borderRadius:8, background:"#F0FFF4", color:"#38A169", border:"1px solid #C6F6D5" }}>✨ 自動フィルター</span>}
-                {model.isEco    && <span style={{ fontSize:11, padding:"3px 8px", borderRadius:8, background:"#EBF8FF", color:"#3182CE", border:"1px solid #BEE3F8" }}>⚡ 省エネ</span>}
+                {model.hasFilter && <span style={{ fontSize:15, padding:"3px 8px", borderRadius:8, background:"#F0FFF4", color:"#38A169", border:"1px solid #C6F6D5" }}>✨ 自動フィルター</span>}
+                {model.isEco    && <span style={{ fontSize:15, padding:"3px 8px", borderRadius:8, background:"#EBF8FF", color:"#3182CE", border:"1px solid #BEE3F8" }}>⚡ 省エネ</span>}
                 {model.features.filter(k => k !== "filter").map(k => {
                   const f = FEATURES_DB[k];
-                  return f ? <span key={k} style={{ fontSize:11, padding:"3px 8px", borderRadius:8, background:`${f.color}10`, color:f.color, border:`1px solid ${f.color}30` }}>{f.icon} {f.name}</span> : null;
+                  return f ? <span key={k} style={{ fontSize:15, padding:"3px 8px", borderRadius:8, background:`${f.color}10`, color:f.color, border:`1px solid ${f.color}30` }}>{f.icon} {f.name}</span> : null;
                 })}
               </div>
               {model.features.filter(k => k !== "filter").map(k => {
@@ -758,11 +760,11 @@ function Top3Card({ item, color }) {
                 if (!f) return null;
                 return (
                   <div key={k} style={{ marginBottom:8 }}>
-                    <div style={{ fontSize:12, color:"#4A5568", lineHeight:1.7, marginBottom:6 }}>{f.customer}</div>
+                    <div style={{ fontSize:14, color:"#4A5568", lineHeight:1.7, marginBottom:6 }}>{f.customer}</div>
                     <button onClick={() => setVideoOpen(v => ({...v, [k]: !v[k]}))} style={{
                       background:"#FFF5F5", border:"1px solid #FEB2B2",
                       borderRadius:8, padding:"5px 12px",
-                      color:"#C53030", fontSize:11, cursor:"pointer",
+                      color:"#C53030", fontSize:15, cursor:"pointer",
                     }}>▶ {f.name}の動画{videoOpen[k] ? "を閉じる" : "を見る"}</button>
                     {videoOpen[k] && (
                       <div style={{ marginTop:8, borderRadius:8, overflow:"hidden", aspectRatio:"16/9" }}>
@@ -778,7 +780,7 @@ function Top3Card({ item, color }) {
               })}
             </>
           ) : (
-            <div style={{ fontSize:12, color:"#718096" }}>※ 型番をAC_MODELSに登録すると詳細が表示されます</div>
+            <div style={{ fontSize:14, color:"#4A5568" }}>※ 型番をAC_MODELSに登録すると詳細が表示されます</div>
           )}
         </div>
       )}
@@ -822,19 +824,19 @@ function FeatureCard({ featureKey, isStaffMode, highlight }) {
         <span style={{ fontSize:26 }}>{f.icon}</span>
         <div style={{ flex:1 }}>
           <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{f.name}
-            <span style={{ fontSize:11, color:"#718096", fontWeight:400, marginLeft:8 }}>{f.maker}</span>
+            <span style={{ fontSize:15, color:"#4A5568", fontWeight:400, marginLeft:8 }}>{f.maker}</span>
           </div>
-          <div style={{ fontSize:12, color:"#718096" }}>{f.tagline}</div>
+          <div style={{ fontSize:14, color:"#4A5568" }}>{f.tagline}</div>
         </div>
-        {highlight && <span style={{ fontSize:11, color:f.color, background:f.color+"15", padding:"2px 8px", borderRadius:6, border:`1px solid ${f.color}40` }}>搭載機能</span>}
+        {highlight && <span style={{ fontSize:15, color:f.color, background:f.color+"15", padding:"2px 8px", borderRadius:6, border:`1px solid ${f.color}40` }}>搭載機能</span>}
       </div>
 
-      <div style={{ fontSize:13, color:"#4A5568", lineHeight:1.75, marginBottom:10 }}>{f.customer}</div>
+      <div style={{ fontSize:15, color:"#4A5568", lineHeight:1.75, marginBottom:10 }}>{f.customer}</div>
 
       {isStaffMode && (
         <div style={{ background:"#FFFBEB", border:"1px solid #F6E05E", borderRadius:10, padding:"10px 14px", marginBottom:10 }}>
-          <div style={{ fontSize:11, color:"#B7791F", fontWeight:700, marginBottom:4 }}>📋 スタッフメモ</div>
-          <div style={{ fontSize:12, color:"#744210", lineHeight:1.75 }}>{f.staff}</div>
+          <div style={{ fontSize:15, color:"#B7791F", fontWeight:700, marginBottom:4 }}>📋 スタッフメモ</div>
+          <div style={{ fontSize:14, color:"#744210", lineHeight:1.75 }}>{f.staff}</div>
         </div>
       )}
 
@@ -842,14 +844,14 @@ function FeatureCard({ featureKey, isStaffMode, highlight }) {
         <a href={`https://youtu.be/${f.youtubeId}`} target="_blank" rel="noopener noreferrer" style={{
           display:"inline-flex", alignItems:"center", gap:6,
           background:"#FF0000", borderRadius:10,
-          padding:"8px 16px", color:"#fff", fontSize:12, fontWeight:700,
+          padding:"8px 16px", color:"#fff", fontSize:14, fontWeight:700,
           textDecoration:"none",
         }}>▶ YouTubeで動画を見る</a>
         {f.extraVideos && f.extraVideos.map(v => (
           <a key={v.id} href={`https://youtu.be/${v.id}`} target="_blank" rel="noopener noreferrer" style={{
             display:"inline-flex", alignItems:"center", gap:6,
             background:"#CC0000", borderRadius:10,
-            padding:"8px 16px", color:"#fff", fontSize:12, fontWeight:700,
+            padding:"8px 16px", color:"#fff", fontSize:14, fontWeight:700,
             textDecoration:"none",
           }}>▶ {v.label}</a>
         ))}
@@ -904,15 +906,15 @@ export default function App() {
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <button onClick={() => setSidebarOpen(v => !v)} style={{
             background:"#F7FAFC", border:"1px solid #E2E8F0",
-            borderRadius:8, padding:"6px 10px", cursor:"pointer", color:"#718096", fontSize:16,
+            borderRadius:8, padding:"6px 10px", cursor:"pointer", color:"#4A5568", fontSize:16,
           }}>{sidebarOpen ? "◀" : "▶"}</button>
           <div style={{ width:32, height:32, borderRadius:10, background:"linear-gradient(135deg,#1E90FF,#00D4FF)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>❄️</div>
           <div>
             <div style={{ display:"flex", alignItems:"center", gap:8 }}>
               <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>エアコン コンサルツール</div>
-              <span style={{ fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20, background:"linear-gradient(135deg, #667eea, #764ba2)", color:"#fff", letterSpacing:1 }}>α ver.</span>
+              <span style={{ fontSize:14, fontWeight:700, padding:"2px 8px", borderRadius:20, background:"linear-gradient(135deg, #667eea, #764ba2)", color:"#fff", letterSpacing:1 }}>α ver.</span>
             </div>
-            <div style={{ fontSize:9, color:"#A0AEC0", letterSpacing:1 }}>nagao · AC GUIDE</div>
+            <div style={{ fontSize:9, color:"#718096", letterSpacing:1 }}>nagao · AC GUIDE</div>
           </div>
         </div>
       </div>
@@ -933,7 +935,7 @@ export default function App() {
               <button key={key} onClick={() => setTab(key)} style={{
                 padding:"12px 18px", background: tab===key ? "#EBF8FF" : "none", textAlign:"left",
                 border:"none", borderLeft:`3px solid ${tab===key ? accentColor : "transparent"}`,
-                color: tab===key ? "#1A202C" : "#718096", fontSize:13, fontWeight: tab===key ? 700 : 400,
+                color: tab===key ? "#1A202C" : "#718096", fontSize:15, fontWeight: tab===key ? 700 : 400,
                 cursor:"pointer", transition:"all 0.2s",
               }}>{label}</button>
             ))}
@@ -945,11 +947,11 @@ export default function App() {
 
               {/* メーカー */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#718096", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 1 ｜ メーカー</div>
+                <div style={{ fontSize:14, color:"#4A5568", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 1 ｜ メーカー</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
                   {MAKERS.map(m => (
                     <Chip key={m} active={maker===m} color={MAKER_COLORS[m]} onClick={() => { setMaker(maker===m ? null : m); setTatami(null); setFilterOpt(null); setEcoOpt(null); }}>
-                      <div style={{ fontSize:11, fontWeight:700 }}>{m}</div>
+                      <div style={{ fontSize:15, fontWeight:700 }}>{m}</div>
                     </Chip>
                   ))}
                 </div>
@@ -957,14 +959,14 @@ export default function App() {
 
               {/* 畳数 */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 2 ｜ 畳数 / kW</div>
+                <div style={{ fontSize:14, color:"#2D3748", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 2 ｜ 畳数 / kW</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
                   {TATAMI_LIST.map(t => {
                     const isDisplay = TATAMI_DISPLAY.includes(t);
                     return (
                       <Chip key={t} active={tatami===t} color={accentColor} onClick={() => setTatami(tatami===t ? null : t)}>
-                        <div style={{ fontSize:12, fontWeight:700 }}>{TATAMI_LABELS[t]}</div>
-                        <div style={{ fontSize:11, color:"#1E90FF", fontWeight:600 }}>{TATAMI_KW[t]}kW</div>
+                        <div style={{ fontSize:14, fontWeight:700 }}>{TATAMI_LABELS[t]}</div>
+                        <div style={{ fontSize:15, color:"#1E90FF", fontWeight:600 }}>{TATAMI_KW[t]}kW</div>
                         <div style={{ fontSize:9, marginTop:1, color: isDisplay ? "#4CAF50" : "#4A6080" }}>{isDisplay ? "🟢 展示あり" : "販売のみ"}</div>
                       </Chip>
                     );
@@ -974,12 +976,12 @@ export default function App() {
 
               {/* フィルター */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 3 ｜ 自動フィルター掃除</div>
+                <div style={{ fontSize:14, color:"#2D3748", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 3 ｜ 自動フィルター掃除</div>
                 <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                   {[[null,"指定なし","—"],[true,"あり ✨","手入れ不要"],[false,"なし","シンプル"]].map(([val,label,sub]) => (
                     <Chip key={String(val)} active={filterOpt===val} color={accentColor} onClick={() => setFilterOpt(val)}>
-                      <div style={{ fontSize:12, fontWeight:700 }}>{label}</div>
-                      <div style={{ fontSize:10, color:"#4A6080" }}>{sub}</div>
+                      <div style={{ fontSize:14, fontWeight:700 }}>{label}</div>
+                      <div style={{ fontSize:14, color:"#2D3748" }}>{sub}</div>
                     </Chip>
                   ))}
                 </div>
@@ -987,12 +989,12 @@ export default function App() {
 
               {/* 省エネ */}
               <div style={{ marginBottom:20 }}>
-                <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 4 ｜ 超省エネモデル</div>
+                <div style={{ fontSize:14, color:"#2D3748", fontWeight:700, letterSpacing:2, marginBottom:8 }}>STEP 4 ｜ 超省エネモデル</div>
                 <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                   {[[null,"指定なし","—"],[true,"省エネ ⚡","電気代重視"],[false,"スタンダード","コスパ重視"]].map(([val,label,sub]) => (
                     <Chip key={String(val)} active={ecoOpt===val} color={accentColor} onClick={() => setEcoOpt(val)}>
-                      <div style={{ fontSize:12, fontWeight:700 }}>{label}</div>
-                      <div style={{ fontSize:10, color:"#4A6080" }}>{sub}</div>
+                      <div style={{ fontSize:14, fontWeight:700 }}>{label}</div>
+                      <div style={{ fontSize:14, color:"#2D3748" }}>{sub}</div>
                     </Chip>
                   ))}
                 </div>
@@ -1001,7 +1003,7 @@ export default function App() {
               {(maker || tatami || filterOpt !== null || ecoOpt !== null) && (
                 <button onClick={resetFilter} style={{
                   background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)",
-                  borderRadius:10, padding:"8px", color:"#5070A0", fontSize:11, cursor:"pointer", width:"100%",
+                  borderRadius:10, padding:"8px", color:"#5070A0", fontSize:15, cursor:"pointer", width:"100%",
                 }}>✕ リセット</button>
               )}
             </div>
@@ -1022,10 +1024,10 @@ export default function App() {
               { label:"14・18畳 おすすめ", group:"large" },
             ].map(({ label, group }) => (
               <div key={group} style={{ marginBottom:24 }}>
-                <div style={{ fontSize:13, fontWeight:700, color:"#4A5568", marginBottom:10 }}>⭐ {label}</div>
+                <div style={{ fontSize:15, fontWeight:700, color:"#4A5568", marginBottom:10 }}>⭐ {label}</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
                   {[
-                    { key:"noFilter", label:"自動掃除なし", color:"#718096", icon:"🔲" },
+                    { key:"noFilter", label:"自動掃除なし", color:"#4A5568", icon:"🔲" },
                     { key:"hasFilter", label:"自動掃除あり ✨", color:"#38A169", icon:"✨" },
                     { key:"eco", label:"超省エネモデル ⚡", color:"#3182CE", icon:"⚡" },
                   ].map(({ key, label: catLabel, color }) => (
@@ -1037,22 +1039,33 @@ export default function App() {
                       onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.boxShadow = `0 4px 12px ${color}20`; }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor = color+"30"; e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.06)"; }}
                     >
-                      <div style={{ fontSize:12, fontWeight:700, color, marginBottom:10 }}>{catLabel}</div>
+                      <div style={{ fontSize:14, fontWeight:700, color, marginBottom:10 }}>{catLabel}</div>
                       {TOP3[group][key].map(item => (
                         <div key={item.rank} style={{ display:"flex", gap:8, alignItems:"center", marginBottom:6 }}>
                           <div style={{
                             width:20, height:20, borderRadius:6, flexShrink:0,
                             background: item.rank===1 ? "#FFD700" : item.rank===2 ? "#C0C0C0" : "#CD7F32",
                             display:"flex", alignItems:"center", justifyContent:"center",
-                            fontSize:11, fontWeight:700, color:"#fff",
+                            fontSize:15, fontWeight:700, color:"#fff",
                           }}>{item.rank}</div>
                           <div>
-                            <div style={{ fontSize:11, fontWeight:700, color:"#1A202C" }}>{item.maker} {item.series}</div>
-                            <div style={{ fontSize:10, color:"#718096" }}>{item.model}</div>
+                            <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{item.maker} {item.series}</div>
+                            <div style={{ fontSize:14, color:"#4A5568" }}>{item.model}</div>
                           </div>
                         </div>
                       ))}
-                      <div style={{ fontSize:11, color, marginTop:8, fontWeight:600, textAlign:"right" }}>詳細を比較する →</div>
+                      {/* 4位以降ボタン */}
+                      {group === "small" && FULL_RANKING[key].length > 3 && (
+                        <button onClick={() => setTop3View({ group, key })} style={{
+                          display:"flex", alignItems:"center", justifyContent:"center", gap:4,
+                          width:"100%", marginTop:6, padding:"6px",
+                          background:"none", border:`1px dashed ${color}60`,
+                          borderRadius:8, cursor:"pointer", color, fontSize:15, fontWeight:600,
+                        }}>
+                          ・・・ {FULL_RANKING[key].length - 3}機種以上 全ランキングを見る →
+                        </button>
+                      )}
+                      <div style={{ fontSize:15, color, marginTop:8, fontWeight:600, textAlign:"right" }}>詳細を比較する →</div>
                     </button>
                   ))}
                 </div>
@@ -1060,7 +1073,7 @@ export default function App() {
             ))}
 
             {/* 絞り込み結果 */}
-            <div style={{ fontSize:13, color:"#718096", marginBottom:14 }}>
+            <div style={{ fontSize:15, color:"#4A5568", marginBottom:14 }}>
               絞り込み結果　<span style={{ fontSize:22, fontWeight:700, color:"#1A202C" }}>{results.length}</span> 件
             </div>
             {results.length === 0 ? (
@@ -1078,19 +1091,19 @@ export default function App() {
                     onMouseLeave={e => { e.currentTarget.style.borderColor = m.color+"40"; e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.06)"; }}
                   >
                     <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
-                      <span style={{ fontSize:11, padding:"2px 8px", borderRadius:5, background:GRADE_COLORS[m.grade]+"22", color:GRADE_COLORS[m.grade], border:`1px solid ${GRADE_COLORS[m.grade]}40` }}>{m.grade}</span>
-                      <span style={{ fontSize:11, color:"#5070A0" }}>{m.maker}</span>
+                      <span style={{ fontSize:15, padding:"2px 8px", borderRadius:5, background:GRADE_COLORS[m.grade]+"22", color:GRADE_COLORS[m.grade], border:`1px solid ${GRADE_COLORS[m.grade]}40` }}>{m.grade}</span>
+                      <span style={{ fontSize:15, color:"#5070A0" }}>{m.maker}</span>
                     </div>
                     <div style={{ fontSize:16, fontWeight:700, color:"#1A202C" }}>{m.series}</div>
-                    <div style={{ fontSize:12, color:"#718096", marginBottom:8 }}>
+                    <div style={{ fontSize:14, color:"#4A5568", marginBottom:8 }}>
                       {m.model}　{m.tatami}畳　<span style={{ color:"#1E90FF", fontWeight:600 }}>{TATAMI_KW[m.tatami]}kW</span>
                     </div>
                     <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
-                      {m.hasFilter && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:"rgba(76,175,80,0.15)", color:"#81C784", border:"1px solid rgba(76,175,80,0.3)" }}>✨ 自動フィルター</span>}
-                      {m.isEco    && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:"rgba(30,144,255,0.12)", color:"#64B5F6", border:"1px solid rgba(30,144,255,0.3)" }}>⚡ 省エネ</span>}
+                      {m.hasFilter && <span style={{ fontSize:14, padding:"2px 8px", borderRadius:8, background:"rgba(76,175,80,0.15)", color:"#81C784", border:"1px solid rgba(76,175,80,0.3)" }}>✨ 自動フィルター</span>}
+                      {m.isEco    && <span style={{ fontSize:14, padding:"2px 8px", borderRadius:8, background:"rgba(30,144,255,0.12)", color:"#64B5F6", border:"1px solid rgba(30,144,255,0.3)" }}>⚡ 省エネ</span>}
                       {m.features.filter(k => k !== "filter").map(k => {
                         const f = FEATURES_DB[k];
-                        return f ? <span key={k} style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:`${f.color}18`, color:f.color, border:`1px solid ${f.color}35` }}>{f.icon} {f.name}</span> : null;
+                        return f ? <span key={k} style={{ fontSize:14, padding:"2px 8px", borderRadius:8, background:`${f.color}18`, color:f.color, border:`1px solid ${f.color}35` }}>{f.icon} {f.name}</span> : null;
                       })}
                     </div>
                   </button>
@@ -1109,11 +1122,11 @@ export default function App() {
           const color = catColors[top3View.key];
           return (
             <div>
-              <button onClick={() => setTop3View(null)} style={{ background:"none", border:"none", color:"#718096", cursor:"pointer", fontSize:13, marginBottom:16 }}>← 戻る</button>
+              <button onClick={() => setTop3View(null)} style={{ background:"none", border:"none", color:"#4A5568", cursor:"pointer", fontSize:15, marginBottom:16 }}>← 戻る</button>
               <div style={{ fontSize:16, fontWeight:700, color:"#1A202C", marginBottom:4 }}>
                 {groupLabels[top3View.group]}　{catLabels[top3View.key]}
               </div>
-              <div style={{ fontSize:12, color:"#718096", marginBottom:20 }}>おすすめTop3の比較</div>
+              <div style={{ fontSize:14, color:"#4A5568", marginBottom:20 }}>おすすめTop3の比較</div>
 
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:14 }}>
                 {items.map(item => {
@@ -1129,14 +1142,14 @@ export default function App() {
                           fontSize:14, fontWeight:700, color:"#fff",
                         }}>{item.rank}</div>
                         <div>
-                          <div style={{ fontSize:13, fontWeight:700, color:"#1A202C" }}>{item.maker}</div>
-                          <div style={{ fontSize:12, color:"#4A5568" }}>{item.series}</div>
+                          <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{item.maker}</div>
+                          <div style={{ fontSize:14, color:"#4A5568" }}>{item.series}</div>
                         </div>
                       </div>
 
                       <div style={{ padding:"14px 16px" }}>
                         {/* 型番 */}
-                        <div style={{ fontSize:11, color:"#718096", marginBottom:10 }}>
+                        <div style={{ fontSize:15, color:"#4A5568", marginBottom:10 }}>
                           {item.model}　{model ? `${model.tatami}畳 / ${TATAMI_KW[model.tatami]}kW` : ""}
                         </div>
 
@@ -1144,20 +1157,20 @@ export default function App() {
                         <div style={{ display:"flex", alignItems:"flex-start", gap:8, marginBottom:14, padding:"10px 12px", background:"#F0FFF4", borderRadius:10, border:"1px solid #C6F6D5" }}>
                           <span style={{ fontSize:16, flexShrink:0 }}>💡</span>
                           <div>
-                            <div style={{ fontSize:10, fontWeight:700, color:"#276749", marginBottom:2 }}>一言でいうと</div>
-                            <div style={{ fontSize:13, fontWeight:700, color:"#1A202C" }}>{item.summary || item.point}</div>
+                            <div style={{ fontSize:14, fontWeight:700, color:"#276749", marginBottom:2 }}>一言でいうと</div>
+                            <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{item.summary || item.point}</div>
                           </div>
                         </div>
 
                         {/* そのまま使えるトーク */}
                         {item.talks && (
                           <div style={{ marginBottom:12 }}>
-                            <div style={{ fontSize:10, fontWeight:700, color:"#2B6CB0", marginBottom:8, display:"flex", alignItems:"center", gap:4 }}>
+                            <div style={{ fontSize:14, fontWeight:700, color:"#2B6CB0", marginBottom:8, display:"flex", alignItems:"center", gap:4 }}>
                               <span>🗣️</span> そのまま使えるトーク
                             </div>
                             <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                               {item.talks.map((talk, i) => (
-                                <div key={i} style={{ fontSize:12, color:"#1A202C", lineHeight:1.7, padding:"10px 12px", background:"#EBF8FF", borderRadius:10, border:"1px solid #BEE3F8", borderLeft:`3px solid ${color}` }}>
+                                <div key={i} style={{ fontSize:14, color:"#1A202C", lineHeight:1.7, padding:"10px 12px", background:"#EBF8FF", borderRadius:10, border:"1px solid #BEE3F8", borderLeft:`3px solid ${color}` }}>
                                   {talk}
                                 </div>
                               ))}
@@ -1168,11 +1181,11 @@ export default function App() {
                         {/* 機能タグ */}
                         {model && (
                           <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
-                            {model.hasFilter && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:"#F0FFF4", color:"#38A169", border:"1px solid #C6F6D5" }}>✨ 自動フィルター</span>}
-                            {model.isEco    && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:"#EBF8FF", color:"#3182CE", border:"1px solid #BEE3F8" }}>⚡ 省エネ</span>}
+                            {model.hasFilter && <span style={{ fontSize:14, padding:"2px 8px", borderRadius:8, background:"#F0FFF4", color:"#38A169", border:"1px solid #C6F6D5" }}>✨ 自動フィルター</span>}
+                            {model.isEco    && <span style={{ fontSize:14, padding:"2px 8px", borderRadius:8, background:"#EBF8FF", color:"#3182CE", border:"1px solid #BEE3F8" }}>⚡ 省エネ</span>}
                             {model.features.filter(k => k !== "filter").map(k => {
                               const f = FEATURES_DB[k];
-                              return f ? <span key={k} style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:`${f.color}10`, color:f.color, border:`1px solid ${f.color}30` }}>{f.icon} {f.name}</span> : null;
+                              return f ? <span key={k} style={{ fontSize:14, padding:"2px 8px", borderRadius:8, background:`${f.color}10`, color:f.color, border:`1px solid ${f.color}30` }}>{f.icon} {f.name}</span> : null;
                             })}
                           </div>
                         )}
@@ -1185,10 +1198,10 @@ export default function App() {
               {/* 全機種ランキング（6・10畳のみ） */}
               {top3View.group === "small" && (
                 <div style={{ marginTop:28 }}>
-                  <div style={{ fontSize:13, fontWeight:700, color:"#1A202C", marginBottom:4 }}>
+                  <div style={{ fontSize:15, fontWeight:700, color:"#1A202C", marginBottom:4 }}>
                     📋 6・10畳 全機種ランキング
                   </div>
-                  <div style={{ fontSize:12, color:"#718096", marginBottom:14 }}>展示している機種をすべておすすめ順で表示</div>
+                  <div style={{ fontSize:14, color:"#4A5568", marginBottom:14 }}>展示している機種をすべておすすめ順で表示</div>
                   <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
                     {FULL_RANKING[top3View.key].map((item, i) => (
                       <div key={i} style={{
@@ -1201,26 +1214,26 @@ export default function App() {
                             width:28, height:28, borderRadius:8, flexShrink:0,
                             background: item.rank===1 ? "#FFD700" : item.rank===2 ? "#C0C0C0" : item.rank===3 ? "#CD7F32" : item.warning ? "#FC8181" : "#E2E8F0",
                             display:"flex", alignItems:"center", justifyContent:"center",
-                            fontSize:13, fontWeight:700, color: item.rank<=3 ? "#fff" : item.warning ? "#fff" : "#718096",
+                            fontSize:15, fontWeight:700, color: item.rank<=3 ? "#fff" : item.warning ? "#fff" : "#718096",
                           }}>{item.rank}</div>
                           <div style={{ flex:1 }}>
-                            <div style={{ fontSize:13, fontWeight:700, color:"#1A202C" }}>{item.maker}　{item.series}</div>
-                            <div style={{ fontSize:11, color:"#718096" }}>{item.model}</div>
+                            <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{item.maker}　{item.series}</div>
+                            <div style={{ fontSize:15, color:"#4A5568" }}>{item.model}</div>
                           </div>
                         </div>
                         <div style={{ padding:"12px 16px" }}>
                           {item.warning && (
-                            <div style={{ background:"#FED7D7", borderRadius:8, padding:"8px 12px", marginBottom:10, fontSize:12, color:"#C53030", fontWeight:600 }}>
+                            <div style={{ background:"#FED7D7", borderRadius:8, padding:"8px 12px", marginBottom:10, fontSize:14, color:"#C53030", fontWeight:600 }}>
                               ⚠️ {item.warning}
                             </div>
                           )}
                           <div style={{ display:"flex", gap:8, marginBottom:10, padding:"8px 10px", background: item.warning ? "#FFF5F5" : "#F0FFF4", borderRadius:8 }}>
                             <span>💡</span>
-                            <div style={{ fontSize:12, fontWeight:700, color:"#1A202C" }}>{item.summary}</div>
+                            <div style={{ fontSize:14, fontWeight:700, color:"#1A202C" }}>{item.summary}</div>
                           </div>
-                          <div style={{ fontSize:10, fontWeight:700, color:"#2B6CB0", marginBottom:6 }}>🗣️ そのまま使えるトーク</div>
+                          <div style={{ fontSize:14, fontWeight:700, color:"#2B6CB0", marginBottom:6 }}>🗣️ そのまま使えるトーク</div>
                           {item.talks.map((talk, j) => (
-                            <div key={j} style={{ fontSize:12, color:"#1A202C", lineHeight:1.7, padding:"8px 12px", background:"#EBF8FF", borderRadius:8, marginBottom:6, borderLeft:`3px solid ${color}` }}>
+                            <div key={j} style={{ fontSize:14, color:"#1A202C", lineHeight:1.7, padding:"8px 12px", background:"#EBF8FF", borderRadius:8, marginBottom:6, borderLeft:`3px solid ${color}` }}>
                               {talk}
                             </div>
                           ))}
@@ -1237,17 +1250,17 @@ export default function App() {
         {/* ══ 機種詳細 ══ */}
         {tab === "filter" && selectedModel && (
           <div>
-            <button onClick={() => setSelectedModel(null)} style={{ background:"none", border:"none", color:"#5070A0", cursor:"pointer", fontSize:13, marginBottom:20 }}>← 一覧に戻る</button>
+            <button onClick={() => setSelectedModel(null)} style={{ background:"none", border:"none", color:"#5070A0", cursor:"pointer", fontSize:15, marginBottom:20 }}>← 一覧に戻る</button>
             <div style={{ background:`${selectedModel.color}15`, border:`1px solid ${selectedModel.color}45`, borderRadius:20, padding:"22px 24px", marginBottom:24 }}>
-              <div style={{ fontSize:12, color:"#5070A0", marginBottom:2 }}>{selectedModel.maker}</div>
+              <div style={{ fontSize:14, color:"#5070A0", marginBottom:2 }}>{selectedModel.maker}</div>
               <div style={{ fontSize:24, fontWeight:700 }}>{selectedModel.series}</div>
               <div style={{ fontSize:14, color:"#5070A0", marginBottom:10 }}>
                 {selectedModel.model}　{selectedModel.tatami}畳　<span style={{ color:"#1E90FF", fontWeight:700 }}>{TATAMI_KW[selectedModel.tatami]}kW</span>
               </div>
               <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-                <span style={{ fontSize:12, padding:"4px 12px", borderRadius:6, background:GRADE_COLORS[selectedModel.grade]+"22", color:GRADE_COLORS[selectedModel.grade], border:`1px solid ${GRADE_COLORS[selectedModel.grade]}40` }}>{selectedModel.grade}</span>
-                {selectedModel.hasFilter && <span style={{ fontSize:12, padding:"4px 12px", borderRadius:6, background:"rgba(76,175,80,0.15)", color:"#81C784", border:"1px solid rgba(76,175,80,0.3)" }}>✨ 自動フィルター掃除</span>}
-                {selectedModel.isEco    && <span style={{ fontSize:12, padding:"4px 12px", borderRadius:6, background:"rgba(30,144,255,0.12)", color:"#64B5F6", border:"1px solid rgba(30,144,255,0.3)" }}>⚡ 超省エネ</span>}
+                <span style={{ fontSize:14, padding:"4px 12px", borderRadius:6, background:GRADE_COLORS[selectedModel.grade]+"22", color:GRADE_COLORS[selectedModel.grade], border:`1px solid ${GRADE_COLORS[selectedModel.grade]}40` }}>{selectedModel.grade}</span>
+                {selectedModel.hasFilter && <span style={{ fontSize:14, padding:"4px 12px", borderRadius:6, background:"rgba(76,175,80,0.15)", color:"#81C784", border:"1px solid rgba(76,175,80,0.3)" }}>✨ 自動フィルター掃除</span>}
+                {selectedModel.isEco    && <span style={{ fontSize:14, padding:"4px 12px", borderRadius:6, background:"rgba(30,144,255,0.12)", color:"#64B5F6", border:"1px solid rgba(30,144,255,0.3)" }}>⚡ 超省エネ</span>}
               </div>
             </div>
             {selectedModel.features.length > 0 ? (
@@ -1266,7 +1279,7 @@ export default function App() {
         {/* ══ メーカー特徴 ══ */}
         {tab === "makers" && !selectedMaker && (
           <div>
-            <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, marginBottom:16 }}>◼ メーカー別コンサルポイント</div>
+            <div style={{ fontSize:14, fontWeight:700, color:"#7090A8", letterSpacing:2, marginBottom:16 }}>◼ メーカー別コンサルポイント</div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
               {MAKERS.map(m => {
                 const g = MAKER_GUIDE[m];
@@ -1276,11 +1289,11 @@ export default function App() {
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
                       <div>
                         <div style={{ fontSize:16, fontWeight:700, color:g.color }}>{m}</div>
-                        <div style={{ fontSize:11, color:"#5070A0", marginTop:2 }}>「{g.catch}」</div>
+                        <div style={{ fontSize:15, color:"#5070A0", marginTop:2 }}>「{g.catch}」</div>
                       </div>
                       <button onClick={() => setSelectedMaker(m)} style={{
                         background:`${g.color}20`, border:`1px solid ${g.color}50`,
-                        borderRadius:8, padding:"4px 12px", cursor:"pointer", color:g.color, fontSize:11, fontWeight:700,
+                        borderRadius:8, padding:"4px 12px", cursor:"pointer", color:g.color, fontSize:15, fontWeight:700,
                       }}>詳細</button>
                     </div>
 
@@ -1290,8 +1303,8 @@ export default function App() {
                         <div key={i} style={{ display:"flex", gap:8, alignItems:"flex-start" }}>
                           <span style={{ color:g.color, fontSize:14, marginTop:1, flexShrink:0 }}>▶</span>
                           <div>
-                            <div style={{ fontSize:13, fontWeight:700, color:"#E8EDF5" }}>{point.title}</div>
-                            <div style={{ fontSize:12, color:"#6080A0", lineHeight:1.6, marginTop:2 }}>{point.desc}</div>
+                            <div style={{ fontSize:15, fontWeight:700, color:"#E8EDF5" }}>{point.title}</div>
+                            <div style={{ fontSize:14, color:"#6080A0", lineHeight:1.6, marginTop:2 }}>{point.desc}</div>
                           </div>
                         </div>
                       ))}
@@ -1299,10 +1312,10 @@ export default function App() {
 
                     {/* 刺さるお客様 */}
                     <div style={{ marginTop:14, paddingTop:12, borderTop:`1px solid ${g.color}25` }}>
-                      <div style={{ fontSize:10, color:"#4A6080", fontWeight:700, letterSpacing:1, marginBottom:6 }}>🎯 こんなお客様に</div>
+                      <div style={{ fontSize:14, color:"#2D3748", fontWeight:700, letterSpacing:1, marginBottom:6 }}>🎯 こんなお客様に</div>
                       <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
                         {g.target.split(" / ").map((t, i) => (
-                          <span key={i} style={{ fontSize:11, padding:"3px 10px", borderRadius:10, background:`${g.color}18`, color:g.color, border:`1px solid ${g.color}35` }}>{t}</span>
+                          <span key={i} style={{ fontSize:15, padding:"3px 10px", borderRadius:10, background:`${g.color}18`, color:g.color, border:`1px solid ${g.color}35` }}>{t}</span>
                         ))}
                       </div>
                     </div>
@@ -1312,7 +1325,7 @@ export default function App() {
             </div>
 
             {/* こんなお客様には */}
-            <div style={{ fontSize:12, fontWeight:700, color:"#7090A8", letterSpacing:2, margin:"24px 0 12px" }}>◼ お悩み別おすすめメーカー</div>
+            <div style={{ fontSize:14, fontWeight:700, color:"#7090A8", letterSpacing:2, margin:"24px 0 12px" }}>◼ お悩み別おすすめメーカー</div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
               {[
                 ["💧","乾燥・加湿が気になる","ダイキン","#00A0E9"],
@@ -1327,7 +1340,7 @@ export default function App() {
                 <div key={label} style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:12, padding:"12px 16px", display:"flex", alignItems:"center", gap:12 }}>
                   <span style={{ fontSize:20 }}>{icon}</span>
                   <div>
-                    <div style={{ fontSize:12, color:"#A0B8D0" }}>{label}</div>
+                    <div style={{ fontSize:14, color:"#A0B8D0" }}>{label}</div>
                     <div style={{ fontSize:14, fontWeight:700, color }}>{maker}</div>
                   </div>
                 </div>
@@ -1340,7 +1353,7 @@ export default function App() {
           const g = MAKER_GUIDE[selectedMaker];
           return (
             <div>
-              <button onClick={() => setSelectedMaker(null)} style={{ background:"none", border:"none", color:"#5070A0", cursor:"pointer", fontSize:13, marginBottom:16 }}>← 一覧に戻る</button>
+              <button onClick={() => setSelectedMaker(null)} style={{ background:"none", border:"none", color:"#5070A0", cursor:"pointer", fontSize:15, marginBottom:16 }}>← 一覧に戻る</button>
 
               {/* ヘッダー */}
               <div style={{ background:`linear-gradient(135deg, ${g.color}30, ${g.color}10)`, border:`1px solid ${g.color}60`, borderRadius:20, padding:"16px 24px", marginBottom:16 }}>
@@ -1355,9 +1368,9 @@ export default function App() {
                   return (
                     <div key={item} style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${markColor(f.mark)}40`, borderRadius:12, padding:"12px" }}>
                       <div style={{ fontSize:14 }}>{FEATURE_ICONS[item]}</div>
-                      <div style={{ fontSize:11, color:"#5070A0", margin:"4px 0" }}>{item}</div>
+                      <div style={{ fontSize:15, color:"#5070A0", margin:"4px 0" }}>{item}</div>
                       <div style={{ fontSize:18, fontWeight:700, color:markColor(f.mark), marginBottom:4 }}>{f.mark}</div>
-                      {f.mark !== "—" && <div style={{ fontSize:11, color:"#5070A0", lineHeight:1.5 }}>{f.text}</div>}
+                      {f.mark !== "—" && <div style={{ fontSize:15, color:"#5070A0", lineHeight:1.5 }}>{f.text}</div>}
                     </div>
                   );
                 })}
@@ -1366,47 +1379,47 @@ export default function App() {
               {/* 3カラム */}
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:16 }}>
                 <div style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${g.color}40`, borderRadius:16, padding:"16px" }}>
-                  <div style={{ fontSize:12, color:g.color, fontWeight:700, letterSpacing:1, marginBottom:10 }}>💪 強み</div>
-                  <div style={{ fontSize:13, color:"#A0C0D8", lineHeight:1.8 }}>{g.strength}</div>
+                  <div style={{ fontSize:14, color:g.color, fontWeight:700, letterSpacing:1, marginBottom:10 }}>💪 強み</div>
+                  <div style={{ fontSize:15, color:"#A0C0D8", lineHeight:1.8 }}>{g.strength}</div>
                 </div>
                 <div style={{ background:"rgba(30,144,255,0.06)", border:"1px solid rgba(30,144,255,0.25)", borderRadius:16, padding:"16px" }}>
-                  <div style={{ fontSize:12, color:"#64B5F6", fontWeight:700, letterSpacing:1, marginBottom:10 }}>🎯 刺さるお客様</div>
+                  <div style={{ fontSize:14, color:"#64B5F6", fontWeight:700, letterSpacing:1, marginBottom:10 }}>🎯 刺さるお客様</div>
                   {g.target.split(" / ").map((t, i) => (
-                    <div key={i} style={{ fontSize:13, color:"#7AAAC8", lineHeight:1.8, display:"flex", gap:6 }}>
+                    <div key={i} style={{ fontSize:15, color:"#7AAAC8", lineHeight:1.8, display:"flex", gap:6 }}>
                       <span style={{ color:"#1E90FF" }}>▶</span>{t}
                     </div>
                   ))}
                 </div>
                 <div style={{ background:"rgba(255,80,80,0.05)", border:"1px solid rgba(255,80,80,0.2)", borderRadius:16, padding:"16px" }}>
-                  <div style={{ fontSize:12, color:"#FF8080", fontWeight:700, letterSpacing:1, marginBottom:10 }}>⚠️ 弱み・注意点</div>
-                  <div style={{ fontSize:13, color:"#A07070", lineHeight:1.8 }}>{g.weak}</div>
+                  <div style={{ fontSize:14, color:"#FF8080", fontWeight:700, letterSpacing:1, marginBottom:10 }}>⚠️ 弱み・注意点</div>
+                  <div style={{ fontSize:15, color:"#A07070", lineHeight:1.8 }}>{g.weak}</div>
                 </div>
               </div>
 
               {/* 耐久性・独自技術・空気清浄 */}
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:16 }}>
                 <div style={{ background:"rgba(255,184,0,0.06)", border:"1px solid rgba(255,184,0,0.25)", borderRadius:16, padding:"16px" }}>
-                  <div style={{ fontSize:12, color:"#FFB800", fontWeight:700, letterSpacing:1, marginBottom:10 }}>🛡️ 壊れにくさ・耐久性</div>
-                  <div style={{ fontSize:13, color:"#C0A060", lineHeight:1.8 }}>{g.durability}</div>
+                  <div style={{ fontSize:14, color:"#FFB800", fontWeight:700, letterSpacing:1, marginBottom:10 }}>🛡️ 壊れにくさ・耐久性</div>
+                  <div style={{ fontSize:15, color:"#C0A060", lineHeight:1.8 }}>{g.durability}</div>
                 </div>
                 <div style={{ background:"rgba(0,200,100,0.06)", border:"1px solid rgba(0,200,100,0.25)", borderRadius:16, padding:"16px" }}>
-                  <div style={{ fontSize:12, color:"#4CAF90", fontWeight:700, letterSpacing:1, marginBottom:10 }}>🌬️ 空気清浄機能</div>
-                  <div style={{ fontSize:13, color:"#70A890", lineHeight:1.8 }}>{g.airClean}</div>
+                  <div style={{ fontSize:14, color:"#4CAF90", fontWeight:700, letterSpacing:1, marginBottom:10 }}>🌬️ 空気清浄機能</div>
+                  <div style={{ fontSize:15, color:"#70A890", lineHeight:1.8 }}>{g.airClean}</div>
                 </div>
                 <div style={{ background:"rgba(150,100,255,0.06)", border:"1px solid rgba(150,100,255,0.25)", borderRadius:16, padding:"16px" }}>
-                  <div style={{ fontSize:12, color:"#A080FF", fontWeight:700, letterSpacing:1, marginBottom:10 }}>⚙️ 独自技術</div>
-                  <div style={{ fontSize:13, color:"#9080C0", lineHeight:1.8 }}>{g.tech}</div>
+                  <div style={{ fontSize:14, color:"#A080FF", fontWeight:700, letterSpacing:1, marginBottom:10 }}>⚙️ 独自技術</div>
+                  <div style={{ fontSize:15, color:"#9080C0", lineHeight:1.8 }}>{g.tech}</div>
                 </div>
               </div>
 
               {/* シリーズ早見表 */}
               <div style={{ marginBottom:16 }}>
-                <div style={{ fontSize:12, color:"#4A6080", fontWeight:700, letterSpacing:2, marginBottom:10 }}>📋 シリーズ早見表</div>
+                <div style={{ fontSize:14, color:"#2D3748", fontWeight:700, letterSpacing:2, marginBottom:10 }}>📋 シリーズ早見表</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                   {g.series.map(s => (
                     <div key={s.name} style={{ background:"rgba(255,255,255,0.03)", border:`1px solid ${g.color}30`, borderRadius:12, padding:"12px 16px", display:"flex", gap:12, alignItems:"center" }}>
-                      <div style={{ fontSize:13, fontWeight:700, color:g.color, minWidth:120 }}>{s.name}</div>
-                      <div style={{ fontSize:12, color:"#7090A8", lineHeight:1.6 }}>{s.point}</div>
+                      <div style={{ fontSize:15, fontWeight:700, color:g.color, minWidth:120 }}>{s.name}</div>
+                      <div style={{ fontSize:14, color:"#7090A8", lineHeight:1.6 }}>{s.point}</div>
                     </div>
                   ))}
                 </div>
@@ -1414,8 +1427,8 @@ export default function App() {
 
               {/* 接客Tips */}
               <div style={{ background:"#FFFBEB", border:"1px solid #F6E05E", borderRadius:16, padding:"16px 20px" }}>
-                <div style={{ fontSize:12, color:"#B7791F", fontWeight:700, letterSpacing:1, marginBottom:8 }}>📋 接客Tips</div>
-                <div style={{ fontSize:13, color:"#744210", lineHeight:1.8 }}>{g.tip}</div>
+                <div style={{ fontSize:14, color:"#B7791F", fontWeight:700, letterSpacing:1, marginBottom:8 }}>📋 接客Tips</div>
+                <div style={{ fontSize:15, color:"#744210", lineHeight:1.8 }}>{g.tip}</div>
               </div>
             </div>
           );
@@ -1426,7 +1439,7 @@ export default function App() {
           <div>
             {/* ヒアリングポイント */}
             <div style={{ background:"#FFFBEB", border:"1px solid #F6E05E", borderRadius:16, padding:"16px 20px", marginBottom:20 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:"#B7791F", marginBottom:12 }}>📋 まずお客様にヒアリングすること</div>
+              <div style={{ fontSize:15, fontWeight:700, color:"#B7791F", marginBottom:12 }}>📋 まずお客様にヒアリングすること</div>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                 {[
                   { q:"設置場所はどこですか？", hint:"部屋の広さ・階数・室外機の置き場所" },
@@ -1437,8 +1450,8 @@ export default function App() {
                   { q:"電源コンセントはありますか？", hint:"100V・200Vの確認" },
                 ].map((item, i) => (
                   <div key={i} style={{ background:"#FFFFFF", borderRadius:10, padding:"10px 14px", border:"1px solid #E2E8F0" }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:"#1A202C", marginBottom:3 }}>❓ {item.q}</div>
-                    <div style={{ fontSize:11, color:"#718096" }}>{item.hint}</div>
+                    <div style={{ fontSize:15, fontWeight:700, color:"#1A202C", marginBottom:3 }}>❓ {item.q}</div>
+                    <div style={{ fontSize:15, color:"#4A5568" }}>{item.hint}</div>
                   </div>
                 ))}
               </div>
@@ -1446,9 +1459,9 @@ export default function App() {
 
             {/* 標準工事 */}
             <div style={{ marginBottom:20 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:"#1A202C", marginBottom:12 }}>
+              <div style={{ fontSize:15, fontWeight:700, color:"#1A202C", marginBottom:12 }}>
                 ✅ 標準工事（必ず含まれる）
-                <span style={{ fontSize:11, color:"#718096", fontWeight:400, marginLeft:8 }}>※価格は目安・要確認</span>
+                <span style={{ fontSize:15, color:"#4A5568", fontWeight:400, marginLeft:8 }}>※価格は目安・要確認</span>
               </div>
               <div style={{ background:"#FFFFFF", borderRadius:16, border:"1px solid #E2E8F0", overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,0.06)" }}>
                 {[
@@ -1460,10 +1473,10 @@ export default function App() {
                 ].map((item, i) => (
                   <div key={i} style={{ padding:"14px 18px", borderBottom: i < 4 ? "1px solid #F0F4F8" : "none", display:"grid", gridTemplateColumns:"1fr auto", gap:12, alignItems:"center" }}>
                     <div>
-                      <div style={{ fontSize:13, fontWeight:700, color:"#1A202C", marginBottom:3 }}>{item.name}</div>
-                      <div style={{ fontSize:12, color:"#718096", lineHeight:1.6 }}>{item.desc}</div>
+                      <div style={{ fontSize:15, fontWeight:700, color:"#1A202C", marginBottom:3 }}>{item.name}</div>
+                      <div style={{ fontSize:14, color:"#4A5568", lineHeight:1.6 }}>{item.desc}</div>
                     </div>
-                    <div style={{ fontSize:12, color:"#38A169", fontWeight:700, whiteSpace:"nowrap" }}>{item.price}</div>
+                    <div style={{ fontSize:14, color:"#38A169", fontWeight:700, whiteSpace:"nowrap" }}>{item.price}</div>
                   </div>
                 ))}
               </div>
@@ -1471,12 +1484,12 @@ export default function App() {
 
             {/* 追加工事 */}
             <div>
-              <div style={{ fontSize:13, fontWeight:700, color:"#1A202C", marginBottom:12 }}>⚠️ 追加工事（状況によって必要）</div>
+              <div style={{ fontSize:15, fontWeight:700, color:"#1A202C", marginBottom:12 }}>⚠️ 追加工事（状況によって必要）</div>
               <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
                 {[
                   { name:"ドレンホース断熱処理", icon:"💧", color:"#3182CE", img:"https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&q=80", desc:"ドレンホース（排水ホース）に断熱材を巻く工事です。", why:"夏場にドレンホースが結露して水滴が垂れるのを防ぎます。特に室内を通る部分に必要です。", when:"配管が室内を通る場合・結露が気になる場合", price:"別途 ¥3,000〜5,000程度" },
                   { name:"配管穴あけ工事", icon:"🔩", color:"#D69E2E", img:"https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&q=80", desc:"エアコン用の配管を通す穴を壁に開ける工事です。", why:"新規設置や穴の位置が合わない場合に必要です。コンクリート・タイルは追加費用がかかります。", when:"配管穴がない場合・既存穴の位置が合わない場合", price:"別途 ¥5,000〜15,000程度（素材による）" },
-                  { name:"配管延長工事", icon:"📏", color:"#718096", img:"https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&q=80", desc:"室内機と室外機をつなぐ配管を延長する工事です。", why:"標準の配管長（約3〜4m）より距離が長い場合に必要です。", when:"室外機を離れた場所に設置する場合", price:"別途 ¥1,000〜2,000/m程度" },
+                  { name:"配管延長工事", icon:"📏", color:"#4A5568", img:"https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&q=80", desc:"室内機と室外機をつなぐ配管を延長する工事です。", why:"標準の配管長（約3〜4m）より距離が長い場合に必要です。", when:"室外機を離れた場所に設置する場合", price:"別途 ¥1,000〜2,000/m程度" },
                   { name:"隠蔽配管工事", icon:"🏠", color:"#805AD5", img:"https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&q=80", desc:"配管を壁の中や天井裏に隠して通す工事です。", why:"見た目をスッキリさせたい場合に行います。工事が複雑になるため費用が高くなります。", when:"配管を見せたくない場合・新築・リフォーム時", price:"別途 ¥30,000〜100,000程度" },
                   { name:"既設エアコン取り外し・処分", icon:"🗑️", color:"#E53E3E", img:"https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&q=80", desc:"古いエアコンを取り外してリサイクル処分する工事です。", why:"家電リサイクル法により、エアコンは適正に処分する必要があります。", when:"今のエアコンを取り外す場合", price:"取り外し ¥3,000〜5,000 ＋ リサイクル料金" },
                   { name:"室外機架台設置", icon:"🔧", color:"#2D3748", img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80", desc:"室外機を地面・壁・屋根などに設置するための架台を取り付ける工事です。", why:"室外機を安定して設置するために必要です。設置場所によって種類が異なります。", when:"ベランダ以外に設置する場合・壁掛け・屋根置きの場合", price:"別途 ¥5,000〜20,000程度（種類による）" },
@@ -1493,20 +1506,20 @@ export default function App() {
                         <div style={{ background:`${item.color}10`, padding:"10px 14px", display:"flex", alignItems:"center", gap:8, borderBottom:`1px solid ${item.color}20` }}>
                           <span style={{ fontSize:18 }}>{item.icon}</span>
                           <div style={{ flex:1 }}>
-                            <div style={{ fontSize:13, fontWeight:700, color:"#1A202C" }}>{item.name}</div>
-                            <div style={{ fontSize:11, color:item.color, fontWeight:600 }}>{item.price}</div>
+                            <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{item.name}</div>
+                            <div style={{ fontSize:15, color:item.color, fontWeight:600 }}>{item.price}</div>
                           </div>
                         </div>
                         <div style={{ padding:"10px 14px" }}>
-                          <div style={{ fontSize:12, color:"#4A5568", lineHeight:1.7, marginBottom:8 }}>{item.desc}</div>
+                          <div style={{ fontSize:14, color:"#4A5568", lineHeight:1.7, marginBottom:8 }}>{item.desc}</div>
                           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
                             <div style={{ background:"#F7FAFC", borderRadius:8, padding:"6px 8px" }}>
-                              <div style={{ fontSize:10, color:"#718096", fontWeight:700, marginBottom:2 }}>なぜ必要？</div>
-                              <div style={{ fontSize:11, color:"#4A5568", lineHeight:1.5 }}>{item.why}</div>
+                              <div style={{ fontSize:14, color:"#4A5568", fontWeight:700, marginBottom:2 }}>なぜ必要？</div>
+                              <div style={{ fontSize:15, color:"#4A5568", lineHeight:1.5 }}>{item.why}</div>
                             </div>
                             <div style={{ background:"#F7FAFC", borderRadius:8, padding:"6px 8px" }}>
-                              <div style={{ fontSize:10, color:"#718096", fontWeight:700, marginBottom:2 }}>こんな時に必要</div>
-                              <div style={{ fontSize:11, color:"#4A5568", lineHeight:1.5 }}>{item.when}</div>
+                              <div style={{ fontSize:14, color:"#4A5568", fontWeight:700, marginBottom:2 }}>こんな時に必要</div>
+                              <div style={{ fontSize:15, color:"#4A5568", lineHeight:1.5 }}>{item.when}</div>
                             </div>
                           </div>
                         </div>
@@ -1524,7 +1537,7 @@ export default function App() {
             {/* 空気浄化技術比較 */}
             <AirPurifyCompare />
 
-            <div style={{ fontSize:12, fontWeight:700, color:"#718096", letterSpacing:2, margin:"24px 0 12px" }}>◼ 機能ガイド一覧</div>
+            <div style={{ fontSize:14, fontWeight:700, color:"#4A5568", letterSpacing:2, margin:"24px 0 12px" }}>◼ 機能ガイド一覧</div>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {Object.entries(FEATURES_DB).map(([key, f]) => (
                 <button key={key} onClick={() => setSelectedFeature(key)} style={{
@@ -1539,9 +1552,9 @@ export default function App() {
                   <span style={{ fontSize:26 }}>{f.icon}</span>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{f.name}</div>
-                    <div style={{ fontSize:12, color:"#718096" }}>{f.maker}　·　{f.tagline}</div>
+                    <div style={{ fontSize:14, color:"#4A5568" }}>{f.maker}　·　{f.tagline}</div>
                   </div>
-                  <span style={{ color:"#A0AEC0", fontSize:14 }}>→</span>
+                  <span style={{ color:"#718096", fontSize:14 }}>→</span>
                 </button>
               ))}
             </div>
@@ -1550,7 +1563,7 @@ export default function App() {
 
         {tab === "guide" && selectedFeature && (
           <div>
-            <button onClick={() => setSelectedFeature(null)} style={{ background:"none", border:"none", color:"#5070A0", cursor:"pointer", fontSize:13, marginBottom:20 }}>← 機能一覧に戻る</button>
+            <button onClick={() => setSelectedFeature(null)} style={{ background:"none", border:"none", color:"#5070A0", cursor:"pointer", fontSize:15, marginBottom:20 }}>← 機能一覧に戻る</button>
             <FeatureCard featureKey={selectedFeature} isStaffMode={false} highlight={false} />
           </div>
         )}
