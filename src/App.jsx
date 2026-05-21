@@ -52,7 +52,13 @@ const FEATURES_DB = {
     tagline: "フィルター掃除が不要に",
     customer: "運転するたびに自動でフィルターのホコリを取り除き、ダストボックスに溜めます。お手入れの手間が大幅に減り、常に効率よく動きます。",
     staff: "掃除頻度は機種により異なる（2週間〜1ヶ月に1回のダストボックス掃除のみ）。「フィルター掃除が面倒」「高い場所に設置するので掃除しにくい」というお客様に必須提案。省エネ効果もある。",
-    youtubeId: "jTRFSHxrH9I", color: "#4CAF50",
+    youtubeId: "keFOjfw9jLk", color: "#4CAF50",
+    extraVideos: [
+      { id:"QbmMPoK_Ll8", label:"三菱電機 フィルターおそうじメカ" },
+      { id:"Yo9E4cuaho4", label:"ゼネラル フィルター自動おそうじ" },
+      { id:"LNxKUmZ58bY", label:"ダイキン ダストボックスのお手入れ" },
+      { id:"vjZWxLxm-T4", label:"ダイキン フィルターのお手入れ" },
+    ],
   },
   plasma: {
     name: "プラズマクラスター25000", maker: "シャープ", icon: "⚡",
@@ -370,36 +376,162 @@ const markColor = (m) => m === "◎" ? "#4CAF50" : m === "○" ? "#64B5F6" : m =
 const TOP3 = {
   "small": { // 6・10畳
     noFilter: [
-      { rank:1, maker:"ダイキン",   model:"AN226AES-W / AN286AES-W",   series:"Eシリーズ",    point:"ダイキンの安心感。壊れにくさ業界トップクラス。シンプルで使いやすい。" },
-      { rank:2, maker:"Panasonic", model:"CS-226DJR-W / CS-286DJR-W", series:"エオリア DJR",  point:"パナソニックの信頼性。ナノイー搭載でコスパ良好。" },
-      { rank:3, maker:"日立",      model:"RAS-DR2226S / RAS-DR2826S", series:"白くまくん DR", point:"日立の清潔設計。ステンレス素材で長持ち。" },
+      { rank:1, maker:"ダイキン",   model:"AN226AES-W / AN286AES-W",   series:"Eシリーズ",
+        point:"頑丈で、中を強力除菌するエアコン",
+        summary:"頑丈で、中を強力除菌するエアコン",
+        talks:[
+          "「『ストリーマ』という独自の強力な電気で、中のカビ菌を芯から焼き切ってくれるので清潔です！」",
+          "「外に置く室外機がすごく頑丈なので、真夏の猛暑でも冷房の効きが落ちずにしっかり冷やしてくれますよ。」",
+        ]
+      },
+      { rank:2, maker:"Panasonic", model:"CS-226DJR-W / CS-286DJR-W", series:"エオリア DJR",
+        point:"お部屋のニオイも取れるエアコン",
+        summary:"お部屋のニオイも取れるエアコン",
+        talks:[
+          "「冷房しながら『ナノイー』を出してくれるので、ソファに染み付いた料理やペットのニオイまで脱臭してくれます！」",
+          "「冷房のときに出る水滴で中の汚れを浮かせて流すので、エアコンの中もキレイに保てますよ。」",
+        ]
+      },
+      { rank:3, maker:"日立",      model:"RAS-DR2226S / RAS-DR2826S", series:"白くまくん DR",
+        point:"中が一番汚れないエアコン",
+        summary:"中が一番汚れないエアコン",
+        talks:[
+          "「独自の『凍結洗浄』で、中の部品を凍らせて一気に汚れを洗い流すので、カビや菌が発生しづらいんです！」",
+          "「風が出るフラップ部分がキッチンのようなステンレスなので、カビやホコリが付きにくいんですよ。」",
+        ]
+      },
     ],
     hasFilter: [
-      { rank:1, maker:"Panasonic", model:"CS-EX226D-W / CS-EX286D-W",     series:"エオリア EX",  point:"自動掃除＋ナノイーX搭載。手入れ楽でコスパ最良。" },
-      { rank:2, maker:"ダイキン",   model:"AN226AFNS-W / AN286AFNS-W",    series:"Fシリーズ（ノジマモデル）", point:"ダイキンの耐久性＋自動掃除。ノジマオリジナルモデル。" },
-      { rank:3, maker:"日立",      model:"RAS-WN2225S / RAS-WN2825S",    series:"白くまくん WN（ノジマモデル）", point:"凍結洗浄＋自動掃除。臭いが気になる人に最強。ノジマモデル。" },
+      { rank:1, maker:"Panasonic", model:"CS-EX226D-W / CS-EX286D-W", series:"エオリア EX",
+        point:"手入れ楽でニオイも取れる全部入り",
+        summary:"手入れ楽でニオイも取れる全部入り",
+        talks:[
+          "「フィルターを自動で掃除してくれるので、掃除の手間がほぼゼロになりますよ！」",
+          "「さらに『ナノイーX』でソファやカーテンのニオイまで取ってくれるので、空気清浄機もいらないかもしれません。」",
+        ]
+      },
+      { rank:2, maker:"ダイキン", model:"AN226AFNS-W / AN286AFNS-W", series:"Fシリーズ（ノジマモデル）",
+        point:"壊れにくくてお手入れ楽なノジマモデル",
+        summary:"壊れにくくてお手入れ楽なノジマモデル",
+        talks:[
+          "「ダイキンはもともと業務用エアコンのメーカーなので、耐久性が業界トップクラスなんですよ。」",
+          "「フィルター自動掃除付きで、ノジマ専用モデルなのでコスパも良いです！」",
+        ]
+      },
+      { rank:3, maker:"日立", model:"RAS-WN2225S / RAS-WN2825S", series:"白くまくん WN（ノジマモデル）",
+        point:"臭いが気になる人への最強モデル",
+        summary:"臭いが気になる人への最強モデル",
+        talks:[
+          "「『凍結洗浄』でフィルターを凍らせて一気に汚れを落とすので、エアコンの嫌な臭いが出にくいんです！」",
+          "「自動でフィルター掃除もしてくれるので、手間もかかりません。ノジマ専用モデルです。」",
+        ]
+      },
     ],
     eco: [
-      { rank:1, maker:"Panasonic", model:"CS-X226D-W / CS-X286D-W",   series:"エオリア X",   point:"省エネトップクラス。ナノイーX全部入り。" },
-      { rank:2, maker:"ダイキン",   model:"AN226ARP-W / AN286ARP-W",   series:"うるさらX",    point:"省エネ＋加湿機能。乾燥対策も同時に。" },
-      { rank:3, maker:"富士通",    model:"AS-Z226N / AS-Z286N",       series:"ノクリア Z",   point:"省エネ＋暖房強力。冬場も安心。" },
+      { rank:1, maker:"Panasonic", model:"CS-X226D-W / CS-X286D-W", series:"エオリア X",
+        point:"省エネ最強＋空気清浄の全部入り",
+        summary:"省エネ最強＋空気清浄の全部入り",
+        talks:[
+          "「省エネ性能がトップクラスなので、電気代をかなり抑えられますよ。」",
+          "「『ナノイーX』でお部屋の空気もきれいにしてくれるので、まさに全部入りですね！」",
+        ]
+      },
+      { rank:2, maker:"ダイキン", model:"AN226ARP-W / AN286ARP-W", series:"うるさらX",
+        point:"省エネ＋乾燥対策が同時にできる",
+        summary:"省エネ＋乾燥対策が同時にできる",
+        talks:[
+          "「省エネ性能が高いのに、外の空気から水分を集めて加湿もしてくれるんです！」",
+          "「加湿器を別に買う必要がなくなるかもしれませんよ。乾燥が気になる方に特におすすめです。」",
+        ]
+      },
+      { rank:3, maker:"富士通", model:"AS-Z226N / AS-Z286N", series:"ノクリア Z",
+        point:"省エネ＋暖房が強い冬も安心モデル",
+        summary:"省エネ＋暖房が強い冬も安心モデル",
+        talks:[
+          "「省エネ性能が高くて、さらに暖房がとても強いので冬場も安心です！」",
+          "「『エアコンの暖房は物足りない』とよく言われますが、富士通はその心配がほとんどないですよ。」",
+        ]
+      },
     ],
   },
   "large": { // 14・18畳
     noFilter: [
-      { rank:1, maker:"Panasonic", model:"CS-GX404D-W",  series:"エオリア GX",  point:"省エネ性能が高くコスパ◎。自動掃除なしでシンプル。" },
-      { rank:2, maker:"ダイキン",  model:"AN404AES-W",   series:"Eシリーズ",   point:"ダイキンの安心感。広い部屋でも安定。" },
-      { rank:3, maker:"東芝",      model:"RAS-E404DRH",  series:"大清快 E",    point:"換気なしベーシック。コスパ重視向け。" },
+      { rank:1, maker:"Panasonic", model:"CS-GX404D-W", series:"エオリア GX",
+        point:"広い部屋でも省エネ・シンプルで使いやすい",
+        summary:"広い部屋でも省エネ・シンプルで使いやすい",
+        talks:[
+          "「省エネ性能が高いので、広いLDKでも電気代を抑えられますよ。」",
+          "「余計な機能がないシンプルな設計なので、操作も簡単です！」",
+        ]
+      },
+      { rank:2, maker:"ダイキン", model:"AN404AES-W", series:"Eシリーズ",
+        point:"広い部屋でも壊れにくく安定して使える",
+        summary:"広い部屋でも壊れにくく安定して使える",
+        talks:[
+          "「ダイキンは耐久性が業界トップクラスなので、広い部屋で長く使いたい方にぴったりです！」",
+          "「室外機が頑丈なので、真夏の猛暑でも冷房の効きが落ちません。」",
+        ]
+      },
+      { rank:3, maker:"東芝", model:"RAS-E404DRH", series:"大清快 E",
+        point:"コスパ重視でシンプルに使いたい人向け",
+        summary:"コスパ重視でシンプルに使いたい人向け",
+        talks:[
+          "「必要な機能に絞ったシンプルなモデルなので、価格が抑えめですよ。」",
+          "「とにかくコスパ重視で選びたいというお客様にはこちらがおすすめです！」",
+        ]
+      },
     ],
     hasFilter: [
-      { rank:1, maker:"Panasonic", model:"CS-EX404D-W",  series:"エオリア EX",  point:"自動掃除＋ナノイーX。広いLDKに最適。" },
-      { rank:2, maker:"日立",      model:"RAS-W404M",    series:"白くまくん W", point:"凍結洗浄＋自動掃除。大空間も清潔に保つ。" },
-      { rank:3, maker:"東芝",      model:"RAS-G404DRH",  series:"大清快 G",    point:"換気機能＋自動掃除。LDKの換気ニーズに。" },
+      { rank:1, maker:"Panasonic", model:"CS-EX404D-W", series:"エオリア EX",
+        point:"広いLDKでお手入れ楽＋ニオイ対策",
+        summary:"広いLDKでお手入れ楽＋ニオイ対策",
+        talks:[
+          "「フィルターを自動で掃除してくれるので、広いLDKでも手間がかかりませんよ！」",
+          "「『ナノイーX』でリビングのソファやカーテンのニオイも取ってくれます。」",
+        ]
+      },
+      { rank:2, maker:"日立", model:"RAS-W404M", series:"白くまくん W",
+        point:"広い空間も清潔に保つ臭い対策モデル",
+        summary:"広い空間も清潔に保つ臭い対策モデル",
+        talks:[
+          "「『凍結洗浄』で大きな熱交換器も凍らせて一気に洗浄するので、広いLDKでもカビや臭いが出にくいですよ！」",
+          "「自動フィルター掃除もついているので、お手入れもラクです。」",
+        ]
+      },
+      { rank:3, maker:"東芝", model:"RAS-G404DRH", series:"大清快 G",
+        point:"換気しながら冷暖房できる唯一のモデル",
+        summary:"換気しながら冷暖房できる唯一のモデル",
+        talks:[
+          "「窓を開けなくても換気ができるエアコンは、実は東芝だけなんですよ！」",
+          "「冷房をつけたまま花粉を入れずに換気できるので、花粉症の方にもすごく人気です。」",
+        ]
+      },
     ],
     eco: [
-      { rank:1, maker:"Panasonic", model:"CS-X404D-W",   series:"エオリア X",   point:"省エネトップクラス。大空間でも電気代抑制。" },
-      { rank:2, maker:"ダイキン",  model:"AN404ARP-W",   series:"うるさらX",    point:"省エネ＋加湿。広いLDKの乾燥対策に。" },
-      { rank:3, maker:"三菱電機",  model:"MSZ-ZW404S",   series:"霧ヶ峰Z",     point:"省エネ＋ムーブアイ。大空間でも快適制御。" },
+      { rank:1, maker:"Panasonic", model:"CS-X404D-W", series:"エオリア X",
+        point:"大空間でも省エネ最強の全部入り",
+        summary:"大空間でも省エネ最強の全部入り",
+        talks:[
+          "「広いLDKでも省エネ性能がトップクラスなので、電気代をかなり抑えられますよ！」",
+          "「ナノイーXで空気清浄もしてくれるので、大空間でも空気がきれいに保てます。」",
+        ]
+      },
+      { rank:2, maker:"ダイキン", model:"AN404ARP-W", series:"うるさらX",
+        point:"広いLDKの乾燥対策と省エネを両立",
+        summary:"広いLDKの乾燥対策と省エネを両立",
+        talks:[
+          "「広いリビングでも加湿しながら冷暖房できるのはダイキンだけです！」",
+          "「省エネ性能も高いので、大きな部屋でも電気代の心配が少ないですよ。」",
+        ]
+      },
+      { rank:3, maker:"三菱電機", model:"MSZ-ZW404S", series:"霧ヶ峰Z",
+        point:"広い空間でも省エネ＋快眠サポート",
+        summary:"広い空間でも省エネ＋快眠サポート",
+        talks:[
+          "「省エネ性能が高くて、センサーが人の位置を感知して直接風が当たらないように調整してくれます！」",
+          "「寝室が広い方や、リビングで寝転がることが多い方にも特におすすめです。」",
+        ]
+      },
     ],
   },
 };
@@ -613,21 +745,22 @@ function FeatureCard({ featureKey, isStaffMode, highlight }) {
         </div>
       )}
 
-      <button onClick={() => setOpen(v => !v)} style={{
-        background:"#FEF2F2", border:"1px solid #FEB2B2", borderRadius:10,
-        padding:"7px 14px", color:"#C53030", fontSize:12, cursor:"pointer",
-        display:"flex", alignItems:"center", gap:6,
-      }}>▶ {open ? "動画を閉じる" : "公式動画を見る（YouTube）"}</button>
-
-      {open && (
-        <div style={{ marginTop:12, borderRadius:12, overflow:"hidden", aspectRatio:"16/9" }}>
-          <iframe width="100%" height="100%"
-            src={`https://www.youtube.com/embed/${f.youtubeId}?rel=0`}
-            title={f.name} frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen style={{ display:"block" }} />
-        </div>
-      )}
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        <a href={`https://youtu.be/${f.youtubeId}`} target="_blank" rel="noopener noreferrer" style={{
+          display:"inline-flex", alignItems:"center", gap:6,
+          background:"#FF0000", borderRadius:10,
+          padding:"8px 16px", color:"#fff", fontSize:12, fontWeight:700,
+          textDecoration:"none",
+        }}>▶ YouTubeで動画を見る</a>
+        {f.extraVideos && f.extraVideos.map(v => (
+          <a key={v.id} href={`https://youtu.be/${v.id}`} target="_blank" rel="noopener noreferrer" style={{
+            display:"inline-flex", alignItems:"center", gap:6,
+            background:"#CC0000", borderRadius:10,
+            padding:"8px 16px", color:"#fff", fontSize:12, fontWeight:700,
+            textDecoration:"none",
+          }}>▶ {v.label}</a>
+        ))}
+      </div>
     </div>
   );
 }
@@ -913,17 +1046,39 @@ export default function App() {
                       </div>
 
                       <div style={{ padding:"14px 16px" }}>
-                        {/* 型番・kW */}
-                        <div style={{ fontSize:11, color:"#718096", marginBottom:8 }}>
+                        {/* 型番 */}
+                        <div style={{ fontSize:11, color:"#718096", marginBottom:10 }}>
                           {item.model}　{model ? `${model.tatami}畳 / ${TATAMI_KW[model.tatami]}kW` : ""}
                         </div>
-                        {/* おすすめポイント */}
-                        <div style={{ fontSize:12, color:"#4A5568", lineHeight:1.7, marginBottom:12, padding:"8px 10px", background:"#F7FAFC", borderRadius:8 }}>
-                          {item.point}
+
+                        {/* 一言でいうと */}
+                        <div style={{ display:"flex", alignItems:"flex-start", gap:8, marginBottom:14, padding:"10px 12px", background:"#F0FFF4", borderRadius:10, border:"1px solid #C6F6D5" }}>
+                          <span style={{ fontSize:16, flexShrink:0 }}>💡</span>
+                          <div>
+                            <div style={{ fontSize:10, fontWeight:700, color:"#276749", marginBottom:2 }}>一言でいうと</div>
+                            <div style={{ fontSize:13, fontWeight:700, color:"#1A202C" }}>{item.summary || item.point}</div>
+                          </div>
                         </div>
+
+                        {/* そのまま使えるトーク */}
+                        {item.talks && (
+                          <div style={{ marginBottom:12 }}>
+                            <div style={{ fontSize:10, fontWeight:700, color:"#2B6CB0", marginBottom:8, display:"flex", alignItems:"center", gap:4 }}>
+                              <span>🗣️</span> そのまま使えるトーク
+                            </div>
+                            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                              {item.talks.map((talk, i) => (
+                                <div key={i} style={{ fontSize:12, color:"#1A202C", lineHeight:1.7, padding:"10px 12px", background:"#EBF8FF", borderRadius:10, border:"1px solid #BEE3F8", borderLeft:`3px solid ${color}` }}>
+                                  {talk}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         {/* 機能タグ */}
                         {model && (
-                          <div style={{ display:"flex", gap:5, flexWrap:"wrap", marginBottom:12 }}>
+                          <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
                             {model.hasFilter && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:"#F0FFF4", color:"#38A169", border:"1px solid #C6F6D5" }}>✨ 自動フィルター</span>}
                             {model.isEco    && <span style={{ fontSize:10, padding:"2px 8px", borderRadius:8, background:"#EBF8FF", color:"#3182CE", border:"1px solid #BEE3F8" }}>⚡ 省エネ</span>}
                             {model.features.filter(k => k !== "filter").map(k => {
@@ -932,14 +1087,6 @@ export default function App() {
                             })}
                           </div>
                         )}
-                        {/* 機能説明・動画 */}
-                        {model && model.features.filter(k => k !== "filter").map(k => {
-                          const f = FEATURES_DB[k];
-                          if (!f) return null;
-                          return (
-                            <FeatureCard key={k} featureKey={k} isStaffMode={false} highlight={false} />
-                          );
-                        })}
                       </div>
                     </div>
                   );
