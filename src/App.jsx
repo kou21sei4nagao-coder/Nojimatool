@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 const globalStyle = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1570,5 +1571,6 @@ export default function App() {
         </div> {/* 右コンテンツエリア終わり */}
       </div> {/* メインレイアウト終わり */}
     </div>
+    <Analytics />
   );
 }
