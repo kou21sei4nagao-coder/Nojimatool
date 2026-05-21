@@ -908,7 +908,10 @@ export default function App() {
           }}>{sidebarOpen ? "◀" : "▶"}</button>
           <div style={{ width:32, height:32, borderRadius:10, background:"linear-gradient(135deg,#1E90FF,#00D4FF)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>❄️</div>
           <div>
-            <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>エアコン コンサルツール</div>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>エアコン コンサルツール</div>
+              <span style={{ fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20, background:"linear-gradient(135deg, #667eea, #764ba2)", color:"#fff", letterSpacing:1 }}>α ver.</span>
+            </div>
             <div style={{ fontSize:9, color:"#A0AEC0", letterSpacing:1 }}>nagao · AC GUIDE</div>
           </div>
         </div>
