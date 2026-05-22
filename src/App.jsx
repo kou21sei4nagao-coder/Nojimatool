@@ -862,7 +862,7 @@ function FeatureCard({ featureKey, isStaffMode, highlight }) {
 
 // ── メイン ───────────────────────────────────────────────
 export default function App() {
-  const [tab, setTab] = useState("filter"); // filter | guide | makers | kouji | map
+  const [tab, setTab] = useState("map"); // map | filter | makers | kouji | guide
 
   // 絞り込み状態
   const [maker, setMaker]         = useState(null);
@@ -931,7 +931,7 @@ export default function App() {
         }}>
           {/* タブ */}
           <div style={{ display:"flex", flexDirection:"column", borderBottom:"1px solid #E2E8F0" }}>
-            {[["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["guide","📚 機能ガイド"],["kouji","🔧 工事内容"],["map","🗺️ 全体マップ"]].map(([key,label]) => (
+            {[["map","🗺️ 全体マップ"],["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["kouji","🔧 工事内容"],["guide","📚 機能ガイド"]].map(([key,label]) => (
               <button key={key} onClick={() => setTab(key)} style={{
                 padding:"12px 18px", background: tab===key ? "#EBF8FF" : "none", textAlign:"left",
                 border:"none", borderLeft:`3px solid ${tab===key ? accentColor : "transparent"}`,
@@ -1018,61 +1018,7 @@ export default function App() {
         {/* ══ 絞り込み結果 ══ */}
         {tab === "filter" && !selectedModel && !top3View && (
           <div>
-            {/* Top3セクション */}
-            {[
-              { label:"6・10畳 おすすめ", group:"small" },
-              { label:"14・18畳 おすすめ", group:"large" },
-            ].map(({ label, group }) => (
-              <div key={group} style={{ marginBottom:24 }}>
-                <div style={{ fontSize:15, fontWeight:700, color:"#4A5568", marginBottom:10 }}>⭐ {label}</div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
-                  {[
-                    { key:"noFilter", label:"自動掃除なし", color:"#4A5568", icon:"🔲" },
-                    { key:"hasFilter", label:"自動掃除あり ✨", color:"#38A169", icon:"✨" },
-                    { key:"eco", label:"超省エネモデル ⚡", color:"#3182CE", icon:"⚡" },
-                  ].map(({ key, label: catLabel, color }) => (
-                    <div key={key} onClick={() => setTop3View({ group, key })} style={{
-                      background:"#FFFFFF", border:`2px solid ${color}30`,
-                      borderRadius:14, padding:"14px 16px", cursor:"pointer", textAlign:"left",
-                      boxShadow:"0 2px 6px rgba(0,0,0,0.06)", transition:"all 0.18s",
-                    }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.boxShadow = `0 4px 12px ${color}20`; }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = color+"30"; e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.06)"; }}
-                    >
-                      <div style={{ fontSize:14, fontWeight:700, color, marginBottom:10 }}>{catLabel}</div>
-                      {TOP3[group][key].map(item => (
-                        <div key={item.rank} style={{ display:"flex", gap:8, alignItems:"center", marginBottom:6 }}>
-                          <div style={{
-                            width:20, height:20, borderRadius:6, flexShrink:0,
-                            background: item.rank===1 ? "#FFD700" : item.rank===2 ? "#C0C0C0" : "#CD7F32",
-                            display:"flex", alignItems:"center", justifyContent:"center",
-                            fontSize:15, fontWeight:700, color:"#fff",
-                          }}>{item.rank}</div>
-                          <div>
-                            <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{item.maker} {item.series}</div>
-                            <div style={{ fontSize:14, color:"#4A5568" }}>{item.model}</div>
-                          </div>
-                        </div>
-                      ))}
-                      {/* 4位以降ボタン */}
-                      {group === "small" && FULL_RANKING[key].length > 3 && (
-                        <div onClick={(e) => { e.stopPropagation(); setTop3View({ group, key }); }} style={{
-                          display:"flex", alignItems:"center", justifyContent:"center", gap:4,
-                          width:"100%", marginTop:6, padding:"6px",
-                          background:"none", border:`1px dashed ${color}60`,
-                          borderRadius:8, cursor:"pointer", color, fontSize:15, fontWeight:600,
-                        }}>
-                          ・・・ {FULL_RANKING[key].length - 3}機種以上 全ランキングを見る →
-                        </div>
-                      )}
-                      <div style={{ fontSize:15, color, marginTop:8, fontWeight:600, textAlign:"right" }}>詳細を比較する →</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            {/* 絞り込み結果 */}
+                        {/* 絞り込み結果 */}
             <div style={{ fontSize:15, color:"#4A5568", marginBottom:14 }}>
               絞り込み結果　<span style={{ fontSize:22, fontWeight:700, color:"#1A202C" }}>{results.length}</span> 件
             </div>
@@ -1114,7 +1060,7 @@ export default function App() {
         )}
 
         {/* ══ Top3比較ページ ══ */}
-        {tab === "filter" && !selectedModel && top3View && (() => {
+        {(tab === "filter" || tab === "map") && !selectedModel && top3View && (() => {
           const catLabels = { noFilter:"自動掃除なし", hasFilter:"自動掃除あり ✨", eco:"超省エネモデル ⚡" };
           const catColors = { noFilter:"#718096", hasFilter:"#38A169", eco:"#3182CE" };
           const groupLabels = { small:"6・10畳", large:"14・18畳" };
@@ -1243,6 +1189,110 @@ export default function App() {
                   </div>
                 </div>
               )}
+
+              {/* Top3ランキング */}
+            {[
+              { label:"6・10畳 おすすめ", group:"small" },
+              { label:"14・18畳 おすすめ", group:"large" },
+            ].map(({ label, group }) => (
+              <div key={group} style={{ marginBottom:24 }}>
+                <div style={{ fontSize:15, fontWeight:700, color:"#4A5568", marginBottom:10 }}>⭐ {label}</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
+                  {[
+                    { key:"noFilter", label:"自動掃除なし", color:"#4A5568", icon:"🔲" },
+                    { key:"hasFilter", label:"自動掃除あり ✨", color:"#38A169", icon:"✨" },
+                    { key:"eco", label:"超省エネモデル ⚡", color:"#3182CE", icon:"⚡" },
+                  ].map(({ key, label: catLabel, color }) => (
+                    <div key={key} onClick={() => setTop3View({ group, key })} style={{
+                      background:"#FFFFFF", border:`2px solid ${color}30`,
+                      borderRadius:14, padding:"14px 16px", cursor:"pointer", textAlign:"left",
+                      boxShadow:"0 2px 6px rgba(0,0,0,0.06)", transition:"all 0.18s",
+                    }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.boxShadow = `0 4px 12px ${color}20`; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = color+"30"; e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.06)"; }}
+                    >
+                      <div style={{ fontSize:14, fontWeight:700, color, marginBottom:10 }}>{catLabel}</div>
+                      {TOP3[group][key].map(item => (
+                        <div key={item.rank} style={{ display:"flex", gap:8, alignItems:"center", marginBottom:6 }}>
+                          <div style={{
+                            width:20, height:20, borderRadius:6, flexShrink:0,
+                            background: item.rank===1 ? "#FFD700" : item.rank===2 ? "#C0C0C0" : "#CD7F32",
+                            display:"flex", alignItems:"center", justifyContent:"center",
+                            fontSize:15, fontWeight:700, color:"#fff",
+                          }}>{item.rank}</div>
+                          <div>
+                            <div style={{ fontSize:15, fontWeight:700, color:"#1A202C" }}>{item.maker} {item.series}</div>
+                            <div style={{ fontSize:14, color:"#4A5568" }}>{item.model}</div>
+                          </div>
+                        </div>
+                      ))}
+                      {/* 4位以降ボタン */}
+                      {group === "small" && FULL_RANKING[key].length > 3 && (
+                        <div onClick={(e) => { e.stopPropagation(); setTop3View({ group, key }); }} style={{
+                          display:"flex", alignItems:"center", justifyContent:"center", gap:4,
+                          width:"100%", marginTop:6, padding:"6px",
+                          background:"none", border:`1px dashed ${color}60`,
+                          borderRadius:8, cursor:"pointer", color, fontSize:15, fontWeight:600,
+                        }}>
+                          ・・・ {FULL_RANKING[key].length - 3}機種以上 全ランキングを見る →
+                        </div>
+                      )}
+                      <div style={{ fontSize:15, color, marginTop:8, fontWeight:600, textAlign:"right" }}>詳細を比較する →</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+          </div>
+            {/* ── おすすめTop3ランキング ── */}
+            <div style={{ marginTop:28 }}>
+              {[
+                { label:'6・10畳 おすすめ', group:'small' },
+                { label:'14・18畳 おすすめ', group:'large' },
+              ].map(({ label, group }) => (
+                <div key={group} style={{ marginBottom:24 }}>
+                  <div style={{ fontSize:15, fontWeight:700, color:'#4A5568', marginBottom:10 }}>⭐ {label}</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
+                    {[
+                      { key:'noFilter', label:'自動掃除なし', color:'#4A5568' },
+                      { key:'hasFilter', label:'自動掃除あり ✨', color:'#38A169' },
+                      { key:'eco', label:'超省エネモデル ⚡', color:'#3182CE' },
+                    ].map(({ key, label: catLabel, color }) => (
+                      <div key={key} onClick={() => setTop3View({ group, key })} style={{
+                        background:'#FFFFFF', border:`2px solid ${color}30`,
+                        borderRadius:14, padding:'14px 16px', cursor:'pointer', textAlign:'left',
+                        boxShadow:'0 2px 6px rgba(0,0,0,0.06)', transition:'all 0.18s',
+                      }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.boxShadow = `0 4px 12px ${color}20`; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = color+'30'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.06)'; }}
+                      >
+                        <div style={{ fontSize:14, fontWeight:700, color, marginBottom:10 }}>{catLabel}</div>
+                        {TOP3[group][key].map(item => (
+                          <div key={item.rank} style={{ display:'flex', gap:8, alignItems:'center', marginBottom:6 }}>
+                            <div style={{
+                              width:20, height:20, borderRadius:6, flexShrink:0,
+                              background: item.rank===1 ? '#FFD700' : item.rank===2 ? '#C0C0C0' : '#CD7F32',
+                              display:'flex', alignItems:'center', justifyContent:'center',
+                              fontSize:13, fontWeight:700, color:'#fff',
+                            }}>{item.rank}</div>
+                            <div>
+                              <div style={{ fontSize:13, fontWeight:700, color:'#1A202C' }}>{item.maker} {item.series}</div>
+                              <div style={{ fontSize:12, color:'#4A5568' }}>{item.model}</div>
+                            </div>
+                          </div>
+                        ))}
+                        {group === 'small' && FULL_RANKING[key].length > 3 && (
+                          <div style={{ fontSize:12, color, marginTop:6, fontWeight:600 }}>
+                            ・・・全ランキングを見る →
+                          </div>
+                        )}
+                        <div style={{ fontSize:13, color, marginTop:4, fontWeight:600, textAlign:'right' }}>詳細を比較する →</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           );
         })()}
@@ -1431,38 +1481,81 @@ export default function App() {
                 <div style={{ fontSize:15, color:"#744210", lineHeight:1.8 }}>{g.tip}</div>
               </div>
             </div>
+
+            {/* ── おすすめTop3ランキング ── */}
+            <div style={{ marginTop:28 }}>
+              {[
+                { label:'6・10畳 おすすめ', group:'small' },
+                { label:'14・18畳 おすすめ', group:'large' },
+              ].map(({ label, group }) => (
+                <div key={group} style={{ marginBottom:24 }}>
+                  <div style={{ fontSize:15, fontWeight:700, color:'#4A5568', marginBottom:10 }}>⭐ {label}</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
+                    {[
+                      { key:'noFilter', label:'自動掃除なし', color:'#4A5568' },
+                      { key:'hasFilter', label:'自動掃除あり ✨', color:'#38A169' },
+                      { key:'eco', label:'超省エネモデル ⚡', color:'#3182CE' },
+                    ].map(({ key, label: catLabel, color }) => (
+                      <div key={key} onClick={() => setTop3View({ group, key })} style={{
+                        background:'#FFFFFF', border:`2px solid ${color}30`,
+                        borderRadius:14, padding:'14px 16px', cursor:'pointer', textAlign:'left',
+                        boxShadow:'0 2px 6px rgba(0,0,0,0.06)', transition:'all 0.18s',
+                      }}>
+                        <div style={{ fontSize:14, fontWeight:700, color, marginBottom:10 }}>{catLabel}</div>
+                        {TOP3[group][key].map(item => (
+                          <div key={item.rank} style={{ display:'flex', gap:8, alignItems:'center', marginBottom:6 }}>
+                            <div style={{
+                              width:20, height:20, borderRadius:6, flexShrink:0,
+                              background: item.rank===1 ? '#FFD700' : item.rank===2 ? '#C0C0C0' : '#CD7F32',
+                              display:'flex', alignItems:'center', justifyContent:'center',
+                              fontSize:13, fontWeight:700, color:'#fff',
+                            }}>{item.rank}</div>
+                            <div>
+                              <div style={{ fontSize:13, fontWeight:700, color:'#1A202C' }}>{item.maker} {item.series}</div>
+                              <div style={{ fontSize:12, color:'#4A5568' }}>{item.model}</div>
+                            </div>
+                          </div>
+                        ))}
+                        {group === 'small' && FULL_RANKING[key].length > 3 && (
+                          <div style={{ fontSize:12, color, marginTop:6, fontWeight:600 }}>・・・全ランキングを見る →</div>
+                        )}
+                        <div style={{ fontSize:13, color, marginTop:4, fontWeight:600, textAlign:'right' }}>詳細を比較する →</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           );
         })()}
 
 
         {/* ══ 全体マップ ══ */}
         {tab === 'map' && (() => {
-          // カードコンポーネント
-          const M = ({ name, desc, bg='#FFFFFF', border='#E2E8F0', nameColor='#1A202C', rank, warn, wide }) => (
+          const C = ({ name, desc, bg='#FFFFFF', border='#E2E8F0', color='#1A202C', rank, warn, gray }) => (
             <div style={{
-              background: bg, border: `2px solid ${border}`,
-              borderRadius:8, padding:'8px 10px',
-              gridColumn: wide ? 'span 2' : undefined,
+              background: gray ? '#EDF2F7' : bg,
+              border: `2px solid ${gray ? '#CBD5E0' : border}`,
+              borderRadius:8, padding:'10px 12px',
             }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-                <div style={{ fontSize:13, fontWeight:700, color: nameColor }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: desc ? 4 : 0 }}>
+                <div style={{ fontSize:13, fontWeight:700, color: gray ? '#718096' : (warn ? '#C53030' : color) }}>
                   {warn ? '⚠️ ' : ''}{name}
                 </div>
                 {rank && <span style={{
-                  fontSize:12, fontWeight:700, padding:'1px 6px', borderRadius:6,
+                  fontSize:11, fontWeight:700, padding:'2px 6px', borderRadius:6,
                   background: rank===1 ? '#276749' : rank===2 ? '#38A169' : '#E53E3E',
-                  color:'#fff', flexShrink:0, marginLeft:4,
+                  color:'#fff', flexShrink:0,
                 }}>NO.{rank}</span>}
               </div>
-              <div style={{ fontSize:11, color:'#4A5568', lineHeight:1.5, marginTop:2 }}>{desc}</div>
+              {desc && <div style={{ fontSize:11, color: gray ? '#718096' : '#4A5568', lineHeight:1.5 }}>{desc}</div>}
             </div>
           );
 
           return (
             <div>
-              <div style={{ fontSize:15, fontWeight:700, color:'#1A202C', marginBottom:12 }}>● 6畳 全体マップ</div>
-
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
+              <div style={{ fontSize:15, fontWeight:700, color:'#1A202C', marginBottom:12 }}>● 6・10畳 全体マップ</div>
+              <div style={{ display:'grid', gridTemplateColumns:'2fr 3fr 2fr', gap:10 }}>
 
                 {/* ===== スタンダード ===== */}
                 <div>
@@ -1470,39 +1563,35 @@ export default function App() {
                     <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>スタンダード</div>
                   </div>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
-                    <M name='アイリス' desc='最安、外気温50℃未対応（唯一）' bg='#FED7D7' border='#E53E3E' nameColor='#C53030' warn />
-                    <M name='パナ J' desc='世の中では人気。ナノイーで抑制。指名買いが多い' bg='#FFFFFF' border='#CBD5E0' />
-                    <M name='日立 D' desc='凍結洗浄で内部を凍らせて清潔に' bg='#FEFCBF' border='#ECC94B' />
-                    <M name='ダイキン E' desc='隠蔽推奨。空気清浄＆水洗浄強度と効き◎' bg='#FEFCBF' border='#ECC94B' nameColor='#00A0E9' />
-                    <M name='東芝 M' desc='上下ルーバー。高さ25cm。他社国内最安' bg='#FFFFFF' border='#CBD5E0' />
-                    <M name='ゼネラル L' desc='2027年省エネ基準達成。ゼロエミ入口' bg='#FFFFFF' border='#CBD5E0' />
-                    <M name='シャープ DG' desc='上下ルーバー。プラズマクラスター。組立定番外' bg='#FFFFFF' border='#CBD5E0' />
-                    <div style={{ background:'#EDF2F7', border:'1px solid #CBD5E0', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
-                      <div style={{ fontSize:12, color:'#4A5568', fontWeight:600 }}>お掃除機能<br/>節電比較コーナー</div>
-                    </div>
+                    <C name='アイリス' desc='最安、外気温50℃未対応（唯一）' bg='#FED7D7' border='#E53E3E' color='#C53030' warn />
+                    <C name='パナ J' desc='世の中では人気。ナノイーで抑制。指名買いが多い' />
+                    <C name='日立 D' desc='凍結洗浄で内部を凍らせて清潔に' bg='#FEFCBF' border='#ECC94B' />
+                    <C name='ダイキン E' desc='隠蔽推奨モデル。空気清浄＆水洗浄◎' bg='#FEFCBF' border='#ECC94B' color='#00A0E9' />
+                    <C name='東芝 M' desc='上下ルーバー。高さ25cm。他社国内最安' />
+                    <C name='ゼネラル L' desc='2027年省エネ基準達成。ゼロエミ入口' />
+                    <C name='シャープ DG' desc='上下ルーバー。プラズマクラスター。組立定番外' />
+                    <C name='節電比較コーナー' gray />
                   </div>
                 </div>
 
-                {/* ===== 自動フィルター掃除 ===== */}
+                {/* ===== 自動フィルター掃除（3列） ===== */}
                 <div>
                   <div style={{ background:'#D69E2E', borderRadius:'8px 8px 0 0', padding:'8px', textAlign:'center', marginBottom:8 }}>
                     <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>自動フィルター掃除</div>
                   </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
-                    <M name='東芝 DX' desc='お掃除機能最安。無風感で冷房苦手な方に最適' bg='#FFFFFF' border='#CBD5E0' />
-                    <M name='ダイキン C' desc='隠蔽推奨。高さ25cm。FNの方がお得' bg='#FFFFFF' border='#E53E3E' nameColor='#E53E3E' />
-                    <M name='パナ EX' desc='自動排出かBOX式。換気ヘッド必要なケース多い' bg='#FFFFFF' border='#0047AA' nameColor='#0047AA' wide />
-                    <M name='日立 G' desc='お掃除機能入口。凍結洗浄。ジャパ対抗多し' bg='#FED7D7' border='#FC8181' rank={3} />
-                    <M name='日立 WN' desc='良湿モデル。高さ最小。ファンロボ搭載' bg='#C6F6D5' border='#38A169' rank={2} />
-                    <M name='ダイキン FN' desc='良湿モデル。内部ファンカビ対策加工、日本製' bg='#C6F6D5' border='#276749' nameColor='#276749' rank={1} wide />
-                    <M name='シャープ V' desc='高さ25cm・コスパ◎。良湿モデル入口。プラズマ' bg='#FED7E2' border='#F687B3' />
-                    <div style={{ background:'#EDF2F7', border:'1px solid #CBD5E0', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
-                      <div style={{ fontSize:12, color:'#4A5568', fontWeight:600 }}>モニター</div>
-                    </div>
-                    <M name='三菱 R' desc='お掃除は自分でしたい方向けに。日本製' bg='#FFFFFF' border='#E60012' nameColor='#E60012' />
-                    <div style={{ background:'#EDF2F7', border:'1px solid #CBD5E0', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
-                      <div style={{ fontSize:12, color:'#4A5568', fontWeight:600 }}>外カバー</div>
-                    </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
+                    <C name='東芝 DX' desc='お掃除機能最安。無風感で冷房苦手な方に' />
+                    <C name='ダイキン C' desc='隠蔽推奨。高さ25cm。FNの方がお得' border='#E53E3E' color='#E53E3E' />
+                    <C name='パナ EX' desc='自動排出かBOX式。換気ヘッド必要なケース多い' color='#0047AA' border='#0047AA' />
+                    <C name='日立 G' desc='お掃除入口。凍結洗浄。ジャパ対抗多し' bg='#FED7D7' border='#FC8181' rank={3} />
+                    <C name='日立 WN' desc='良湿モデル。高さ最小。ファンロボ搭載' bg='#C6F6D5' border='#38A169' rank={2} />
+                    <C name='ダイキン FN' desc='良湿モデル。内部ファンカビ対策加工、日本製' bg='#C6F6D5' border='#276749' color='#276749' rank={1} />
+                    <C name='シャープ V' desc='高さ25cm・コスパ◎。良湿モデル入口。プラズマ' bg='#FED7E2' border='#F687B3' />
+                    <C name='モニター' gray />
+                    <C name='湿度体感BOX' gray />
+                    <C name='三菱 R' desc='お掃除は自分でしたい方向けに。日本製' color='#E60012' border='#E60012' />
+                    <C name='外カバー' gray />
+                    <C name='ダイキン室外機訴求' bg='#BEE3F8' border='#3182CE' color='#2B6CB0' />
                   </div>
                 </div>
 
@@ -1512,21 +1601,14 @@ export default function App() {
                     <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>超省エネ</div>
                   </div>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
-                    <M name='シャープ R' desc='感動最安。電気代コンサルならVの省エネモデル' bg='#FFFFFF' border='#CBD5E0' />
-                    <M name='ダイキン A' desc='Rシリーズの加湿換気なしモデル' bg='#BEE3F8' border='#3182CE' nameColor='#00A0E9' />
-                    <M name='日立 X' desc='内部銅合金で水の通り道も凍結。空気清浄機で脱臭' bg='#BEE3F8' border='#3182CE' nameColor='#CE0F0F' />
-                    <M name='ダイキン R' desc='空気の入れ替え換気、暖房時加湿、穴問題あり' bg='#BEE3F8' border='#3182CE' nameColor='#00A0E9' />
-                    <M name='パナ X' desc='条件付きのため標準工事費込。複数台割なし' bg='#FFFFFF' border='#0047AA' nameColor='#0047AA' />
-                    <div style={{ background:'#EDF2F7', border:'1px solid #CBD5E0', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
-                      <div style={{ fontSize:12, color:'#4A5568', fontWeight:600 }}>エアコン<br/>オプション</div>
-                    </div>
-                    <M name='三菱 ZW' desc='エモコで体温判断し人にフォーカス' bg='#FFFFFF' border='#E60012' nameColor='#E60012' />
-                    <div style={{ background:'#EDF2F7', border:'1px solid #CBD5E0', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
-                      <div style={{ fontSize:12, color:'#4A5568', fontWeight:600 }}>エアコン<br/>オプション</div>
-                    </div>
-                    <div style={{ background:'#BEE3F8', border:'1px solid #3182CE', borderRadius:8, padding:'8px 10px', textAlign:'center', gridColumn:'span 2' }}>
-                      <div style={{ fontSize:12, color:'#2B6CB0', fontWeight:600 }}>モニター / 湿度体感BOX / ダイキン室外機訴求</div>
-                    </div>
+                    <C name='シャープ R' desc='感動最安。電気代コンサルならVの省エネモデル' />
+                    <C name='ダイキン A' desc='Rシリーズの加湿換気なしモデル' bg='#BEE3F8' border='#3182CE' color='#00A0E9' />
+                    <C name='日立 X' desc='内部銅合金で水の通り道も凍結。空気清浄機で脱臭' bg='#BEE3F8' border='#3182CE' color='#CE0F0F' />
+                    <C name='ダイキン R' desc='換気・暖房時加湿。穴問題あり' bg='#BEE3F8' border='#3182CE' color='#00A0E9' />
+                    <C name='パナ X' desc='条件付きで標準工事費込。複数台割なし' color='#0047AA' border='#0047AA' />
+                    <C name='エアコンオプション' gray />
+                    <C name='三菱 ZW' desc='エモコで体温判断し人にフォーカス' color='#E60012' border='#E60012' />
+                    <C name='エアコンオプション' gray />
                   </div>
                 </div>
 
