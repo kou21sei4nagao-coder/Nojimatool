@@ -863,7 +863,7 @@ function FeatureCard({ featureKey, isStaffMode, highlight }) {
 
 // ── メイン ───────────────────────────────────────────────
 export default function App() {
-  const [tab, setTab] = useState("filter"); // filter | guide | makers | kouji
+  const [tab, setTab] = useState("filter"); // filter | guide | makers | kouji | map
 
   // 絞り込み状態
   const [maker, setMaker]         = useState(null);
@@ -932,7 +932,7 @@ export default function App() {
         }}>
           {/* タブ */}
           <div style={{ display:"flex", flexDirection:"column", borderBottom:"1px solid #E2E8F0" }}>
-            {[["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["guide","📚 機能ガイド"],["kouji","🔧 工事内容"]].map(([key,label]) => (
+            {[["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["guide","📚 機能ガイド"],["kouji","🔧 工事内容"],["map","🗺️ 全体マップ"]].map(([key,label]) => (
               <button key={key} onClick={() => setTab(key)} style={{
                 padding:"12px 18px", background: tab===key ? "#EBF8FF" : "none", textAlign:"left",
                 border:"none", borderLeft:`3px solid ${tab===key ? accentColor : "transparent"}`,
@@ -1435,6 +1435,84 @@ export default function App() {
           );
         })()}
 
+
+        {/* ══ 全体マップ ══ */}
+        {tab === "map" && (
+          <div>
+            <div style={{ fontSize:15, fontWeight:700, color:"#1A202C", marginBottom:4 }}>6畳 全体マップ</div>
+            <div style={{ fontSize:13, color:"#4A5568", marginBottom:20 }}>お客様のニーズに合わせて案内するゾーンを選ぼう</div>
+
+            {[
+              {
+                label:"スタンダード", icon:"🔲", color:"#718096",
+                desc:"シンプルに使いたい・価格重視のお客様へ",
+                models:[
+                  { series:"ダイキン E",    note:"隠蔽推奨モデル。空気清浄＆水洗浄◎", warn:false },
+                  { series:"ゼネラル L",    note:"2027年省エネ基準達成。ゼロエミ入口", warn:false },
+                  { series:"パナ J",        note:"ナノイー搭載。指名買いが多い人気モデル", warn:false },
+                  { series:"日立 D",        note:"凍結洗浄で内部を凍らせて清潔に", warn:false },
+                  { series:"三菱 R",        note:"自動掃除は自分でしたい方向け。日本製", warn:false },
+                  { series:"ダイキン C",    note:"隠蔽推奨モデル。高さ制限25cm。FNの方がお得", warn:false },
+                  { series:"東芝 M",        note:"上下ルーバー付き。高さ25cm。他社国内最安", warn:false },
+                  { series:"シャープ DG",   note:"上下ルーバー＋プラズマクラスター。組立定番外", warn:false },
+                  { series:"アイリスオーヤマ", note:"最安モデル。⚠️外気温50℃未対応（この中で唯一）", warn:true },
+                ],
+              },
+              {
+                label:"自動フィルター掃除", icon:"✨", color:"#38A169",
+                desc:"手入れを楽にしたい・長く使いたいお客様へ",
+                models:[
+                  { series:"ダイキン FN",   note:"良湿モデル。内部ファンカビ対策加工。日本製", warn:false },
+                  { series:"パナ EX",       note:"自動排出かBOX式。換気ヘッド必要なケース多い", warn:false },
+                  { series:"日立 WN",       note:"良湿モデル。高さ最小。ファンロボ搭載", warn:false },
+                  { series:"日立 G",        note:"お掃除機能入口。凍結洗浄搭載。ジャパ対抗多し", warn:false },
+                  { series:"三菱 ZW",       note:"エモコでお客様の体温で判断し人にフォーカス", warn:false },
+                  { series:"パナ X",        note:"条件付きのため標準工事費込。複数台割なし", warn:false },
+                  { series:"東芝 DX",       note:"お掃除機能最安。無風感で冷房苦手な方に最適", warn:false },
+                  { series:"シャープ V",    note:"高さ25cm・コスパ◎。良湿モデル入口。プラズマクラスター", warn:false },
+                ],
+              },
+              {
+                label:"超省エネ", icon:"⚡", color:"#3182CE",
+                desc:"電気代を抑えたい・長期コスパ重視のお客様へ",
+                models:[
+                  { series:"ダイキン R",    note:"空気の入れ替え換気・暖房時加湿。穴問題あり", warn:false },
+                  { series:"日立 X",        note:"内部銅合金で水の通り道も凍結。空気清浄機で脱臭", warn:false },
+                  { series:"ダイキン A",    note:"Rシリーズの加湿換気なしモデル", warn:false },
+                  { series:"シャープ R",    note:"感動最安。電気代コンサルならVの省エネモデル", warn:false },
+                ],
+              },
+            ].map(group => (
+              <div key={group.label} style={{ marginBottom:24 }}>
+                {/* グループヘッダー */}
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14, padding:"12px 16px", background:`${group.color}10`, borderRadius:14, border:`1.5px solid ${group.color}30` }}>
+                  <span style={{ fontSize:22 }}>{group.icon}</span>
+                  <div>
+                    <div style={{ fontSize:16, fontWeight:700, color:group.color }}>{group.label}</div>
+                    <div style={{ fontSize:13, color:"#4A5568" }}>{group.desc}</div>
+                  </div>
+                </div>
+
+                {/* 機種カード一覧 */}
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
+                  {group.models.map((m, i) => (
+                    <div key={i} style={{
+                      background: m.warn ? "#FFF5F5" : "#FFFFFF",
+                      border:`1px solid ${m.warn ? "#FEB2B2" : group.color+"30"}`,
+                      borderRadius:12, padding:"12px 14px",
+                      boxShadow:"0 1px 3px rgba(0,0,0,0.05)",
+                    }}>
+                      <div style={{ fontSize:14, fontWeight:700, color: m.warn ? "#C53030" : "#1A202C", marginBottom:4 }}>
+                        {m.warn ? "⚠️ " : ""}{m.series}
+                      </div>
+                      <div style={{ fontSize:13, color:"#4A5568", lineHeight:1.6 }}>{m.note}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {tab === "kouji" && (
           <div>
