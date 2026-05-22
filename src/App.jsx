@@ -723,7 +723,7 @@ function Top3Card({ item, color }) {
 
   return (
     <div style={{ marginBottom:8 }}>
-      <button onClick={() => setOpen(v => !v)} style={{
+      <div onClick={() => setOpen(v => !v)} style={{
         display:"flex", gap:8, alignItems:"flex-start", width:"100%", textAlign:"left",
         background: open ? `${color}08` : "rgba(0,0,0,0.02)",
         border: `1px solid ${open ? color+"50" : "#E2E8F0"}`,
@@ -742,7 +742,7 @@ function Top3Card({ item, color }) {
           <div style={{ fontSize:15, color:"#4A5568", marginTop:2, lineHeight:1.5 }}>{item.point}</div>
         </div>
         <span style={{ color, fontSize:15, flexShrink:0 }}>{open ? "▲" : "▼"}</span>
-      </button>
+      </div>
 
       {open && (
         <div style={{ background:"#F8FAFC", border:`1px solid ${color}30`, borderTop:"none", borderRadius:"0 0 10px 10px", padding:"12px 14px" }}>
@@ -1032,7 +1032,7 @@ export default function App() {
                     { key:"hasFilter", label:"自動掃除あり ✨", color:"#38A169", icon:"✨" },
                     { key:"eco", label:"超省エネモデル ⚡", color:"#3182CE", icon:"⚡" },
                   ].map(({ key, label: catLabel, color }) => (
-                    <button key={key} onClick={() => setTop3View({ group, key })} style={{
+                    <div key={key} onClick={() => setTop3View({ group, key })} style={{
                       background:"#FFFFFF", border:`2px solid ${color}30`,
                       borderRadius:14, padding:"14px 16px", cursor:"pointer", textAlign:"left",
                       boxShadow:"0 2px 6px rgba(0,0,0,0.06)", transition:"all 0.18s",
@@ -1057,17 +1057,17 @@ export default function App() {
                       ))}
                       {/* 4位以降ボタン */}
                       {group === "small" && FULL_RANKING[key].length > 3 && (
-                        <button onClick={() => setTop3View({ group, key })} style={{
+                        <div onClick={(e) => { e.stopPropagation(); setTop3View({ group, key }); }} style={{
                           display:"flex", alignItems:"center", justifyContent:"center", gap:4,
                           width:"100%", marginTop:6, padding:"6px",
                           background:"none", border:`1px dashed ${color}60`,
                           borderRadius:8, cursor:"pointer", color, fontSize:15, fontWeight:600,
                         }}>
                           ・・・ {FULL_RANKING[key].length - 3}機種以上 全ランキングを見る →
-                        </button>
+                        </div>
                       )}
                       <div style={{ fontSize:15, color, marginTop:8, fontWeight:600, textAlign:"right" }}>詳細を比較する →</div>
-                    </button>
+                    </div>
                   ))}
                 </div>
               </div>
