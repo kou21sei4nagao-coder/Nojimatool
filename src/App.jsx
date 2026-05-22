@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Analytics } from "@vercel/analytics/react";
 
 const globalStyle = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1013,7 +1012,7 @@ export default function App() {
         )} {/* sidebarOpen終わり */}
 
         {/* 右コンテンツエリア */}
-        <div style={{ flex:1, overflowY:"auto", padding:"20px 24px", background:"#F5F7FA" }}>
+        <div style={{ flex:1, minWidth:0, overflowY:"auto", padding:"20px 24px", background:"#F5F7FA" }}>
 
 
         {/* ══ 絞り込み結果 ══ */}
@@ -1437,100 +1436,104 @@ export default function App() {
 
 
         {/* ══ 全体マップ ══ */}
-        {tab === "map" && (
-          <div>
-            <div style={{ fontSize:15, fontWeight:700, color:"#1A202C", marginBottom:4 }}>6畳 全体マップ</div>
-            <div style={{ fontSize:13, color:"#4A5568", marginBottom:16 }}>お客様のニーズに合わせて案内するゾーンを選ぼう</div>
-
-            {/* 3列ヘッダー */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:8 }}>
-              {[
-                { label:"スタンダード", icon:"🔲", color:"#718096", bg:"#F7FAFC" },
-                { label:"自動フィルター掃除", icon:"✨", color:"#38A169", bg:"#F0FFF4" },
-                { label:"超省エネ", icon:"⚡", color:"#3182CE", bg:"#EBF8FF" },
-              ].map(g => (
-                <div key={g.label} style={{ background:g.bg, border:`2px solid ${g.color}`, borderRadius:"12px 12px 0 0", padding:"10px 14px", textAlign:"center" }}>
-                  <div style={{ fontSize:18 }}>{g.icon}</div>
-                  <div style={{ fontSize:14, fontWeight:700, color:g.color }}>{g.label}</div>
+        {tab === 'map' && (() => {
+          // カードコンポーネント
+          const M = ({ name, desc, bg='#FFFFFF', border='#E2E8F0', nameColor='#1A202C', rank, warn, wide }) => (
+            <div style={{
+              background: bg, border: `2px solid ${border}`,
+              borderRadius:8, padding:'8px 10px',
+              gridColumn: wide ? 'span 2' : undefined,
+            }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+                <div style={{ fontSize:13, fontWeight:700, color: nameColor }}>
+                  {warn ? '⚠️ ' : ''}{name}
                 </div>
-              ))}
+                {rank && <span style={{
+                  fontSize:12, fontWeight:700, padding:'1px 6px', borderRadius:6,
+                  background: rank===1 ? '#276749' : rank===2 ? '#38A169' : '#E53E3E',
+                  color:'#fff', flexShrink:0, marginLeft:4,
+                }}>NO.{rank}</span>}
+              </div>
+              <div style={{ fontSize:11, color:'#4A5568', lineHeight:1.5, marginTop:2 }}>{desc}</div>
             </div>
+          );
 
-            {/* 3列コンテンツ */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
+          return (
+            <div>
+              <div style={{ fontSize:15, fontWeight:700, color:'#1A202C', marginBottom:12 }}>● 6畳 全体マップ</div>
 
-              {/* スタンダード列 */}
-              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-                {[
-                  { series:"ダイキン E",      note:"隠蔽推奨。空気清浄＆水洗浄◎", color:"#00A0E9" },
-                  { series:"ゼネラル L",      note:"2027年省エネ基準達成。ゼロエミ入口", color:"#E87B00" },
-                  { series:"パナ J",          note:"ナノイー搭載。指名買いが多い人気モデル", color:"#0047AA" },
-                  { series:"日立 D",          note:"凍結洗浄で内部を凍らせて清潔に", color:"#CE0F0F" },
-                  { series:"三菱 R",          note:"お掃除は自分でしたい方向け。日本製", color:"#E60012" },
-                  { series:"ダイキン C",      note:"隠蔽推奨。高さ25cm。FNの方がお得", color:"#00A0E9" },
-                  { series:"東芝 M",          note:"上下ルーバー。高さ25cm。他社国内最安", color:"#E60020" },
-                  { series:"シャープ DG",     note:"上下ルーバー＋プラズマクラスター", color:"#444" },
-                  { series:"アイリス",        note:"最安。⚠️外気温50℃未対応（唯一）", color:"#E53E3E", warn:true },
-                ].map((m, i) => (
-                  <div key={i} style={{
-                    background: m.warn ? "#FFF5F5" : "#FFFFFF",
-                    border:`1px solid ${m.warn ? "#FC8181" : m.color+"40"}`,
-                    borderLeft:`3px solid ${m.warn ? "#FC8181" : m.color}`,
-                    borderRadius:8, padding:"8px 12px",
-                  }}>
-                    <div style={{ fontSize:13, fontWeight:700, color: m.warn ? "#C53030" : "#1A202C" }}>{m.warn ? "⚠️ " : ""}{m.series}</div>
-                    <div style={{ fontSize:12, color:"#4A5568", lineHeight:1.5, marginTop:2 }}>{m.note}</div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
+
+                {/* ===== スタンダード ===== */}
+                <div>
+                  <div style={{ background:'#38A169', borderRadius:'8px 8px 0 0', padding:'8px', textAlign:'center', marginBottom:8 }}>
+                    <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>スタンダード</div>
                   </div>
-                ))}
-              </div>
-
-              {/* 自動フィルター掃除列 */}
-              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-                {[
-                  { series:"ダイキン FN",   note:"良湿モデル。内部ファンカビ対策加工。日本製", color:"#00A0E9" },
-                  { series:"パナ EX",       note:"自動排出かBOX式。換気ヘッド必要なケース多い", color:"#0047AA" },
-                  { series:"日立 WN",       note:"良湿モデル。高さ最小。ファンロボ搭載", color:"#CE0F0F" },
-                  { series:"日立 G",        note:"お掃除機能入口。凍結洗浄。ジャパ対抗多し", color:"#CE0F0F" },
-                  { series:"三菱 ZW",       note:"エモコでお客様の体温で判断。人にフォーカス", color:"#E60012" },
-                  { series:"パナ X",        note:"条件付きで標準工事費込。複数台割なし", color:"#0047AA" },
-                  { series:"東芝 DX",       note:"お掃除機能最安。無風感で冷房苦手な方に", color:"#E60020" },
-                  { series:"シャープ V",    note:"高さ25cm・コスパ◎。プラズマクラスター", color:"#444" },
-                ].map((m, i) => (
-                  <div key={i} style={{
-                    background:"#FFFFFF",
-                    border:`1px solid ${m.color}40`,
-                    borderLeft:`3px solid ${m.color}`,
-                    borderRadius:8, padding:"8px 12px",
-                  }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:"#1A202C" }}>{m.series}</div>
-                    <div style={{ fontSize:12, color:"#4A5568", lineHeight:1.5, marginTop:2 }}>{m.note}</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+                    <M name='アイリス' desc='最安、外気温50℃未対応（唯一）' bg='#FED7D7' border='#E53E3E' nameColor='#C53030' warn />
+                    <M name='パナ J' desc='世の中では人気。ナノイーで抑制。指名買いが多い' bg='#FFFFFF' border='#CBD5E0' />
+                    <M name='日立 D' desc='凍結洗浄で内部を凍らせて清潔に' bg='#FEFCBF' border='#ECC94B' />
+                    <M name='ダイキン E' desc='隠蔽推奨。空気清浄＆水洗浄強度と効き◎' bg='#FEFCBF' border='#ECC94B' nameColor='#00A0E9' />
+                    <M name='東芝 M' desc='上下ルーバー。高さ25cm。他社国内最安' bg='#FFFFFF' border='#CBD5E0' />
+                    <M name='ゼネラル L' desc='2027年省エネ基準達成。ゼロエミ入口' bg='#FFFFFF' border='#CBD5E0' />
+                    <M name='シャープ DG' desc='上下ルーバー。プラズマクラスター。組立定番外' bg='#FFFFFF' border='#CBD5E0' />
+                    <div style={{ background:'#EDF2F7', border:'1px solid #CBD5E0', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
+                      <div style={{ fontSize:12, color:'#4A5568', fontWeight:600 }}>お掃除機能<br/>節電比較コーナー</div>
+                    </div>
                   </div>
-                ))}
-              </div>
+                </div>
 
-              {/* 超省エネ列 */}
-              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-                {[
-                  { series:"ダイキン R",   note:"換気・暖房時加湿。穴問題あり", color:"#00A0E9" },
-                  { series:"日立 X",       note:"内部銅合金で水の通り道も凍結。空気清浄機で脱臭", color:"#CE0F0F" },
-                  { series:"ダイキン A",   note:"Rシリーズの加湿換気なしモデル", color:"#00A0E9" },
-                  { series:"シャープ R",   note:"感動最安。電気代コンサルならVの省エネモデル", color:"#444" },
-                ].map((m, i) => (
-                  <div key={i} style={{
-                    background:"#FFFFFF",
-                    border:`1px solid ${m.color}40`,
-                    borderLeft:`3px solid ${m.color}`,
-                    borderRadius:8, padding:"8px 12px",
-                  }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:"#1A202C" }}>{m.series}</div>
-                    <div style={{ fontSize:12, color:"#4A5568", lineHeight:1.5, marginTop:2 }}>{m.note}</div>
+                {/* ===== 自動フィルター掃除 ===== */}
+                <div>
+                  <div style={{ background:'#D69E2E', borderRadius:'8px 8px 0 0', padding:'8px', textAlign:'center', marginBottom:8 }}>
+                    <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>自動フィルター掃除</div>
                   </div>
-                ))}
-              </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+                    <M name='東芝 DX' desc='お掃除機能最安。無風感で冷房苦手な方に最適' bg='#FFFFFF' border='#CBD5E0' />
+                    <M name='ダイキン C' desc='隠蔽推奨。高さ25cm。FNの方がお得' bg='#FFFFFF' border='#E53E3E' nameColor='#E53E3E' />
+                    <M name='パナ EX' desc='自動排出かBOX式。換気ヘッド必要なケース多い' bg='#FFFFFF' border='#0047AA' nameColor='#0047AA' wide />
+                    <M name='日立 G' desc='お掃除機能入口。凍結洗浄。ジャパ対抗多し' bg='#FED7D7' border='#FC8181' rank={3} />
+                    <M name='日立 WN' desc='良湿モデル。高さ最小。ファンロボ搭載' bg='#C6F6D5' border='#38A169' rank={2} />
+                    <M name='ダイキン FN' desc='良湿モデル。内部ファンカビ対策加工、日本製' bg='#C6F6D5' border='#276749' nameColor='#276749' rank={1} wide />
+                    <M name='シャープ V' desc='高さ25cm・コスパ◎。良湿モデル入口。プラズマ' bg='#FED7E2' border='#F687B3' />
+                    <div style={{ background:'#EDF2F7', border:'1px solid #CBD5E0', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
+                      <div style={{ fontSize:12, color:'#4A5568', fontWeight:600 }}>モニター</div>
+                    </div>
+                    <M name='三菱 R' desc='お掃除は自分でしたい方向けに。日本製' bg='#FFFFFF' border='#E60012' nameColor='#E60012' />
+                    <div style={{ background:'#EDF2F7', border:'1px solid #CBD5E0', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
+                      <div style={{ fontSize:12, color:'#4A5568', fontWeight:600 }}>外カバー</div>
+                    </div>
+                  </div>
+                </div>
 
+                {/* ===== 超省エネ ===== */}
+                <div>
+                  <div style={{ background:'#E53E3E', borderRadius:'8px 8px 0 0', padding:'8px', textAlign:'center', marginBottom:8 }}>
+                    <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>超省エネ</div>
+                  </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+                    <M name='シャープ R' desc='感動最安。電気代コンサルならVの省エネモデル' bg='#FFFFFF' border='#CBD5E0' />
+                    <M name='ダイキン A' desc='Rシリーズの加湿換気なしモデル' bg='#BEE3F8' border='#3182CE' nameColor='#00A0E9' />
+                    <M name='日立 X' desc='内部銅合金で水の通り道も凍結。空気清浄機で脱臭' bg='#BEE3F8' border='#3182CE' nameColor='#CE0F0F' />
+                    <M name='ダイキン R' desc='空気の入れ替え換気、暖房時加湿、穴問題あり' bg='#BEE3F8' border='#3182CE' nameColor='#00A0E9' />
+                    <M name='パナ X' desc='条件付きのため標準工事費込。複数台割なし' bg='#FFFFFF' border='#0047AA' nameColor='#0047AA' />
+                    <div style={{ background:'#EDF2F7', border:'1px solid #CBD5E0', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
+                      <div style={{ fontSize:12, color:'#4A5568', fontWeight:600 }}>エアコン<br/>オプション</div>
+                    </div>
+                    <M name='三菱 ZW' desc='エモコで体温判断し人にフォーカス' bg='#FFFFFF' border='#E60012' nameColor='#E60012' />
+                    <div style={{ background:'#EDF2F7', border:'1px solid #CBD5E0', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
+                      <div style={{ fontSize:12, color:'#4A5568', fontWeight:600 }}>エアコン<br/>オプション</div>
+                    </div>
+                    <div style={{ background:'#BEE3F8', border:'1px solid #3182CE', borderRadius:8, padding:'8px 10px', textAlign:'center', gridColumn:'span 2' }}>
+                      <div style={{ fontSize:12, color:'#2B6CB0', fontWeight:600 }}>モニター / 湿度体感BOX / ダイキン室外機訴求</div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {tab === "kouji" && (
           <div>
@@ -1666,7 +1669,6 @@ export default function App() {
         )}
         </div> {/* 右コンテンツエリア終わり */}
       </div> {/* メインレイアウト終わり */}
-      <Analytics />
     </div>
   );
 }
