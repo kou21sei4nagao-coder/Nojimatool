@@ -1437,7 +1437,7 @@ export default function App() {
 
 
         {/* ══ 全体マップ ══ */}
-        {tab === 'map' && (() => {
+        {tab === 'map' && !top3View && (() => {
           const C = ({ name, desc, bg='#FFFFFF', border='#E2E8F0', color='#1A202C', rank, warn, gray }) => (
             <div style={{
               background: gray ? '#EDF2F7' : bg,
@@ -1519,7 +1519,6 @@ export default function App() {
                 </div>
 
               </div>
-            </div>
 
             {/* ── おすすめTop3ランキング ── */}
             <div style={{ marginTop:28 }}>
@@ -1564,6 +1563,7 @@ export default function App() {
                   </div>
                 </div>
               ))}
+            </div>
             </div>
           );
         })()}
