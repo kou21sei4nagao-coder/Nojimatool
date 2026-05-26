@@ -876,7 +876,14 @@ export default function App() {
 
   // メーカー特徴
   const [selectedMaker, setSelectedMaker] = useState(null);
-  const [top3View, setTop3View] = useState(null); // { group, key } or null
+  const [top3View, setTop3View] = useState(null);
+  const [mapSelectedModel, setMapSelectedModel] = useState(null);
+
+  // 見積もり
+  const initCalc = () => ({ honka:"", nebiki:"", kouji:true, options:[], hosho:"" });
+  const [calcs, setCalcs] = useState([initCalc(), initCalc(), initCalc()]);
+  const updateCalc = (i, key, val) => setCalcs(prev => prev.map((c, idx) => idx===i ? {...c, [key]:val} : c));
+  const toggleOption = (i, opt) => setCalcs(prev => prev.map((c, idx) => idx===i ? {...c, options: c.options.includes(opt) ? c.options.filter(o=>o!==opt) : [...c.options, opt]} : c)); // { group, key } or null
 
   const resetFilter = () => { setMaker(null); setTatami(null); setFilterOpt(null); setEcoOpt(null); setSelectedModel(null); };
 
@@ -931,7 +938,7 @@ export default function App() {
         }}>
           {/* タブ */}
           <div style={{ display:"flex", flexDirection:"column", borderBottom:"1px solid #E2E8F0" }}>
-            {[["map","🗺️ 全体マップ"],["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["kouji","🔧 工事内容"],["guide","📚 機能ガイド"]].map(([key,label]) => (
+            {[["map","🗺️ 全体マップ"],["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["kouji","🔧 工事内容"],["estimate","💰 見積もり"],["guide","📚 機能ガイド"]].map(([key,label]) => (
               <button key={key} onClick={() => setTab(key)} style={{
                 padding:"12px 18px", background: tab===key ? "#EBF8FF" : "none", textAlign:"left",
                 border:"none", borderLeft:`3px solid ${tab===key ? accentColor : "transparent"}`,
@@ -1436,14 +1443,61 @@ export default function App() {
         })()}
 
 
+        {/* ══ マップ機種詳細 ══ */}
+        {tab === "map" && mapSelectedModel && (
+          <div>
+            <button onClick={() => setMapSelectedModel(null)} style={{ background:"none", border:"none", color:"#4A5568", cursor:"pointer", fontSize:15, marginBottom:20 }}>← マップに戻る</button>
+            <div style={{ background:"#FFFFFF", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16, boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}>
+              <div style={{ fontSize:22, fontWeight:700, color:"#1A202C", marginBottom:4 }}>{mapSelectedModel.name}</div>
+              {mapSelectedModel.desc && <div style={{ fontSize:14, color:"#4A5568", lineHeight:1.7, marginBottom:16, padding:"10px 14px", background:"#F7FAFC", borderRadius:8 }}>{mapSelectedModel.desc}</div>}
+
+              {mapSelectedModel.model ? (
+                <>
+                  {/* 型番・畳数 */}
+                  <div style={{ fontSize:13, color:"#718096", marginBottom:14 }}>
+                    {mapSelectedModel.model.model}　{mapSelectedModel.model.tatami}畳 / {TATAMI_KW[mapSelectedModel.model.tatami]}kW
+                  </div>
+                  {/* 機能タグ */}
+                  <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:16 }}>
+                    {mapSelectedModel.model.hasFilter && <span style={{ fontSize:12, padding:"4px 10px", borderRadius:8, background:"#F0FFF4", color:"#38A169", border:"1px solid #C6F6D5" }}>✨ 自動フィルター</span>}
+                    {mapSelectedModel.model.isEco    && <span style={{ fontSize:12, padding:"4px 10px", borderRadius:8, background:"#EBF8FF", color:"#3182CE", border:"1px solid #BEE3F8" }}>⚡ 超省エネ</span>}
+                    {mapSelectedModel.model.features.filter(k => k !== "filter").map(k => {
+                      const f = FEATURES_DB[k];
+                      return f ? <span key={k} style={{ fontSize:12, padding:"4px 10px", borderRadius:8, background:`${f.color}10`, color:f.color, border:`1px solid ${f.color}30` }}>{f.icon} {f.name}</span> : null;
+                    })}
+                  </div>
+                  {/* 機能ガイド */}
+                  {mapSelectedModel.model.features.filter(k => k !== "filter").map(k => (
+                    <FeatureCard key={k} featureKey={k} isStaffMode={false} highlight />
+                  ))}
+                </>
+              ) : (
+                <div style={{ textAlign:"center", padding:"32px", color:"#718096", background:"#F7FAFC", borderRadius:12 }}>
+                  <div style={{ fontSize:32, marginBottom:8 }}>🚧</div>
+                  <div style={{ fontSize:14, fontWeight:700, color:"#4A5568", marginBottom:4 }}>詳細データ準備中</div>
+                  <div style={{ fontSize:13, color:"#718096" }}>この機種のデータは順次追加予定です</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ══ 全体マップ ══ */}
-        {tab === 'map' && !top3View && (() => {
-          const C = ({ name, desc, bg='#FFFFFF', border='#E2E8F0', color='#1A202C', rank, warn, gray }) => (
-            <div style={{
+        {tab === 'map' && !top3View && !mapSelectedModel && (() => {
+          const C = ({ name, desc, bg='#FFFFFF', border='#E2E8F0', color='#1A202C', rank, warn, gray, modelKey }) => {
+            const model = modelKey ? AC_MODELS.find(m => m.series === modelKey || m.model.includes(modelKey) || m.series.includes(name.replace('パナ','Panasonic').replace('パナ','CS'))) : null;
+            const hasDetail = !gray;
+            return (
+            <div onClick={() => hasDetail && setMapSelectedModel({ name, desc, model })} style={{
               background: gray ? '#EDF2F7' : bg,
               border: `2px solid ${gray ? '#CBD5E0' : border}`,
               borderRadius:8, padding:'10px 12px',
-            }}>
+              cursor: hasDetail ? 'pointer' : 'default',
+              transition:'all 0.15s',
+            }}
+              onMouseEnter={e => { if(hasDetail) e.currentTarget.style.boxShadow = `0 4px 12px ${border}60`; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; }}
+            >
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: desc ? 4 : 0 }}>
                 <div style={{ fontSize:13, fontWeight:700, color: gray ? '#718096' : (warn ? '#C53030' : color) }}>
                   {warn ? '⚠️ ' : ''}{name}
@@ -1455,8 +1509,10 @@ export default function App() {
                 }}>NO.{rank}</span>}
               </div>
               {desc && <div style={{ fontSize:11, color: gray ? '#718096' : '#4A5568', lineHeight:1.5 }}>{desc}</div>}
+              {hasDetail && <div style={{ fontSize:10, color, marginTop:4, textAlign:'right' }}>詳細 →</div>}
             </div>
-          );
+            );
+          };
 
           return (
             <div>
@@ -1564,6 +1620,153 @@ export default function App() {
                 </div>
               ))}
             </div>
+            </div>
+          );
+        })()}
+
+        {/* ══ 見積もり ══ */}
+        {tab === "estimate" && (() => {
+          const KOUJI_FEE = 18500;
+          const OPTIONS = [
+            { key:"drain",    label:"ドレン断熱",   price:3000 },
+            { key:"hole",     label:"穴あけ",       price:8000 },
+            { key:"extend",   label:"配管延長",      price:5000 },
+            { key:"kakudai",  label:"隠蔽配管",      price:50000 },
+            { key:"remove",   label:"取り外し",      price:3000 },
+            { key:"rack",     label:"室外機架台",    price:8000 },
+            { key:"v200",     label:"200V工事",      price:20000 },
+          ];
+          const HOSHO = [
+            { key:"",    label:"保証なし",    price:0 },
+            { key:"3",   label:"3年保証",     price:3000 },
+            { key:"5",   label:"5年保証",     price:5000 },
+            { key:"10",  label:"10年保証",    price:10000 },
+          ];
+
+          const calcTotal = (c) => {
+            const honka = parseInt(c.honka.replace(/,/g,'')) || 0;
+            const nebiki = parseInt(c.nebiki.replace(/,/g,'')) || 0;
+            const kouji = c.kouji ? KOUJI_FEE : 0;
+            const opts = OPTIONS.filter(o => c.options.includes(o.key)).reduce((s, o) => s + o.price, 0);
+            const hosho = HOSHO.find(h => h.key === c.hosho)?.price || 0;
+            return honka - nebiki + kouji + opts + hosho;
+          };
+
+          const fmt = (n) => n.toLocaleString('ja-JP');
+
+          return (
+            <div>
+              <div style={{ fontSize:15, fontWeight:700, color:"#1A202C", marginBottom:4 }}>💰 三択見積もり電卓</div>
+              <div style={{ fontSize:13, color:"#718096", marginBottom:16 }}>3パターンを並べてお客様に提案できます</div>
+
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
+                {calcs.map((c, i) => {
+                  const total = calcTotal(c);
+                  const labels = ["Aプラン", "Bプラン", "Cプラン"];
+                  const colors = ["#0047AA", "#38A169", "#D69E2E"];
+                  const color = colors[i];
+                  return (
+                    <div key={i} style={{ background:"#FFFFFF", borderRadius:16, border:`2px solid ${color}30`, boxShadow:"0 2px 8px rgba(0,0,0,0.06)", overflow:"hidden" }}>
+                      {/* ヘッダー */}
+                      <div style={{ background:color, padding:"10px 16px" }}>
+                        <div style={{ fontSize:15, fontWeight:700, color:"#fff" }}>{labels[i]}</div>
+                      </div>
+
+                      <div style={{ padding:"14px 16px" }}>
+                        {/* 本体価格 */}
+                        <div style={{ marginBottom:10 }}>
+                          <div style={{ fontSize:12, color:"#718096", marginBottom:4 }}>本体価格（円）</div>
+                          <input
+                            type="number"
+                            value={c.honka}
+                            onChange={e => updateCalc(i, 'honka', e.target.value)}
+                            placeholder="例：98000"
+                            style={{ width:"100%", padding:"8px 12px", borderRadius:8, border:"1px solid #E2E8F0", fontSize:15, fontWeight:700, color:"#1A202C", outline:"none" }}
+                          />
+                        </div>
+
+                        {/* 値引き */}
+                        <div style={{ marginBottom:10 }}>
+                          <div style={{ fontSize:12, color:"#718096", marginBottom:4 }}>値引き額（円）</div>
+                          <input
+                            type="number"
+                            value={c.nebiki}
+                            onChange={e => updateCalc(i, 'nebiki', e.target.value)}
+                            placeholder="例：5000"
+                            style={{ width:"100%", padding:"8px 12px", borderRadius:8, border:"1px solid #E2E8F0", fontSize:15, color:"#1A202C", outline:"none" }}
+                          />
+                        </div>
+
+                        {/* 標準工事費 */}
+                        <div style={{ marginBottom:10 }}>
+                          <div style={{ fontSize:12, color:"#718096", marginBottom:4 }}>標準工事費</div>
+                          <div onClick={() => updateCalc(i, 'kouji', !c.kouji)} style={{
+                            padding:"8px 12px", borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:700,
+                            background: c.kouji ? "#F0FFF4" : "#F7FAFC",
+                            border:`1px solid ${c.kouji ? "#38A169" : "#E2E8F0"}`,
+                            color: c.kouji ? "#276749" : "#718096",
+                            display:"flex", justifyContent:"space-between",
+                          }}>
+                            <span>{c.kouji ? "✓ 含む" : "含まない"}</span>
+                            <span>¥{fmt(KOUJI_FEE)}</span>
+                          </div>
+                        </div>
+
+                        {/* 追加工事 */}
+                        <div style={{ marginBottom:10 }}>
+                          <div style={{ fontSize:12, color:"#718096", marginBottom:6 }}>追加工事</div>
+                          <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+                            {OPTIONS.map(opt => (
+                              <div key={opt.key} onClick={() => toggleOption(i, opt.key)} style={{
+                                padding:"6px 10px", borderRadius:8, cursor:"pointer", fontSize:12,
+                                background: c.options.includes(opt.key) ? "#EBF8FF" : "#F7FAFC",
+                                border:`1px solid ${c.options.includes(opt.key) ? "#3182CE" : "#E2E8F0"}`,
+                                color: c.options.includes(opt.key) ? "#2B6CB0" : "#4A5568",
+                                display:"flex", justifyContent:"space-between",
+                              }}>
+                                <span>{c.options.includes(opt.key) ? "✓ " : ""}{opt.label}</span>
+                                <span>¥{fmt(opt.price)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* 保証 */}
+                        <div style={{ marginBottom:14 }}>
+                          <div style={{ fontSize:12, color:"#718096", marginBottom:6 }}>保証</div>
+                          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:4 }}>
+                            {HOSHO.map(h => (
+                              <div key={h.key} onClick={() => updateCalc(i, 'hosho', h.key)} style={{
+                                padding:"6px 8px", borderRadius:8, cursor:"pointer", fontSize:12, textAlign:"center",
+                                background: c.hosho===h.key ? "#FFFBEB" : "#F7FAFC",
+                                border:`1px solid ${c.hosho===h.key ? "#D69E2E" : "#E2E8F0"}`,
+                                color: c.hosho===h.key ? "#B7791F" : "#4A5568",
+                                fontWeight: c.hosho===h.key ? 700 : 400,
+                              }}>
+                                <div>{h.label}</div>
+                                {h.price > 0 && <div>¥{fmt(h.price)}</div>}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* 合計 */}
+                        <div style={{ background:`${color}10`, border:`2px solid ${color}40`, borderRadius:12, padding:"12px 16px", textAlign:"center" }}>
+                          <div style={{ fontSize:12, color:"#718096", marginBottom:2 }}>お見積もり合計</div>
+                          <div style={{ fontSize:26, fontWeight:700, color }}>¥{fmt(total)}</div>
+                          <div style={{ fontSize:11, color:"#718096", marginTop:2 }}>（税込）</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* リセットボタン */}
+              <button onClick={() => setCalcs([initCalc(), initCalc(), initCalc()])} style={{
+                marginTop:16, width:"100%", padding:"10px", background:"#F7FAFC",
+                border:"1px solid #E2E8F0", borderRadius:10, fontSize:14, color:"#718096", cursor:"pointer",
+              }}>🔄 全てリセット</button>
             </div>
           );
         })()}
