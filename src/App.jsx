@@ -1503,7 +1503,7 @@ export default function App() {
             >
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: desc ? 4 : 0 }}>
                 <div style={{ fontSize:13, fontWeight:700, color: gray ? '#718096' : (warn ? '#C53030' : color) }}>
-                  {warn ? '⚠️ ' : ''}{name}
+                  {!gray && (warn ? '⚠️ ' : '')}{!gray && name}
                 </div>
                 {rank && <span style={{
                   fontSize:11, fontWeight:700, padding:'2px 6px', borderRadius:6,
