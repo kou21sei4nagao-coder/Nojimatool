@@ -1627,24 +1627,33 @@ export default function App() {
             {/* ── 14・18・20・23畳 全体マップ ── */}
             <div style={{ marginTop:32 }}>
               <div style={{ fontSize:15, fontWeight:700, color:'#1A202C', marginBottom:12 }}>● 14・18・20・23畳 全体マップ</div>
-              <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr 2fr', gap:10 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 2fr 2fr 2fr', gap:10 }}>
 
-                {/* ===== スタンダード・自動フィルタ（3列） ===== */}
+                {/* ===== スタンダード（1列） ===== */}
+                <div>
+                  <div style={{ background:'#38A169', borderRadius:'8px 8px 0 0', padding:'8px', textAlign:'center', marginBottom:8 }}>
+                    <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>スタンダード</div>
+                  </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:6 }}>
+                    <C name='日立 D' desc='凍結洗浄で内部を凍らせて清潔に' bg='#FEFCBF' border='#ECC94B' />
+                    <C name='パナ J' desc='世の中では人気。ナノイーで抑制。指名買いが多い' />
+                    <C name='ダイキン E' desc='隠蔽推奨モデル。空気清浄＆水洗浄◎' bg='#FEFCBF' border='#ECC94B' color='#00A0E9' />
+                    <C name='三菱 GE' desc='お掃除なし。コスパ重視。日本製' color='#E60012' border='#E60012' />
+                  </div>
+                </div>
+
+                {/* ===== 自動フィルター掃除（2列） ===== */}
                 <div>
                   <div style={{ background:'#D69E2E', borderRadius:'8px 8px 0 0', padding:'8px', textAlign:'center', marginBottom:8 }}>
-                    <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>スタンダード・自動フィルタ</div>
+                    <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>自動フィルター掃除</div>
                   </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
-                    <C name='日立 D' desc='凍結洗浄で内部を凍らせて清潔に' bg='#FEFCBF' border='#ECC94B' />
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
                     <C name='日立 G' desc='お掃除入口。凍結洗浄。ジャパ対抗多し' bg='#FED7D7' border='#FC8181' rank={3} />
                     <C name='東芝 DZ' desc='上下ルーバー。高さ25cm。他社国内最安' />
-                    <C name='パナ J' desc='世の中では人気。ナノイーで抑制。指名買いが多い' />
                     <C name='ゼネラル W' desc='2027年省エネ基準達成。ゼロエミ入口' />
                     <C name='日立 WN' desc='良湿モデル。高さ最小。ファンロボ搭載' bg='#C6F6D5' border='#38A169' rank={2} />
-                    <C name='ダイキン E' desc='隠蔽推奨モデル。空気清浄＆水洗浄◎' bg='#FEFCBF' border='#ECC94B' color='#00A0E9' />
                     <C name='シャープ V' desc='高さ25cm・コスパ◎。良湿モデル入口。プラズマ' bg='#FED7E2' border='#F687B3' />
                     <C name='パナ EX' desc='自動排出かBOX式。換気ヘッド必要なケース多い' color='#0047AA' border='#0047AA' />
-                    <C name='三菱 GE' desc='お掃除なし。コスパ重視。日本製' color='#E60012' border='#E60012' />
                     <C name='三菱 R' desc='お掃除は自分でしたい方向けに。日本製' color='#E60012' border='#E60012' />
                     <C name='ダイキン F' desc='良湿モデル。内部ファンカビ対策加工、日本製' bg='#C6F6D5' border='#276749' color='#276749' rank={1} />
                   </div>
