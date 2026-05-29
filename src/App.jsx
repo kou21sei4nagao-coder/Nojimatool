@@ -1646,7 +1646,7 @@ export default function App() {
                     <C name='パナ EX' desc='自動排出かBOX式。換気ヘッド必要なケース多い' color='#0047AA' border='#0047AA' />
                     <C name='三菱 GE' desc='お掃除なし。コスパ重視。日本製' color='#E60012' border='#E60012' />
                     <C name='三菱 R' desc='お掃除は自分でしたい方向けに。日本製' color='#E60012' border='#E60012' />
-                    <C name='ダイキン P' desc='良湿モデル。内部ファンカビ対策加工、日本製' bg='#C6F6D5' border='#276749' color='#276749' rank={1} />
+                    <C name='ダイキン F' desc='良湿モデル。内部ファンカビ対策加工、日本製' bg='#C6F6D5' border='#276749' color='#276749' rank={1} />
                   </div>
                 </div>
 
@@ -1680,7 +1680,7 @@ export default function App() {
                     <C name='パナ LV' desc='パナソニック上位省エネモデル' color='#0047AA' border='#0047AA' />
                     <C name='ダイキン R' desc='換気・暖房時加湿' bg='#BEE3F8' border='#3182CE' color='#00A0E9' />
                     <C name='' gray />
-                    <C name='三菱 ZW' desc='エモコで体温判断し人にフォーカス' color='#E60012' border='#E60012' />
+                    <C name='三菱 Z' desc='エモコで体温判断し人にフォーカス' color='#E60012' border='#E60012' />
                   </div>
                 </div>
 
