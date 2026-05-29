@@ -191,6 +191,7 @@ export default function App() {
               activeCalc={activeCalc} setActiveCalc={setActiveCalc}
               activeField={activeField} setActiveField={setActiveField}
               updateCalc={updateCalc} toggleOption={toggleOption} initCalc={initCalc}
+              addCalc={addCalc} removeCalc={removeCalc}
             />
           )}
 

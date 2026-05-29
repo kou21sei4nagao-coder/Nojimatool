@@ -24,13 +24,13 @@ const calcTotal = (c) => {
 };
 
 const fmt = (n) => n.toLocaleString('ja-JP');
-const COLORS = ["#0047AA","#38A169","#D69E2E"];
+const COLORS = ["#0047AA","#38A169","#D69E2E","#805AD5","#E53E3E","#DD6B20","#2C7A7B","#702459"];
 
 const keypadTargets = { honka:"本体", nebiki:"値引", hosho:"保証", hyoji:"表示価格", sokone:"底値" };
 
 export default function EstimateTab({
   calcs, setCalcs, activeCalc, setActiveCalc, activeField, setActiveField,
-  updateCalc, toggleOption, initCalc,
+  updateCalc, toggleOption, initCalc, addCalc, removeCalc,
 }) {
   const setActive = (i, field) => { setActiveCalc(i); setActiveField(field); };
   const appendKey = (key) => {
@@ -96,8 +96,8 @@ export default function EstimateTab({
         border:"1px solid #E2E8F0", boxShadow:"0 1px 4px rgba(0,0,0,0.06)",
       }}>
         {/* ─── カード列 ─── */}
-        <div className="estimate-lists" style={{ display:"grid", gridTemplateColumns:"repeat(3, minmax(190px, 1fr))", gap:10 }}>
-          {calcs.slice(0, 3).map((c, i) => {
+        <div className="estimate-lists" style={{ display:"grid", gridTemplateColumns:`repeat(${calcs.length}, minmax(190px, 1fr))`, gap:10 }}>
+          {calcs.map((c, i) => {
             const color = COLORS[i % COLORS.length];
             const selected = activeCalc === i;
             const koujiPrice = c.kouji ? KOUJI_OPTIONS[c.koujiType || 0].price : 0;
@@ -119,6 +119,13 @@ export default function EstimateTab({
                     style={{ flex:"1 1 52px", minWidth:44, border:"none", background:"transparent", outline:"none", color:"#1A202C", fontSize:16, fontWeight:800 }}
                   />
                   <div style={{ color, fontSize:totalFontSize, fontWeight:800, lineHeight:1, whiteSpace:"nowrap", flexShrink:0, textAlign:"right" }}>{totalText}</div>
+                  {calcs.length > 1 && (
+                    <button onClick={e => { e.stopPropagation(); removeCalc(i); if (activeCalc >= calcs.length - 1) setActiveCalc(Math.max(0, calcs.length - 2)); }} style={{
+                      marginLeft:4, width:24, height:24, borderRadius:6, border:"none",
+                      background:"rgba(0,0,0,0.12)", color:"#4A5568", fontSize:13,
+                      cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center",
+                    }}>✕</button>
+                  )}
                 </div>
 
                 <div style={{
@@ -189,17 +196,23 @@ export default function EstimateTab({
             );
           })}
         </div>
+        {/* ＋ 追加ボタン */}
+        <button onClick={addCalc} style={{
+          marginTop:10, height:46, borderRadius:8, border:"2px dashed #CBD5E0",
+          background:"#F7FAFC", color:"#718096", fontSize:20, fontWeight:800,
+          cursor:"pointer", width:"100%", letterSpacing:2,
+        }}>＋ リストを追加</button>
 
         {/* ─── テンキー ─── */}
         <div className="estimate-keypad" style={{ display:"flex", flexDirection:"column", gap:12 }}>
-          <div className="estimate-keypad-list-tabs" style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10 }}>
-            {[0,1,2].map(i => (
+          <div className="estimate-keypad-list-tabs" style={{ display:"grid", gridTemplateColumns:`repeat(${calcs.length}, 1fr)`, gap:6 }}>
+            {calcs.map((_, i) => (
               <button key={i} onClick={() => setActiveCalc(i)} style={{
                 ...smallKeyStyle,
                 background:activeCalc === i ? "#EBF8FF" : smallKeyStyle.background,
-                borderColor:activeCalc === i ? COLORS[i] : "#CBD5E0",
-                color:activeCalc === i ? COLORS[i] : "#2B6CB0", fontSize:18,
-              }}>List{i + 1}</button>
+                borderColor:activeCalc === i ? COLORS[i % COLORS.length] : "#CBD5E0",
+                color:activeCalc === i ? COLORS[i % COLORS.length] : "#2B6CB0", fontSize:15,
+              }}>L{i + 1}</button>
             ))}
           </div>
           <div className="estimate-keypad-field-tabs" style={{ display:"grid", gridTemplateColumns:"repeat(5, 1fr)", gap:10, alignItems:"center" }}>
