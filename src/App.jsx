@@ -881,12 +881,11 @@ export default function App() {
 
   // 見積もり
   const initCalc = () => ({ label:"", honka:"", nebiki:"", kouji:true, koujiType:0, options:[], hosho:"", hyoji:"", sokone:"", applied:false });
-  const [showAssist, setShowAssist] = useState(true);
   const [calcs, setCalcs] = useState([initCalc(), initCalc(), initCalc()]);
+  const [activeCalc, setActiveCalc] = useState(0);
+  const [activeField, setActiveField] = useState("honka");
   const updateCalc = (i, key, val) => setCalcs(prev => prev.map((c, idx) => idx===i ? {...c, [key]:val} : c));
   const toggleOption = (i, opt) => setCalcs(prev => prev.map((c, idx) => idx===i ? {...c, options: c.options.includes(opt) ? c.options.filter(o=>o!==opt) : [...c.options, opt]} : c));
-  const addCalc = () => setCalcs(prev => [...prev, initCalc()]);
-  const removeCalc = (i) => setCalcs(prev => prev.filter((_, idx) => idx !== i)); // { group, key } or null
 
   const resetFilter = () => { setMaker(null); setTatami(null); setFilterOpt(null); setEcoOpt(null); setSelectedModel(null); };
 
@@ -1766,228 +1765,247 @@ export default function App() {
             return honka - nebiki + kouji + opts + hosho;
           };
           const fmt = (n) => n.toLocaleString('ja-JP');
-          const COLORS = ["#0047AA","#38A169","#D69E2E","#805AD5","#E53E3E","#DD6B20","#2C7A7B","#702459"];
-
-          // スタイル定数
-          const lbl = {
-            position:'sticky', left:0, zIndex:1,
-            background:'#F7FAFC', padding:'10px 14px',
-            fontSize:12, fontWeight:700, color:'#4A5568',
-            borderRight:'1px solid #E2E8F0', borderBottom:'1px solid #F0F4F8',
-            whiteSpace:'nowrap', verticalAlign:'middle',
+          const COLORS = ["#0047AA","#38A169","#D69E2E"];
+          const keypadTargets = {
+            honka: "本体",
+            nebiki: "値引",
+            hosho: "保証",
+            hyoji: "表示価格",
+            sokone: "底値",
           };
-          const cell = {
-            padding:'8px 12px', verticalAlign:'top',
-            borderBottom:'1px solid #F0F4F8',
+          const setActive = (i, field) => {
+            setActiveCalc(i);
+            setActiveField(field);
           };
-          const inp = {
-            width:'100%', padding:'6px 10px', borderRadius:8,
-            border:'1px solid #E2E8F0', fontSize:13, color:'#1A202C',
-            outline:'none', boxSizing:'border-box',
+          const appendKey = (key) => {
+            const editable = ["honka","nebiki","hosho","hyoji","sokone"];
+            if (!editable.includes(activeField)) return;
+            const current = String(calcs[activeCalc]?.[activeField] || "");
+            if (key === "back") {
+              updateCalc(activeCalc, activeField, current.slice(0, -1));
+              return;
+            }
+            if (key === "clear") {
+              updateCalc(activeCalc, activeField, "");
+              return;
+            }
+            if (key === "reset") {
+              setCalcs(prev => prev.map((c, idx) => idx === activeCalc ? initCalc() : c));
+              return;
+            }
+            updateCalc(activeCalc, activeField, `${current}${key}`);
+          };
+          const applyAssist = (i) => {
+            const c = calcs[i];
+            const hyoji = parseInt(c.hyoji) || 0;
+            const sokone = parseInt(c.sokone) || 0;
+            const maxBiki = (hyoji + KOUJI_OPTIONS[c.koujiType || 0].price) - sokone;
+            if (maxBiki <= 0) return;
+            updateCalc(i, "honka", String(hyoji));
+            updateCalc(i, "nebiki", String(maxBiki));
+          };
+          const numberStyle = {
+            height:78, borderRadius:10, border:"2px solid #17213A",
+            background:"linear-gradient(#F8F8F8,#C9C9C9)", color:"#254A7C",
+            fontSize:40, fontWeight:800, cursor:"pointer",
+            boxShadow:"inset 0 2px 0 rgba(255,255,255,0.9), 0 2px 2px rgba(0,0,0,0.35)",
+          };
+          const opStyle = {
+            ...numberStyle,
+            background:"linear-gradient(#A7A7A7,#5E5E5E)", color:"#fff",
+            fontSize:42,
+          };
+          const smallKeyStyle = {
+            height:56, borderRadius:8, border:"2px solid #17213A",
+            background:"linear-gradient(#FFFFFF,#D7D7D7)", color:"#244D86",
+            fontSize:24, fontWeight:900, cursor:"pointer",
+            boxShadow:"inset 0 2px 0 rgba(255,255,255,0.9), 0 2px 2px rgba(0,0,0,0.35)",
+          };
+          const inputLine = (c, i, field, label, value, negative=false) => {
+            const isActive = activeCalc === i && activeField === field;
+            return (
+              <div onClick={() => setActive(i, field)} style={{
+                minHeight:72, padding:"8px 8px 6px",
+                background:isActive ? "#D8D8DD" : "#FFFFFF",
+                borderBottom:"1px solid #E4E7EC", cursor:"pointer",
+              }}>
+                <div style={{ fontSize:14, fontWeight:800, color:"#111827" }}>{label}</div>
+                <input
+                  type="text"
+                  value={value}
+                  onFocus={() => setActive(i, field)}
+                  onChange={e => updateCalc(i, field, e.target.value.replace(/[^\d]/g, ""))}
+                  style={{
+                    width:"100%", border:"none", outline:"none", background:"transparent",
+                    textAlign:"right", fontSize:32, lineHeight:1.1,
+                    color:negative ? "#E60020" : "#000", fontWeight:500,
+                  }}
+                />
+              </div>
+            );
           };
 
           return (
-            <div>
-              <div style={{ fontSize:15, fontWeight:700, color:'#1A202C', marginBottom:12 }}>💰 見積もり電卓</div>
-
-              {/* ─── マトリックステーブル ─── */}
-              <div style={{ overflowX:'auto', border:'1px solid #E2E8F0', borderRadius:12, background:'#fff' }}>
-                <table style={{ borderCollapse:'collapse', minWidth:'max-content', width:'100%' }}>
-
-                  {/* ── Sticky ヘッダー：合計金額 ── */}
-                  <thead>
-                    <tr>
-                      <th style={{
-                        position:'sticky', top:0, left:0, zIndex:30,
-                        background:'#1A202C', color:'#fff',
-                        padding:'14px 16px', textAlign:'left',
-                        fontSize:12, fontWeight:700, whiteSpace:'nowrap',
-                        borderRight:'2px solid #2D3748',
-                      }}>お見積り合計</th>
-                      {calcs.map((c, i) => {
-                        const color = COLORS[i % COLORS.length];
-                        return (
-                          <th key={i} style={{
-                            position:'sticky', top:0, zIndex:20,
-                            background:'#1A202C', padding:'10px 12px',
-                            minWidth:190, textAlign:'center',
-                            borderLeft:`3px solid ${color}`,
-                          }}>
-                            <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:4 }}>
-                              <input
-                                value={c.label}
-                                onChange={e => updateCalc(i,'label',e.target.value)}
-                                placeholder={`プラン${i+1}`}
-                                style={{
-                                  background:'transparent', border:'none',
-                                  borderBottom:`2px solid ${color}`,
-                                  fontSize:13, fontWeight:700, color:'#fff',
-                                  outline:'none', flex:1, textAlign:'center',
-                                }}
-                              />
-                              {calcs.length > 1 && (
-                                <button onClick={() => removeCalc(i)} style={{
-                                  background:'rgba(255,255,255,0.15)', border:'none',
-                                  borderRadius:4, color:'rgba(255,255,255,0.7)',
-                                  fontSize:11, cursor:'pointer', padding:'1px 5px', flexShrink:0,
-                                }}>✕</button>
-                              )}
-                            </div>
-                            <div style={{ fontSize:22, fontWeight:700, color }}>¥{fmt(calcTotal(c))}</div>
-                            <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', marginTop:2 }}>（税込）</div>
-                          </th>
-                        );
-                      })}
-                      <th style={{ position:'sticky', top:0, zIndex:20, background:'#1A202C', padding:'8px 10px' }}>
-                        <button onClick={addCalc} style={{
-                          background:'rgba(255,255,255,0.1)', border:'1px dashed rgba(255,255,255,0.5)',
-                          borderRadius:8, color:'rgba(255,255,255,0.8)', fontSize:22,
-                          cursor:'pointer', padding:'6px 16px',
-                        }}>＋</button>
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {/* ── アシスト（折りたたみ） ── */}
-                    <tr>
-                      <td style={{ ...lbl, background:'#F0FFF4', color:'#276749' }}>💡 アシスト</td>
-                      {calcs.map((c, i) => (
-                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20`, background:'#FAFFFE' }}>
-                          <details>
-                            <summary style={{ cursor:'pointer', fontSize:12, color:'#276749', fontWeight:600, userSelect:'none', listStyle:'none', padding:'2px 0' }}>
-                              値引き・底値逆算ツールを開く ▼
-                            </summary>
-                            <div style={{ marginTop:8, padding:'10px', background:'#F0FFF4', borderRadius:8, border:'1px solid #C6F6D5' }}>
-                              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginBottom:6 }}>
-                                <div>
-                                  <div style={{ fontSize:10, color:'#4A5568', marginBottom:2 }}>本体表示価格</div>
-                                  <input type="number" value={c.hyoji||""} onChange={e=>updateCalc(i,'hyoji',e.target.value)} placeholder="128000" style={{ ...inp, fontSize:12 }} />
-                                </div>
-                                <div>
-                                  <div style={{ fontSize:10, color:'#4A5568', marginBottom:2 }}>底値（工事込）</div>
-                                  <input type="number" value={c.sokone||""} onChange={e=>updateCalc(i,'sokone',e.target.value)} placeholder="116500" style={{ ...inp, fontSize:12 }} />
-                                </div>
-                              </div>
-                              {c.hyoji && c.sokone && (() => {
-                                const hyoji = parseInt(c.hyoji)||0;
-                                const sokone = parseInt(c.sokone)||0;
-                                const maxBiki = (hyoji + KOUJI_OPTIONS[c.koujiType||0].price) - sokone;
-                                return maxBiki > 0 ? (
-                                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                                    <div>
-                                      <div style={{ fontSize:10, color:'#718096' }}>最大値引き</div>
-                                      <div style={{ fontSize:16, fontWeight:700, color:'#276749' }}>¥{fmt(maxBiki)}</div>
-                                      <div style={{ fontSize:10, color:'#718096' }}>底値提示 → ¥{fmt(sokone)}</div>
-                                    </div>
-                                    <button onClick={()=>{ updateCalc(i,'honka',String(hyoji)); updateCalc(i,'nebiki',String(maxBiki)); }} style={{
-                                      padding:'6px 10px', background:'#276749', border:'none',
-                                      borderRadius:6, color:'#fff', fontSize:12, cursor:'pointer', fontWeight:700,
-                                    }}>適用</button>
-                                  </div>
-                                ) : <div style={{ fontSize:11, color:'#E53E3E' }}>⚠️ 底値が表示価格＋工事費より高いです</div>;
-                              })()}
-                            </div>
-                          </details>
-                        </td>
-                      ))}
-                      <td style={{ background:'#FAFFFE' }} />
-                    </tr>
-
-                    {/* ── 本体価格 ── */}
-                    <tr>
-                      <td style={lbl}>本体価格（円）</td>
-                      {calcs.map((c, i) => (
-                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20` }}>
-                          <input type="number" value={c.honka} onChange={e=>updateCalc(i,'honka',e.target.value)} placeholder="例：98000" style={{ ...inp, fontWeight:700, fontSize:15 }} />
-                        </td>
-                      ))}
-                      <td />
-                    </tr>
-
-                    {/* ── 値引き ── */}
-                    <tr>
-                      <td style={lbl}>値引き（円）</td>
-                      {calcs.map((c, i) => (
-                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20` }}>
-                          <input type="number" value={c.nebiki} onChange={e=>updateCalc(i,'nebiki',e.target.value)} placeholder="例：5000" style={inp} />
-                        </td>
-                      ))}
-                      <td />
-                    </tr>
-
-                    {/* ── 標準工事費（コンパクトラジオ） ── */}
-                    <tr>
-                      <td style={lbl}>標準工事費</td>
-                      {calcs.map((c, i) => (
-                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20` }}>
-                          <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
-                            {KOUJI_OPTIONS.map((opt, ki) => {
-                              const sel = c.koujiType===ki && c.kouji;
-                              return (
-                                <label key={ki} style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer', padding:'3px 6px', borderRadius:6, background:sel?'#EBF8FF':'transparent' }}>
-                                  <input type="radio" name={`kouji-${i}`} checked={sel} onChange={()=>{ updateCalc(i,'koujiType',ki); updateCalc(i,'kouji',true); }} style={{ accentColor:'#3182CE' }} />
-                                  <span style={{ fontSize:12, fontWeight:sel?700:400, color:sel?'#2B6CB0':'#4A5568' }}>{opt.label}</span>
-                                  <span style={{ fontSize:11, color:'#718096', marginLeft:'auto' }}>¥{fmt(opt.price)}</span>
-                                </label>
-                              );
-                            })}
-                            <label style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer', padding:'3px 6px', borderRadius:6, background:!c.kouji?'#FFF5F5':'transparent' }}>
-                              <input type="radio" name={`kouji-${i}`} checked={!c.kouji} onChange={()=>updateCalc(i,'kouji',false)} style={{ accentColor:'#E53E3E' }} />
-                              <span style={{ fontSize:12, fontWeight:!c.kouji?700:400, color:!c.kouji?'#C53030':'#4A5568' }}>含まない</span>
-                            </label>
-                          </div>
-                        </td>
-                      ))}
-                      <td />
-                    </tr>
-
-                    {/* ── 追加工事（コンパクトチップ） ── */}
-                    <tr>
-                      <td style={lbl}>追加工事</td>
-                      {calcs.map((c, i) => (
-                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20` }}>
-                          <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
-                            {OPTIONS.map(opt => {
-                              const on = c.options.includes(opt.key);
-                              return (
-                                <span key={opt.key} onClick={()=>toggleOption(i,opt.key)} style={{
-                                  display:'inline-flex', alignItems:'center', gap:3,
-                                  padding:'3px 8px', borderRadius:6, cursor:'pointer', fontSize:11,
-                                  background:on?'#EBF8FF':'#F7FAFC',
-                                  border:`1px solid ${on?'#3182CE':'#E2E8F0'}`,
-                                  color:on?'#2B6CB0':'#4A5568', userSelect:'none',
-                                }}>
-                                  {on?'☑':'☐'} {opt.label} <span style={{ color:'#718096' }}>¥{fmt(opt.price)}</span>
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </td>
-                      ))}
-                      <td />
-                    </tr>
-
-                    {/* ── 保証 ── */}
-                    <tr>
-                      <td style={lbl}>保証（円）</td>
-                      {calcs.map((c, i) => (
-                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20` }}>
-                          <input type="number" value={c.hosho} onChange={e=>updateCalc(i,'hosho',e.target.value)} placeholder="例：5000" style={inp} />
-                        </td>
-                      ))}
-                      <td />
-                    </tr>
-                  </tbody>
-                </table>
+            <div style={{ minHeight:"calc(100vh - 150px)" }}>
+              <div style={{
+                background:"#000", height:70, display:"flex", alignItems:"center", justifyContent:"center",
+                color:"#fff", fontSize:24, fontWeight:900, letterSpacing:0, margin:"-4px -4px 0",
+              }}>
+                <div style={{ background:"#E1271B", padding:"10px 44px", minWidth:420, textAlign:"center" }}>見積もり電卓</div>
               </div>
 
-              {/* リセット */}
-              <button onClick={()=>setCalcs([initCalc(),initCalc(),initCalc()])} style={{
-                marginTop:12, width:'100%', padding:'10px',
-                background:'#F7FAFC', border:'1px solid #E2E8F0',
-                borderRadius:10, fontSize:14, color:'#718096', cursor:'pointer',
-              }}>🔄 全てリセット</button>
+              <div style={{
+                display:"grid", gridTemplateColumns:"minmax(620px, 1fr) 420px", gap:18,
+                background:"#0824A2", padding:14, borderRadius:0,
+                backgroundImage:"radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px)",
+                backgroundSize:"4px 4px",
+              }}>
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(3, minmax(190px, 1fr))", gap:10 }}>
+                  {calcs.slice(0, 3).map((c, i) => {
+                    const color = COLORS[i % COLORS.length];
+                    const selected = activeCalc === i;
+                    const koujiPrice = c.kouji ? KOUJI_OPTIONS[c.koujiType || 0].price : 0;
+                    const selectedOptions = OPTIONS.filter(o => c.options.includes(o.key));
+                    return (
+                      <div key={i} style={{ display:"flex", flexDirection:"column", minHeight:690 }}>
+                        <div onClick={() => setActiveCalc(i)} style={{
+                          height:62, background:selected ? "#B8C0F0" : "#AEB6E3",
+                          border:`4px solid ${selected ? "#0047FF" : "#253190"}`,
+                          borderBottom:"none", display:"flex", alignItems:"center", justifyContent:"space-between",
+                          padding:"0 10px", cursor:"pointer",
+                        }}>
+                          <input
+                            value={c.label}
+                            onChange={e => updateCalc(i, "label", e.target.value)}
+                            placeholder={`List${i + 1}`}
+                            style={{
+                              width:110, border:"none", background:"transparent", outline:"none",
+                              color:"#111827", fontSize:18, fontWeight:900,
+                            }}
+                          />
+                          <div style={{ color:"#000", fontSize:36, fontWeight:500 }}>{fmt(calcTotal(c))}</div>
+                        </div>
+
+                        <div style={{
+                          flex:1, background:"#fff", border:`4px solid ${selected ? "#0047FF" : "#253190"}`,
+                          display:"grid", gridTemplateRows:"repeat(9, minmax(66px, auto))",
+                        }}>
+                          {inputLine(c, i, "honka", "本体", c.honka)}
+                          {inputLine(c, i, "hosho", "保証", c.hosho)}
+                          <div style={{ minHeight:72, padding:"8px", borderBottom:"1px solid #E4E7EC" }}>
+                            <div style={{ fontSize:14, fontWeight:800 }}>標準工事</div>
+                            <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginTop:6 }}>
+                              {KOUJI_OPTIONS.map((opt, ki) => {
+                                const sel = c.kouji && c.koujiType === ki;
+                                return (
+                                  <button key={opt.label} onClick={() => { updateCalc(i, "koujiType", ki); updateCalc(i, "kouji", true); setActiveCalc(i); }} style={{
+                                    border:`1px solid ${sel ? color : "#D1D5DB"}`, borderRadius:6,
+                                    background:sel ? "#EFF6FF" : "#fff", color:sel ? color : "#374151",
+                                    padding:"4px 6px", fontSize:11, fontWeight:800, cursor:"pointer",
+                                  }}>{opt.label}</button>
+                                );
+                              })}
+                              <button onClick={() => { updateCalc(i, "kouji", false); setActiveCalc(i); }} style={{
+                                border:`1px solid ${!c.kouji ? "#E60020" : "#D1D5DB"}`, borderRadius:6,
+                                background:!c.kouji ? "#FFF1F2" : "#fff", color:!c.kouji ? "#E60020" : "#374151",
+                                padding:"4px 6px", fontSize:11, fontWeight:800, cursor:"pointer",
+                              }}>なし</button>
+                            </div>
+                            <div style={{ marginTop:4, textAlign:"right", fontSize:26, color:"#000" }}>{koujiPrice ? fmt(koujiPrice) : ""}</div>
+                          </div>
+                          <div style={{ minHeight:72, padding:"8px", borderBottom:"1px solid #E4E7EC" }}>
+                            <div style={{ fontSize:14, fontWeight:800 }}>追加工事</div>
+                            <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginTop:6 }}>
+                              {OPTIONS.map(opt => {
+                                const on = c.options.includes(opt.key);
+                                return (
+                                  <button key={opt.key} onClick={() => { toggleOption(i, opt.key); setActiveCalc(i); }} style={{
+                                    border:`1px solid ${on ? color : "#D1D5DB"}`, borderRadius:6,
+                                    background:on ? "#EFF6FF" : "#fff", color:on ? color : "#374151",
+                                    padding:"4px 6px", fontSize:11, fontWeight:800, cursor:"pointer",
+                                  }}>{opt.label}</button>
+                                );
+                              })}
+                            </div>
+                            <div style={{ marginTop:4, textAlign:"right", fontSize:24, color:"#000" }}>
+                              {selectedOptions.length ? fmt(selectedOptions.reduce((s, o) => s + o.price, 0)) : ""}
+                            </div>
+                          </div>
+                          {inputLine(c, i, "nebiki", "値引き", c.nebiki, true)}
+                          {inputLine(c, i, "hyoji", "表示価格", c.hyoji)}
+                          {inputLine(c, i, "sokone", "底値", c.sokone)}
+                          <div style={{ minHeight:72, padding:"8px", borderBottom:"1px solid #E4E7EC" }}>
+                            <button onClick={() => applyAssist(i)} style={{
+                              width:"100%", height:40, border:"none", borderRadius:8,
+                              background:"#276749", color:"#fff", fontWeight:900, cursor:"pointer",
+                            }}>底値から値引き適用</button>
+                          </div>
+                          <div style={{ minHeight:72, padding:"8px", textAlign:"right" }}>
+                            <div style={{ color:"#E60020", fontSize:30 }}>-{fmt(parseInt(c.nebiki) || 0)}</div>
+                          </div>
+                        </div>
+
+                        <button onClick={() => setCalcs(prev => prev.map((calc, idx) => idx === i ? initCalc() : calc))} style={{
+                          marginTop:8, height:58, borderRadius:8, border:"2px solid #3F4654",
+                          background:"linear-gradient(#F5F5F5,#CFCFCF)", color:"#254A7C",
+                          fontSize:34, fontWeight:900, cursor:"pointer",
+                        }}>AC</button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10 }}>
+                    {[0,1,2].map(i => (
+                      <button key={i} onClick={() => setActiveCalc(i)} style={{
+                        ...smallKeyStyle,
+                        background:activeCalc === i ? "linear-gradient(#FFF4A8,#D7C655)" : smallKeyStyle.background,
+                        color:activeCalc === i ? "#1F2A44" : "#0070D9",
+                        fontSize:24,
+                      }}>List{i + 1}</button>
+                    ))}
+                  </div>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(5, 1fr)", gap:10, alignItems:"center" }}>
+                    <div style={{ fontSize:42, textAlign:"center", color:"#6B7280" }}>⚙</div>
+                    {["honka","nebiki","hosho"].map(field => (
+                      <button key={field} onClick={() => setActiveField(field)} style={{
+                        ...smallKeyStyle,
+                        background:activeField === field ? "linear-gradient(#FFFFFF,#FFF2A8)" : smallKeyStyle.background,
+                        color:activeField === field ? "#6B21A8" : "#3B1BA8",
+                        fontSize:22,
+                      }}>{keypadTargets[field]}</button>
+                    ))}
+                    <button type="button" style={{ ...smallKeyStyle, fontSize:28, cursor:"default" }}>📷</button>
+                  </div>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:12 }}>
+                    {["7","8","9","4","5","6","1","2","3","0","00","back"].map(key => (
+                      <button key={key} onClick={() => appendKey(key)} style={numberStyle}>{key === "back" ? "⌫" : key}</button>
+                    ))}
+                    <button onClick={() => appendKey("reset")} style={opStyle}>AC</button>
+                    <button onClick={() => appendKey("clear")} style={opStyle}>C</button>
+                    <button onClick={() => appendKey("clear")} style={opStyle}>−</button>
+                  </div>
+                  <div style={{
+                    background:"rgba(255,255,255,0.12)", border:"1px solid rgba(255,255,255,0.22)",
+                    borderRadius:10, padding:12, color:"#fff",
+                  }}>
+                    <div style={{ fontSize:13, fontWeight:800, marginBottom:8 }}>
+                      入力先：List{activeCalc + 1} / {keypadTargets[activeField]}
+                    </div>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                      {["hyoji","sokone"].map(field => (
+                        <button key={field} onClick={() => setActiveField(field)} style={{
+                          border:"1px solid rgba(255,255,255,0.35)", borderRadius:8,
+                          background:activeField === field ? "#FDE68A" : "rgba(255,255,255,0.12)",
+                          color:activeField === field ? "#111827" : "#fff",
+                          padding:"9px 8px", fontSize:13, fontWeight:800, cursor:"pointer",
+                        }}>{keypadTargets[field]}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           );
         })()}
