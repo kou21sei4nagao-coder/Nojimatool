@@ -944,57 +944,35 @@ export default function App() {
   const accentColor = maker ? MAKER_COLORS[maker] : "#1E90FF";
   const NAV_ITEMS = [["map","🗺️ 全体マップ"],["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["kouji","🔧 工事内容"],["estimate","💰 見積もり"],["guide","📚 機能ガイド"]];
   const [tabMenuOpen, setTabMenuOpen] = useState(false);
-  const [tabButtonPos, setTabButtonPos] = useState({ x:10, y:10 });
-  const [tabButtonDrag, setTabButtonDrag] = useState(null);
-  const clampTabButton = (x, y) => ({
-    x: Math.max(8, Math.min(x, window.innerWidth - 46)),
-    y: Math.max(8, Math.min(y, window.innerHeight - 46)),
-  });
-  const startTabButtonDrag = (e) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    setTabButtonDrag({
-      pointerId:e.pointerId,
-      startX:e.clientX,
-      startY:e.clientY,
-      originX:tabButtonPos.x,
-      originY:tabButtonPos.y,
-      moved:false,
-    });
+  const [edgeSwipe, setEdgeSwipe] = useState(null);
+  const startEdgeSwipe = (e) => {
+    if (tabMenuOpen || e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    if (touch.clientX > 28) return;
+    setEdgeSwipe({ startX:touch.clientX, startY:touch.clientY, x:touch.clientX, y:touch.clientY });
   };
-  const moveTabButton = (e) => {
-    if (!tabButtonDrag || tabButtonDrag.pointerId !== e.pointerId) return;
-    const dx = e.clientX - tabButtonDrag.startX;
-    const dy = e.clientY - tabButtonDrag.startY;
-    const moved = tabButtonDrag.moved || Math.abs(dx) > 4 || Math.abs(dy) > 4;
-    setTabButtonPos(clampTabButton(tabButtonDrag.originX + dx, tabButtonDrag.originY + dy));
-    if (moved !== tabButtonDrag.moved) {
-      setTabButtonDrag(prev => prev ? { ...prev, moved } : prev);
-    }
+  const moveEdgeSwipe = (e) => {
+    if (!edgeSwipe || e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    setEdgeSwipe(prev => prev ? { ...prev, x:touch.clientX, y:touch.clientY } : prev);
   };
-  const endTabButtonDrag = (e) => {
-    if (!tabButtonDrag || tabButtonDrag.pointerId !== e.pointerId) return;
-    if (!tabButtonDrag.moved) setTabMenuOpen(true);
-    setTabButtonDrag(null);
+  const endEdgeSwipe = () => {
+    if (!edgeSwipe) return;
+    const dx = edgeSwipe.x - edgeSwipe.startX;
+    const dy = Math.abs(edgeSwipe.y - edgeSwipe.startY);
+    if (dx > 70 && dy < 70) setTabMenuOpen(true);
+    setEdgeSwipe(null);
   };
 
   return (
-    <div style={{ height:"100vh", background:"#F5F7FA", fontFamily:"'Noto Sans JP','Hiragino Sans',sans-serif", color:"#1A202C", display:"flex", flexDirection:"column", overflow:"hidden", width:"100vw" }}>
+    <div
+      onTouchStart={startEdgeSwipe}
+      onTouchMove={moveEdgeSwipe}
+      onTouchEnd={endEdgeSwipe}
+      onTouchCancel={() => setEdgeSwipe(null)}
+      style={{ height:"100vh", background:"#F5F7FA", fontFamily:"'Noto Sans JP','Hiragino Sans',sans-serif", color:"#1A202C", display:"flex", flexDirection:"column", overflow:"hidden", width:"100vw" }}
+    >
       <style>{globalStyle}</style>
-
-      <button
-        onPointerDown={startTabButtonDrag}
-        onPointerMove={moveTabButton}
-        onPointerUp={endTabButtonDrag}
-        onPointerCancel={() => setTabButtonDrag(null)}
-        style={{
-        position:"fixed", top:tabButtonPos.y, left:tabButtonPos.x, zIndex:35,
-        width:38, height:38, borderRadius:10, border:"1px solid #E2E8F0",
-        background:"rgba(255,255,255,0.62)", color:"#4A5568", fontSize:18,
-        cursor:tabButtonDrag?.moved ? "grabbing" : "grab",
-        boxShadow:"0 2px 8px rgba(0,0,0,0.12)",
-        backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
-        touchAction:"none", userSelect:"none",
-      }}>☰</button>
 
       {tabMenuOpen && (
         <>
