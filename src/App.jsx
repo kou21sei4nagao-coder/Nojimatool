@@ -1748,15 +1748,14 @@ export default function App() {
             { label:"20・23畳用",  price:30000 },
           ];
           const OPTIONS = [
-            { key:"drain",    label:"ドレン断熱",   price:3000 },
-            { key:"hole",     label:"穴あけ",       price:8000 },
-            { key:"extend",   label:"配管延長",      price:5000 },
-            { key:"kakudai",  label:"隠蔽配管",      price:50000 },
-            { key:"remove",   label:"取り外し",      price:3000 },
-            { key:"rack",     label:"室外機架台",    price:8000 },
-            { key:"v200",     label:"200V工事",      price:20000 },
+            { key:"drain",   label:"ドレン断熱",  price:3000 },
+            { key:"hole",    label:"穴あけ",      price:8000 },
+            { key:"extend",  label:"配管延長",    price:5000 },
+            { key:"kakudai", label:"隠蔽配管",    price:50000 },
+            { key:"remove",  label:"取り外し",    price:3000 },
+            { key:"rack",    label:"室外機架台",  price:8000 },
+            { key:"v200",    label:"200V工事",    price:20000 },
           ];
-
           const calcTotal = (c) => {
             const honka = parseInt(c.honka.replace(/,/g,'')) || 0;
             const nebiki = parseInt(c.nebiki.replace(/,/g,'')) || 0;
@@ -1766,219 +1765,228 @@ export default function App() {
             const hosho = parseInt(c.hosho) || 0;
             return honka - nebiki + kouji + opts + hosho;
           };
-
           const fmt = (n) => n.toLocaleString('ja-JP');
+          const COLORS = ["#0047AA","#38A169","#D69E2E","#805AD5","#E53E3E","#DD6B20","#2C7A7B","#702459"];
+
+          // スタイル定数
+          const lbl = {
+            position:'sticky', left:0, zIndex:1,
+            background:'#F7FAFC', padding:'10px 14px',
+            fontSize:12, fontWeight:700, color:'#4A5568',
+            borderRight:'1px solid #E2E8F0', borderBottom:'1px solid #F0F4F8',
+            whiteSpace:'nowrap', verticalAlign:'middle',
+          };
+          const cell = {
+            padding:'8px 12px', verticalAlign:'top',
+            borderBottom:'1px solid #F0F4F8',
+          };
+          const inp = {
+            width:'100%', padding:'6px 10px', borderRadius:8,
+            border:'1px solid #E2E8F0', fontSize:13, color:'#1A202C',
+            outline:'none', boxSizing:'border-box',
+          };
 
           return (
             <div>
-              <div style={{ fontSize:15, fontWeight:700, color:"#1A202C", marginBottom:4 }}>💰 見積もり電卓</div>
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
-                <div style={{ fontSize:13, color:"#718096" }}>パターンを並べてお客様に提案できます</div>
-                <button onClick={() => setShowAssist(v => !v)} style={{
-                  padding:"8px 12px", borderRadius:10, cursor:"pointer", fontSize:18,
-                  background:"#F7FAFC", border:"1px solid #E2E8F0", color:"#718096",
-                }}>🔄</button>
-              </div>
+              <div style={{ fontSize:15, fontWeight:700, color:'#1A202C', marginBottom:12 }}>💰 見積もり電卓</div>
 
-              {/* 横スクロール */}
-              <div style={{ overflowX:"auto", paddingBottom:8 }}>
-              <div style={{ display:"flex", gap:12, minWidth:"max-content" }}>
-                {calcs.map((c, i) => {
-                  const total = calcTotal(c);
-                  const labels = ["Aプラン","Bプラン","Cプラン","Dプラン","Eプラン","Fプラン","Gプラン","Hプラン"];
-                  const colors = ["#0047AA","#38A169","#D69E2E","#805AD5","#E53E3E","#DD6B20","#2C7A7B","#702459"];
-                  const color = colors[i % colors.length];
-                  return (
-                    <div key={i} style={{ background:"#FFFFFF", borderRadius:16, border:`2px solid ${color}30`, boxShadow:"0 2px 8px rgba(0,0,0,0.06)", overflow:"hidden", width:280, flexShrink:0 }}>
-                      {/* ヘッダー */}
-                      <div style={{ background:color, padding:"10px 16px", display:"flex", alignItems:"center", gap:8 }}>
-                        <input
-                          value={c.label}
-                          onChange={e => updateCalc(i, 'label', e.target.value)}
-                          placeholder={`プラン${i+1}`}
-                          style={{
-                            background:"transparent", border:"none", borderBottom:"1px solid rgba(255,255,255,0.5)",
-                            fontSize:15, fontWeight:700, color:"#fff", outline:"none", flex:1,
-                          }}
-                        />
-                        {calcs.length > 1 && (
-                          <button onClick={() => removeCalc(i)} style={{
-                            background:"rgba(255,255,255,0.2)", border:"none", borderRadius:6,
-                            color:"#fff", fontSize:14, cursor:"pointer", padding:"2px 8px", flexShrink:0,
-                          }}>✕</button>
-                        )}
-                      </div>
+              {/* ─── マトリックステーブル ─── */}
+              <div style={{ overflowX:'auto', border:'1px solid #E2E8F0', borderRadius:12, background:'#fff' }}>
+                <table style={{ borderCollapse:'collapse', minWidth:'max-content', width:'100%' }}>
 
-                      <div style={{ padding:"14px 16px" }}>
-                        {/* 値引き交渉アシスト */}
-                        {showAssist && (
-                        <div style={{ marginBottom:10, padding:"12px", background:"#F0FFF4", borderRadius:8, border:"1px solid #C6F6D5" }}>
-                          <div style={{ fontSize:12, color:"#276749", fontWeight:700, marginBottom:8 }}>🎯 値引き交渉アシスト</div>
-                          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:8 }}>
-                            <div>
-                              <div style={{ fontSize:11, color:"#4A5568", marginBottom:3 }}>本体表示価格</div>
-                              <input
-                                type="number"
-                                value={c.hyoji || ""}
-                                onChange={e => updateCalc(i, 'hyoji', e.target.value)}
-                                placeholder="例：128000"
-                                style={{ width:"100%", padding:"6px 10px", borderRadius:8, border:"1px solid #C6F6D5", fontSize:13, outline:"none" }}
-                              />
-                            </div>
-                            <div>
-                              <div style={{ fontSize:11, color:"#4A5568", marginBottom:3 }}>底値（工事費込み）</div>
-                              <input
-                                type="number"
-                                value={c.sokone || ""}
-                                onChange={e => updateCalc(i, 'sokone', e.target.value)}
-                                placeholder="例：116500"
-                                style={{ width:"100%", padding:"6px 10px", borderRadius:8, border:"1px solid #C6F6D5", fontSize:13, outline:"none" }}
-                              />
-                            </div>
-                          </div>
-                          {c.hyoji && c.sokone && (() => {
-                            const hyoji = parseInt(c.hyoji) || 0;
-                            const sokone = parseInt(c.sokone) || 0;
-                            const koujiPrice = KOUJI_OPTIONS[c.koujiType||0].price;
-                            const maxBiki = (hyoji + koujiPrice) - sokone;
-                            return maxBiki > 0 ? (
-                              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-                                <div style={{ background:"#FFFFFF", borderRadius:8, padding:"10px 12px", border:"1px solid #C6F6D5" }}>
-                                  <div style={{ fontSize:11, color:"#718096", marginBottom:2 }}>引ける最大額</div>
-                                  <div style={{ fontSize:22, fontWeight:700, color:"#276749" }}>¥{fmt(maxBiki)}</div>
-                                  <div style={{ fontSize:11, color:"#718096", marginTop:2 }}>底値提示額 → ¥{fmt(sokone)}</div>
-                                </div>
-                                <button onClick={() => {
-                                  updateCalc(i, 'honka', String(parseInt(c.hyoji)));
-                                  updateCalc(i, 'nebiki', String(maxBiki));
-                                }} style={{
-                                  padding:"8px", background:"#276749", border:"none", borderRadius:8,
-                                  color:"#fff", fontSize:13, cursor:"pointer", fontWeight:700,
-                                }}>適用</button>
-                              </div>
-                            ) : (
-                              <div style={{ fontSize:12, color:"#E53E3E" }}>⚠️ 底値が表示価格＋工事費より高いです</div>
-                            );
-                          })()}
-                        </div>
-                        )}
-
-                        {/* 本体価格 */}
-                        <div style={{ marginBottom:10 }}>
-                          <div style={{ fontSize:12, color:"#718096", marginBottom:4 }}>本体価格（円）</div>
-                          <input
-                            type="number"
-                            value={c.honka}
-                            onChange={e => updateCalc(i, 'honka', e.target.value)}
-                            placeholder="例：98000"
-                            style={{ width:"100%", padding:"8px 12px", borderRadius:8, border:"1px solid #E2E8F0", fontSize:15, fontWeight:700, color:"#1A202C", outline:"none" }}
-                          />
-                        </div>
-
-                        {/* 値引き */}
-                        <div style={{ marginBottom:10 }}>
-                          <div style={{ fontSize:12, color:"#718096", marginBottom:4 }}>値引き額（円）</div>
-                          <input
-                            type="number"
-                            value={c.nebiki}
-                            onChange={e => updateCalc(i, 'nebiki', e.target.value)}
-                            placeholder="例：5000"
-                            style={{ width:"100%", padding:"8px 12px", borderRadius:8, border:"1px solid #E2E8F0", fontSize:15, color:"#1A202C", outline:"none" }}
-                          />
-                        </div>
-
-                        {/* 標準工事費 */}
-                        <div style={{ marginBottom:10 }}>
-                          <div style={{ fontSize:12, color:"#718096", marginBottom:4 }}>標準工事費</div>
-                          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:4, marginBottom:6 }}>
-                            {KOUJI_OPTIONS.map((opt, ki) => (
-                              <div key={ki} onClick={() => { updateCalc(i, 'koujiType', ki); updateCalc(i, 'kouji', true); }} style={{
-                                padding:"6px 8px", borderRadius:8, cursor:"pointer", textAlign:"center", fontSize:11,
-                                background: c.koujiType===ki ? "#EBF8FF" : "#F7FAFC",
-                                border:`1px solid ${c.koujiType===ki ? "#3182CE" : "#E2E8F0"}`,
-                                color: c.koujiType===ki ? "#2B6CB0" : "#4A5568",
-                                fontWeight: c.koujiType===ki ? 700 : 400,
-                              }}>
-                                <div>{opt.label}</div>
-                                <div>¥{fmt(opt.price)}</div>
-                              </div>
-                            ))}
-                          </div>
-                          <div onClick={() => updateCalc(i, 'kouji', !c.kouji)} style={{
-                            padding:"8px 12px", borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:700,
-                            background: c.kouji ? "#F0FFF4" : "#F7FAFC",
-                            border:`1px solid ${c.kouji ? "#38A169" : "#E2E8F0"}`,
-                            color: c.kouji ? "#276749" : "#718096",
-                            display:"flex", justifyContent:"space-between",
+                  {/* ── Sticky ヘッダー：合計金額 ── */}
+                  <thead>
+                    <tr>
+                      <th style={{
+                        position:'sticky', top:0, left:0, zIndex:30,
+                        background:'#1A202C', color:'#fff',
+                        padding:'14px 16px', textAlign:'left',
+                        fontSize:12, fontWeight:700, whiteSpace:'nowrap',
+                        borderRight:'2px solid #2D3748',
+                      }}>お見積り合計</th>
+                      {calcs.map((c, i) => {
+                        const color = COLORS[i % COLORS.length];
+                        return (
+                          <th key={i} style={{
+                            position:'sticky', top:0, zIndex:20,
+                            background:'#1A202C', padding:'10px 12px',
+                            minWidth:190, textAlign:'center',
+                            borderLeft:`3px solid ${color}`,
                           }}>
-                            <span>{c.kouji ? "✓ 含む" : "含まない"}</span>
-                            <span>¥{fmt(KOUJI_OPTIONS[c.koujiType||0].price)}</span>
-                          </div>
-                        </div>
+                            <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:4 }}>
+                              <input
+                                value={c.label}
+                                onChange={e => updateCalc(i,'label',e.target.value)}
+                                placeholder={`プラン${i+1}`}
+                                style={{
+                                  background:'transparent', border:'none',
+                                  borderBottom:`2px solid ${color}`,
+                                  fontSize:13, fontWeight:700, color:'#fff',
+                                  outline:'none', flex:1, textAlign:'center',
+                                }}
+                              />
+                              {calcs.length > 1 && (
+                                <button onClick={() => removeCalc(i)} style={{
+                                  background:'rgba(255,255,255,0.15)', border:'none',
+                                  borderRadius:4, color:'rgba(255,255,255,0.7)',
+                                  fontSize:11, cursor:'pointer', padding:'1px 5px', flexShrink:0,
+                                }}>✕</button>
+                              )}
+                            </div>
+                            <div style={{ fontSize:22, fontWeight:700, color }}>¥{fmt(calcTotal(c))}</div>
+                            <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', marginTop:2 }}>（税込）</div>
+                          </th>
+                        );
+                      })}
+                      <th style={{ position:'sticky', top:0, zIndex:20, background:'#1A202C', padding:'8px 10px' }}>
+                        <button onClick={addCalc} style={{
+                          background:'rgba(255,255,255,0.1)', border:'1px dashed rgba(255,255,255,0.5)',
+                          borderRadius:8, color:'rgba(255,255,255,0.8)', fontSize:22,
+                          cursor:'pointer', padding:'6px 16px',
+                        }}>＋</button>
+                      </th>
+                    </tr>
+                  </thead>
 
-                        {/* 追加工事 */}
-                        <div style={{ marginBottom:10 }}>
-                          <div style={{ fontSize:12, color:"#718096", marginBottom:6 }}>追加工事</div>
-                          <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
-                            {OPTIONS.map(opt => (
-                              <div key={opt.key} onClick={() => toggleOption(i, opt.key)} style={{
-                                padding:"6px 10px", borderRadius:8, cursor:"pointer", fontSize:12,
-                                background: c.options.includes(opt.key) ? "#EBF8FF" : "#F7FAFC",
-                                border:`1px solid ${c.options.includes(opt.key) ? "#3182CE" : "#E2E8F0"}`,
-                                color: c.options.includes(opt.key) ? "#2B6CB0" : "#4A5568",
-                                display:"flex", justifyContent:"space-between",
-                              }}>
-                                <span>{c.options.includes(opt.key) ? "✓ " : ""}{opt.label}</span>
-                                <span>¥{fmt(opt.price)}</span>
+                  <tbody>
+                    {/* ── アシスト（折りたたみ） ── */}
+                    <tr>
+                      <td style={{ ...lbl, background:'#F0FFF4', color:'#276749' }}>💡 アシスト</td>
+                      {calcs.map((c, i) => (
+                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20`, background:'#FAFFFE' }}>
+                          <details>
+                            <summary style={{ cursor:'pointer', fontSize:12, color:'#276749', fontWeight:600, userSelect:'none', listStyle:'none', padding:'2px 0' }}>
+                              値引き・底値逆算ツールを開く ▼
+                            </summary>
+                            <div style={{ marginTop:8, padding:'10px', background:'#F0FFF4', borderRadius:8, border:'1px solid #C6F6D5' }}>
+                              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginBottom:6 }}>
+                                <div>
+                                  <div style={{ fontSize:10, color:'#4A5568', marginBottom:2 }}>本体表示価格</div>
+                                  <input type="number" value={c.hyoji||""} onChange={e=>updateCalc(i,'hyoji',e.target.value)} placeholder="128000" style={{ ...inp, fontSize:12 }} />
+                                </div>
+                                <div>
+                                  <div style={{ fontSize:10, color:'#4A5568', marginBottom:2 }}>底値（工事込）</div>
+                                  <input type="number" value={c.sokone||""} onChange={e=>updateCalc(i,'sokone',e.target.value)} placeholder="116500" style={{ ...inp, fontSize:12 }} />
+                                </div>
                               </div>
-                            ))}
+                              {c.hyoji && c.sokone && (() => {
+                                const hyoji = parseInt(c.hyoji)||0;
+                                const sokone = parseInt(c.sokone)||0;
+                                const maxBiki = (hyoji + KOUJI_OPTIONS[c.koujiType||0].price) - sokone;
+                                return maxBiki > 0 ? (
+                                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                                    <div>
+                                      <div style={{ fontSize:10, color:'#718096' }}>最大値引き</div>
+                                      <div style={{ fontSize:16, fontWeight:700, color:'#276749' }}>¥{fmt(maxBiki)}</div>
+                                      <div style={{ fontSize:10, color:'#718096' }}>底値提示 → ¥{fmt(sokone)}</div>
+                                    </div>
+                                    <button onClick={()=>{ updateCalc(i,'honka',String(hyoji)); updateCalc(i,'nebiki',String(maxBiki)); }} style={{
+                                      padding:'6px 10px', background:'#276749', border:'none',
+                                      borderRadius:6, color:'#fff', fontSize:12, cursor:'pointer', fontWeight:700,
+                                    }}>適用</button>
+                                  </div>
+                                ) : <div style={{ fontSize:11, color:'#E53E3E' }}>⚠️ 底値が表示価格＋工事費より高いです</div>;
+                              })()}
+                            </div>
+                          </details>
+                        </td>
+                      ))}
+                      <td style={{ background:'#FAFFFE' }} />
+                    </tr>
+
+                    {/* ── 本体価格 ── */}
+                    <tr>
+                      <td style={lbl}>本体価格（円）</td>
+                      {calcs.map((c, i) => (
+                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20` }}>
+                          <input type="number" value={c.honka} onChange={e=>updateCalc(i,'honka',e.target.value)} placeholder="例：98000" style={{ ...inp, fontWeight:700, fontSize:15 }} />
+                        </td>
+                      ))}
+                      <td />
+                    </tr>
+
+                    {/* ── 値引き ── */}
+                    <tr>
+                      <td style={lbl}>値引き（円）</td>
+                      {calcs.map((c, i) => (
+                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20` }}>
+                          <input type="number" value={c.nebiki} onChange={e=>updateCalc(i,'nebiki',e.target.value)} placeholder="例：5000" style={inp} />
+                        </td>
+                      ))}
+                      <td />
+                    </tr>
+
+                    {/* ── 標準工事費（コンパクトラジオ） ── */}
+                    <tr>
+                      <td style={lbl}>標準工事費</td>
+                      {calcs.map((c, i) => (
+                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20` }}>
+                          <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
+                            {KOUJI_OPTIONS.map((opt, ki) => {
+                              const sel = c.koujiType===ki && c.kouji;
+                              return (
+                                <label key={ki} style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer', padding:'3px 6px', borderRadius:6, background:sel?'#EBF8FF':'transparent' }}>
+                                  <input type="radio" name={`kouji-${i}`} checked={sel} onChange={()=>{ updateCalc(i,'koujiType',ki); updateCalc(i,'kouji',true); }} style={{ accentColor:'#3182CE' }} />
+                                  <span style={{ fontSize:12, fontWeight:sel?700:400, color:sel?'#2B6CB0':'#4A5568' }}>{opt.label}</span>
+                                  <span style={{ fontSize:11, color:'#718096', marginLeft:'auto' }}>¥{fmt(opt.price)}</span>
+                                </label>
+                              );
+                            })}
+                            <label style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer', padding:'3px 6px', borderRadius:6, background:!c.kouji?'#FFF5F5':'transparent' }}>
+                              <input type="radio" name={`kouji-${i}`} checked={!c.kouji} onChange={()=>updateCalc(i,'kouji',false)} style={{ accentColor:'#E53E3E' }} />
+                              <span style={{ fontSize:12, fontWeight:!c.kouji?700:400, color:!c.kouji?'#C53030':'#4A5568' }}>含まない</span>
+                            </label>
                           </div>
-                        </div>
+                        </td>
+                      ))}
+                      <td />
+                    </tr>
 
-                        {/* 保証 */}
-                        <div style={{ marginBottom:14 }}>
-                          <div style={{ fontSize:12, color:"#718096", marginBottom:4 }}>保証（円）</div>
-                          <input
-                            type="number"
-                            value={c.hosho}
-                            onChange={e => updateCalc(i, 'hosho', e.target.value)}
-                            placeholder="例：5000"
-                            style={{ width:"100%", padding:"8px 12px", borderRadius:8, border:"1px solid #E2E8F0", fontSize:15, color:"#1A202C", outline:"none" }}
-                          />
-                        </div>
+                    {/* ── 追加工事（コンパクトチップ） ── */}
+                    <tr>
+                      <td style={lbl}>追加工事</td>
+                      {calcs.map((c, i) => (
+                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20` }}>
+                          <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
+                            {OPTIONS.map(opt => {
+                              const on = c.options.includes(opt.key);
+                              return (
+                                <span key={opt.key} onClick={()=>toggleOption(i,opt.key)} style={{
+                                  display:'inline-flex', alignItems:'center', gap:3,
+                                  padding:'3px 8px', borderRadius:6, cursor:'pointer', fontSize:11,
+                                  background:on?'#EBF8FF':'#F7FAFC',
+                                  border:`1px solid ${on?'#3182CE':'#E2E8F0'}`,
+                                  color:on?'#2B6CB0':'#4A5568', userSelect:'none',
+                                }}>
+                                  {on?'☑':'☐'} {opt.label} <span style={{ color:'#718096' }}>¥{fmt(opt.price)}</span>
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </td>
+                      ))}
+                      <td />
+                    </tr>
 
-                        {/* 合計 */}
-                        <div style={{ background:`${color}10`, border:`2px solid ${color}40`, borderRadius:12, padding:"12px 16px", textAlign:"center" }}>
-                          <div style={{ fontSize:12, color:"#718096", marginBottom:2 }}>お見積もり合計</div>
-                          <div style={{ fontSize:26, fontWeight:700, color }}>¥{fmt(total)}</div>
-                          <div style={{ fontSize:11, color:"#718096", marginTop:2 }}>（税込）</div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* ＋追加ボタン */}
-                <div onClick={addCalc} style={{
-                  width:120, flexShrink:0, borderRadius:16, border:"2px dashed #CBD5E0",
-                  display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
-                  cursor:"pointer", color:"#718096", gap:8, minHeight:300,
-                  background:"#F7FAFC", transition:"all 0.2s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor="#3182CE"; e.currentTarget.style.color="#3182CE"; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor="#CBD5E0"; e.currentTarget.style.color="#718096"; }}
-                >
-                  <span style={{ fontSize:28 }}>＋</span>
-                  <span style={{ fontSize:13, fontWeight:600 }}>追加</span>
-                </div>
-
+                    {/* ── 保証 ── */}
+                    <tr>
+                      <td style={lbl}>保証（円）</td>
+                      {calcs.map((c, i) => (
+                        <td key={i} style={{ ...cell, borderLeft:`3px solid ${COLORS[i%COLORS.length]}20` }}>
+                          <input type="number" value={c.hosho} onChange={e=>updateCalc(i,'hosho',e.target.value)} placeholder="例：5000" style={inp} />
+                        </td>
+                      ))}
+                      <td />
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-              </div>{/* 横スクロール終わり */}
 
-              {/* リセットボタン */}
-              <button onClick={() => setCalcs([initCalc(), initCalc(), initCalc()])} style={{
-                marginTop:16, width:"100%", padding:"10px", background:"#F7FAFC",
-                border:"1px solid #E2E8F0", borderRadius:10, fontSize:14, color:"#718096", cursor:"pointer",
+              {/* リセット */}
+              <button onClick={()=>setCalcs([initCalc(),initCalc(),initCalc()])} style={{
+                marginTop:12, width:'100%', padding:'10px',
+                background:'#F7FAFC', border:'1px solid #E2E8F0',
+                borderRadius:10, fontSize:14, color:'#718096', cursor:'pointer',
               }}>🔄 全てリセット</button>
             </div>
           );
