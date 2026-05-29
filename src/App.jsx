@@ -967,7 +967,11 @@ export default function App() {
             boxShadow:"8px 0 24px rgba(0,0,0,0.14)", display:"flex", flexDirection:"column",
           }}>
             <div style={{ padding:"14px 14px 12px", borderBottom:"1px solid #E2E8F0", display:"flex", alignItems:"center", gap:10 }}>
-              <div style={{ width:32, height:32, borderRadius:10, background:"linear-gradient(135deg,#1E90FF,#00D4FF)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>❄️</div>
+              <button onClick={() => setTabMenuOpen(false)} style={{
+                width:32, height:32, borderRadius:10, border:"1px solid #E2E8F0",
+                background:"#F7FAFC", color:"#4A5568", cursor:"pointer", fontSize:16,
+                flexShrink:0,
+              }}>×</button>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                   <div style={{ fontSize:14, fontWeight:800, color:"#1A202C", whiteSpace:"nowrap" }}>エアコン コンサルツール</div>
@@ -975,10 +979,6 @@ export default function App() {
                 </div>
                 <div style={{ fontSize:9, color:"#718096", letterSpacing:1 }}>nagao · AC GUIDE</div>
               </div>
-              <button onClick={() => setTabMenuOpen(false)} style={{
-                width:30, height:30, borderRadius:8, border:"1px solid #E2E8F0",
-                background:"#F7FAFC", color:"#4A5568", cursor:"pointer", fontSize:16,
-              }}>×</button>
             </div>
             <div style={{ padding:"8px 0" }}>
               {NAV_ITEMS.map(([key,label]) => (
