@@ -943,36 +943,56 @@ export default function App() {
 
   const accentColor = maker ? MAKER_COLORS[maker] : "#1E90FF";
   const NAV_ITEMS = [["map","🗺️ 全体マップ"],["filter","🔍 絞り込む"],["makers","🏷️ メーカー特徴"],["kouji","🔧 工事内容"],["estimate","💰 見積もり"],["guide","📚 機能ガイド"]];
+  const [tabMenuOpen, setTabMenuOpen] = useState(false);
 
   return (
     <div style={{ height:"100vh", background:"#F5F7FA", fontFamily:"'Noto Sans JP','Hiragino Sans',sans-serif", color:"#1A202C", display:"flex", flexDirection:"column", overflow:"hidden", width:"100vw" }}>
       <style>{globalStyle}</style>
 
-      {/* コンパクトタブバー */}
-      <div style={{
-        background:"#FFFFFF", borderBottom:"1px solid #E2E8F0",
-        padding:"6px 10px", display:"flex", alignItems:"center", gap:10,
-        flexShrink:0, boxShadow:"0 1px 4px rgba(0,0,0,0.05)", overflowX:"auto",
-      }}>
-        <div style={{ display:"flex", alignItems:"center", gap:8, flexShrink:0, paddingRight:4 }}>
-          <div style={{ width:28, height:28, borderRadius:8, background:"linear-gradient(135deg,#1E90FF,#00D4FF)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:14 }}>❄️</div>
-          <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-            <div style={{ fontSize:14, fontWeight:800, color:"#1A202C", whiteSpace:"nowrap" }}>エアコン コンサルツール</div>
-            <span style={{ fontSize:12, fontWeight:800, padding:"1px 7px", borderRadius:16, background:"linear-gradient(135deg, #667eea, #764ba2)", color:"#fff", letterSpacing:0 }}>α</span>
+      <button onClick={() => setTabMenuOpen(true)} style={{
+        position:"fixed", top:10, left:10, zIndex:35,
+        width:38, height:38, borderRadius:10, border:"1px solid #E2E8F0",
+        background:"#FFFFFF", color:"#4A5568", fontSize:18, cursor:"pointer",
+        boxShadow:"0 2px 8px rgba(0,0,0,0.12)",
+      }}>☰</button>
+
+      {tabMenuOpen && (
+        <>
+          <div onClick={() => setTabMenuOpen(false)} style={{
+            position:"fixed", inset:0, zIndex:40, background:"rgba(26,32,44,0.08)",
+          }} />
+          <div style={{
+            position:"fixed", top:0, left:0, bottom:0, width:260, zIndex:45,
+            background:"#FFFFFF", borderRight:"1px solid #E2E8F0",
+            boxShadow:"8px 0 24px rgba(0,0,0,0.14)", display:"flex", flexDirection:"column",
+          }}>
+            <div style={{ padding:"14px 14px 12px", borderBottom:"1px solid #E2E8F0", display:"flex", alignItems:"center", gap:10 }}>
+              <div style={{ width:32, height:32, borderRadius:10, background:"linear-gradient(135deg,#1E90FF,#00D4FF)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>❄️</div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                  <div style={{ fontSize:14, fontWeight:800, color:"#1A202C", whiteSpace:"nowrap" }}>エアコン コンサルツール</div>
+                  <span style={{ fontSize:12, fontWeight:800, padding:"1px 7px", borderRadius:16, background:"linear-gradient(135deg, #667eea, #764ba2)", color:"#fff" }}>α</span>
+                </div>
+                <div style={{ fontSize:9, color:"#718096", letterSpacing:1 }}>nagao · AC GUIDE</div>
+              </div>
+              <button onClick={() => setTabMenuOpen(false)} style={{
+                width:30, height:30, borderRadius:8, border:"1px solid #E2E8F0",
+                background:"#F7FAFC", color:"#4A5568", cursor:"pointer", fontSize:16,
+              }}>×</button>
+            </div>
+            <div style={{ padding:"8px 0" }}>
+              {NAV_ITEMS.map(([key,label]) => (
+                <button key={key} onClick={() => { setTab(key); setTabMenuOpen(false); }} style={{
+                  width:"100%", padding:"13px 18px", background: tab===key ? "#EBF8FF" : "#FFFFFF", textAlign:"left",
+                  border:"none", borderLeft:`4px solid ${tab===key ? accentColor : "transparent"}`,
+                  color: tab===key ? "#1A202C" : "#718096", fontSize:15, fontWeight: tab===key ? 800 : 500,
+                  cursor:"pointer",
+                }}>{label}</button>
+              ))}
+            </div>
           </div>
-        </div>
-        <div style={{ display:"flex", alignItems:"center", gap:6, minWidth:0 }}>
-          {NAV_ITEMS.map(([key,label]) => (
-            <button key={key} onClick={() => setTab(key)} style={{
-              padding:"8px 12px", background: tab===key ? "#EBF8FF" : "#FFFFFF",
-              border:`1px solid ${tab===key ? accentColor : "#E2E8F0"}`,
-              borderRadius:8, color: tab===key ? "#1A202C" : "#4A5568",
-              fontSize:14, fontWeight: tab===key ? 800 : 600,
-              cursor:"pointer", whiteSpace:"nowrap", flexShrink:0,
-            }}>{label}</button>
-          ))}
-        </div>
-      </div>
+        </>
+      )}
 
       {/* メインレイアウト */}
       <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
