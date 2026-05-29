@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 const KOUJI_OPTIONS = [
   { label:"6・10畳用",   price:20000 },
@@ -281,14 +282,16 @@ export default function EstimateTab({
         </div>
       </div>
 
-      {/* ─── フローティング テンキー ─── */}
+      {/* ─── フローティング テンキー（portal で body 直下に描画） ─── */}
+      {createPortal(
       <div style={{
-        position:"fixed", left:keypadPos.x, top:keypadPos.y, zIndex:1000,
+        position:"fixed", left:keypadPos.x, top:keypadPos.y, zIndex:9999,
         width:420, background:"#FFFFFF", borderRadius:14,
         border:"1px solid #E2E8F0", boxShadow:"0 8px 28px rgba(0,0,0,0.18)",
-        padding:12, userSelect:"none", position:"relative",
+        padding:12, userSelect:"none",
         transform:`scale(${scale})`, transformOrigin:"top left",
       }}>
+        <div style={{ position:"relative" }}>
         {/* ドラッグハンドル */}
         <div
           onMouseDown={onDragStart}
@@ -355,18 +358,20 @@ export default function EstimateTab({
           </div>
         </div>
 
-        {/* リサイズハンドル（右下角） */}
-        <div
-          onMouseDown={onResizeStart}
-          onTouchStart={onResizeStart}
-          style={{
-            position:"absolute", right:0, bottom:0,
-            width:24, height:24, borderRadius:"0 0 14px 0",
-            cursor:"nwse-resize",
-            background:"linear-gradient(135deg, transparent 50%, #CBD5E0 50%)",
-          }}
-        />
+          {/* リサイズハンドル（右下角） */}
+          <div
+            onMouseDown={onResizeStart}
+            onTouchStart={onResizeStart}
+            style={{
+              position:"absolute", right:0, bottom:0,
+              width:24, height:24, borderRadius:"0 0 14px 0",
+              cursor:"nwse-resize",
+              background:"linear-gradient(135deg, transparent 50%, #CBD5E0 50%)",
+            }}
+          />
+        </div>
       </div>
+      , document.body)}
 
     </div>
   );
