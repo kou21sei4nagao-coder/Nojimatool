@@ -1497,6 +1497,7 @@ export default function App() {
               borderRadius:8, padding:'10px 12px',
               cursor: hasDetail ? 'pointer' : 'default',
               transition:'all 0.15s',
+              minHeight:72, display:'flex', flexDirection:'column', justifyContent:'space-between',
             }}
               onMouseEnter={e => { if(hasDetail) e.currentTarget.style.boxShadow = `0 4px 12px ${border}60`; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; }}
