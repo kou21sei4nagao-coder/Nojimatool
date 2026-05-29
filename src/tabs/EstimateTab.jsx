@@ -292,17 +292,28 @@ export default function EstimateTab({
         transform:`scale(${scale})`, transformOrigin:"top left",
       }}>
         <div style={{ position:"relative" }}>
-        {/* ドラッグハンドル */}
-        <div
-          onMouseDown={onDragStart}
-          onTouchStart={onDragStart}
-          style={{
-            textAlign:"center", paddingBottom:8, marginBottom:8,
-            borderBottom:"1px solid #E2E8F0",
-            cursor:"grab", color:"#A0AEC0", fontSize:13, letterSpacing:2,
-          }}
-        >
-          ⠿⠿⠿ ドラッグで移動
+        {/* ドラッグハンドル + サイズ調整 */}
+        <div style={{ display:"flex", alignItems:"center", gap:6, paddingBottom:8, marginBottom:8, borderBottom:"1px solid #E2E8F0" }}>
+          <div
+            onMouseDown={onDragStart}
+            onTouchStart={onDragStart}
+            style={{ flex:1, textAlign:"center", cursor:"grab", color:"#A0AEC0", fontSize:13, letterSpacing:2 }}
+          >
+            ⠿⠿⠿ 移動
+          </div>
+          <button onClick={() => setScale(s => Math.max(0.5, Math.round((s - 0.1) * 10) / 10))} style={{
+            width:34, height:34, borderRadius:8, border:"1px solid #E2E8F0",
+            background:"#F7FAFC", color:"#4A5568", fontSize:20, fontWeight:800,
+            cursor:"pointer", flexShrink:0,
+          }}>−</button>
+          <div style={{ fontSize:12, color:"#718096", minWidth:32, textAlign:"center" }}>
+            {Math.round(scale * 100)}%
+          </div>
+          <button onClick={() => setScale(s => Math.min(2.0, Math.round((s + 0.1) * 10) / 10))} style={{
+            width:34, height:34, borderRadius:8, border:"1px solid #E2E8F0",
+            background:"#F7FAFC", color:"#4A5568", fontSize:20, fontWeight:800,
+            cursor:"pointer", flexShrink:0,
+          }}>＋</button>
         </div>
 
         {/* List選択タブ */}
@@ -358,17 +369,19 @@ export default function EstimateTab({
           </div>
         </div>
 
-          {/* リサイズハンドル（右下角） */}
+          {/* リサイズハンドル（右下角・大きめ） */}
           <div
             onMouseDown={onResizeStart}
             onTouchStart={onResizeStart}
             style={{
               position:"absolute", right:0, bottom:0,
-              width:24, height:24, borderRadius:"0 0 14px 0",
+              width:44, height:44, borderRadius:"0 0 14px 0",
               cursor:"nwse-resize",
-              background:"linear-gradient(135deg, transparent 50%, #CBD5E0 50%)",
+              background:"linear-gradient(135deg, transparent 55%, #CBD5E0 55%)",
+              display:"flex", alignItems:"flex-end", justifyContent:"flex-end",
+              padding:"4px 6px", color:"#A0AEC0", fontSize:16, userSelect:"none",
             }}
-          />
+          >⤡</div>
         </div>
       </div>
       , document.body)}
