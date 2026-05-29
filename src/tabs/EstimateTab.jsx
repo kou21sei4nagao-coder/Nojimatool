@@ -196,12 +196,20 @@ export default function EstimateTab({
             );
           })}
         </div>
-        {/* ＋ 追加ボタン */}
-        <button onClick={addCalc} style={{
-          marginTop:10, height:46, borderRadius:8, border:"2px dashed #CBD5E0",
-          background:"#F7FAFC", color:"#718096", fontSize:20, fontWeight:800,
-          cursor:"pointer", width:"100%", letterSpacing:2,
-        }}>＋ リストを追加</button>
+        {/* ＋ 追加 ／ － 削除 ボタン */}
+        <div style={{ display:"flex", gap:8, marginTop:10 }}>
+          <button onClick={addCalc} style={{
+            flex:1, height:46, borderRadius:8, border:"2px dashed #CBD5E0",
+            background:"#F7FAFC", color:"#718096", fontSize:18, fontWeight:800, cursor:"pointer",
+          }}>＋ 追加</button>
+          <button onClick={() => { if (calcs.length <= 1) return; removeCalc(activeCalc); setActiveCalc(Math.max(0, activeCalc - 1)); }}
+            disabled={calcs.length <= 1} style={{
+            flex:1, height:46, borderRadius:8, border:"2px dashed #CBD5E0",
+            background: calcs.length <= 1 ? "#F0F0F0" : "#FFF5F5",
+            color: calcs.length <= 1 ? "#CBD5E0" : "#E53E3E",
+            fontSize:18, fontWeight:800, cursor: calcs.length <= 1 ? "default" : "pointer",
+          }}>－ 削除</button>
+        </div>
 
         {/* ─── テンキー ─── */}
         <div className="estimate-keypad" style={{ display:"flex", flexDirection:"column", gap:12 }}>
