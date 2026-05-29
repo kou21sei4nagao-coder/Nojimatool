@@ -38,20 +38,30 @@ export default function EstimateTab({
     x: Math.max(0, window.innerWidth - 450),
     y: 60,
   }));
-  const isDragging = useRef(false);
+  const [scale, setScale]   = useState(1.0);
+  const isDragging  = useRef(false);
+  const isResizing  = useRef(false);
   const dragOffset  = useRef({ x: 0, y: 0 });
+  const resizeStart = useRef({ x: 0, s: 1.0 });
 
   useEffect(() => {
     const onMove = (e) => {
-      if (!isDragging.current) return;
       const cx = e.touches ? e.touches[0].clientX : e.clientX;
       const cy = e.touches ? e.touches[0].clientY : e.clientY;
-      setKeypadPos({
-        x: Math.max(0, Math.min(window.innerWidth  - 430, cx - dragOffset.current.x)),
-        y: Math.max(0, Math.min(window.innerHeight - 200, cy - dragOffset.current.y)),
-      });
+      if (isDragging.current) {
+        setKeypadPos({
+          x: Math.max(0, Math.min(window.innerWidth  - 430, cx - dragOffset.current.x)),
+          y: Math.max(0, Math.min(window.innerHeight - 200, cy - dragOffset.current.y)),
+        });
+      }
+      if (isResizing.current) {
+        const newScale = Math.max(0.5, Math.min(2.0,
+          resizeStart.current.s + (cx - resizeStart.current.x) / 300
+        ));
+        setScale(newScale);
+      }
     };
-    const onEnd = () => { isDragging.current = false; };
+    const onEnd = () => { isDragging.current = false; isResizing.current = false; };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup',   onEnd);
     window.addEventListener('touchmove', onMove, { passive: true });
@@ -70,6 +80,14 @@ export default function EstimateTab({
     const cx = e.touches ? e.touches[0].clientX : e.clientX;
     const cy = e.touches ? e.touches[0].clientY : e.clientY;
     dragOffset.current = { x: cx - keypadPos.x, y: cy - keypadPos.y };
+  };
+
+  const onResizeStart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isResizing.current = true;
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    resizeStart.current = { x: cx, s: scale };
   };
 
   // ── 入力ロジック ──────────────────────────────────────────
@@ -268,7 +286,8 @@ export default function EstimateTab({
         position:"fixed", left:keypadPos.x, top:keypadPos.y, zIndex:1000,
         width:420, background:"#FFFFFF", borderRadius:14,
         border:"1px solid #E2E8F0", boxShadow:"0 8px 28px rgba(0,0,0,0.18)",
-        padding:12, userSelect:"none",
+        padding:12, userSelect:"none", position:"relative",
+        transform:`scale(${scale})`, transformOrigin:"top left",
       }}>
         {/* ドラッグハンドル */}
         <div
@@ -335,6 +354,18 @@ export default function EstimateTab({
             ))}
           </div>
         </div>
+
+        {/* リサイズハンドル（右下角） */}
+        <div
+          onMouseDown={onResizeStart}
+          onTouchStart={onResizeStart}
+          style={{
+            position:"absolute", right:0, bottom:0,
+            width:24, height:24, borderRadius:"0 0 14px 0",
+            cursor:"nwse-resize",
+            background:"linear-gradient(135deg, transparent 50%, #CBD5E0 50%)",
+          }}
+        />
       </div>
 
     </div>
