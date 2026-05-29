@@ -77,7 +77,7 @@ export default function App() {
   const [selectedFeature, setSelectedFeature] = useState(null);
 
   // ── 見積もり ──
-  const initCalc = () => ({ label:"", honka:"", nebiki:"", kouji:true, koujiType:0, options:[], hosho:"", hyoji:"", sokone:"", applied:false });
+  const initCalc = () => ({ label:"", amount:"", honka:"", nebiki:"", kouji:true, koujiType:0, options:[], hosho:"", hyoji:"", sokone:"", applied:false });
   const [calcs, setCalcs]           = useState([initCalc(), initCalc(), initCalc()]);
   const [activeCalc, setActiveCalc] = useState(0);
   const [activeField, setActiveField] = useState("honka");
