@@ -1670,7 +1670,7 @@ export default function App() {
                     <C name='日立 X' desc='内部銅合金で水の通り道も凍結。空気清浄機で脱臭' bg='#BEE3F8' border='#3182CE' color='#CE0F0F' />
                     <C name='ダイキン A' desc='Rシリーズの加湿換気なしモデル' bg='#BEE3F8' border='#3182CE' color='#00A0E9' />
                     <C name='' gray />
-                    <C name='三菱 ZW' desc='エモコで体温判断し人にフォーカス' color='#E60012' border='#E60012' />
+                    <C name='三菱 Z' desc='エモコで体温判断し人にフォーカス' color='#E60012' border='#E60012' />
                     <C name='' gray />
                     <C name='東芝 DR' desc='換気・穴問題あり' />
                   </div>
