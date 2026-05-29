@@ -1,3 +1,5 @@
+import { useState, useRef, useEffect } from "react";
+
 const KOUJI_OPTIONS = [
   { label:"6・10畳用",   price:20000 },
   { label:"14・18畳用",  price:25000 },
@@ -25,13 +27,52 @@ const calcTotal = (c) => {
 
 const fmt = (n) => n.toLocaleString('ja-JP');
 const COLORS = ["#0047AA","#38A169","#D69E2E","#805AD5","#E53E3E","#DD6B20","#2C7A7B","#702459"];
-
 const keypadTargets = { honka:"本体", nebiki:"値引", hosho:"保証", hyoji:"表示価格", sokone:"底値" };
 
 export default function EstimateTab({
   calcs, setCalcs, activeCalc, setActiveCalc, activeField, setActiveField,
   updateCalc, toggleOption, initCalc, addCalc, removeCalc,
 }) {
+  // ── ドラッグ ──────────────────────────────────────────────
+  const [keypadPos, setKeypadPos] = useState(() => ({
+    x: Math.max(0, window.innerWidth - 450),
+    y: 60,
+  }));
+  const isDragging = useRef(false);
+  const dragOffset  = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const onMove = (e) => {
+      if (!isDragging.current) return;
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      const cy = e.touches ? e.touches[0].clientY : e.clientY;
+      setKeypadPos({
+        x: Math.max(0, Math.min(window.innerWidth  - 430, cx - dragOffset.current.x)),
+        y: Math.max(0, Math.min(window.innerHeight - 200, cy - dragOffset.current.y)),
+      });
+    };
+    const onEnd = () => { isDragging.current = false; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup',   onEnd);
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend',  onEnd);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup',   onEnd);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend',  onEnd);
+    };
+  }, []);
+
+  const onDragStart = (e) => {
+    e.preventDefault();
+    isDragging.current = true;
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    dragOffset.current = { x: cx - keypadPos.x, y: cy - keypadPos.y };
+  };
+
+  // ── 入力ロジック ──────────────────────────────────────────
   const setActive = (i, field) => { setActiveCalc(i); setActiveField(field); };
   const appendKey = (key) => {
     const editable = ["honka","nebiki","hosho","hyoji","sokone"];
@@ -52,19 +93,21 @@ export default function EstimateTab({
     updateCalc(i, "nebiki", String(maxBiki));
   };
 
+  // ── スタイル定数 ──────────────────────────────────────────
   const numberStyle = {
     height:64, borderRadius:8, border:"1px solid #CBD5E0",
     background:"#FFFFFF", color:"#2B6CB0",
     fontSize:30, fontWeight:800, cursor:"pointer",
     boxShadow:"0 1px 3px rgba(0,0,0,0.08)",
   };
-  const opStyle = { ...numberStyle, background:"#4A5568", color:"#fff", fontSize:30 };
+  const opStyle = { ...numberStyle, background:"#4A5568", color:"#fff" };
   const smallKeyStyle = {
     height:46, borderRadius:8, border:"1px solid #CBD5E0",
     background:"#FFFFFF", color:"#2B6CB0",
     fontSize:18, fontWeight:800, cursor:"pointer",
     boxShadow:"0 1px 3px rgba(0,0,0,0.08)",
   };
+
   const inputLine = (c, i, field, label, value, negative=false) => {
     const isActive = activeCalc === i && activeField === field;
     return (
@@ -90,13 +133,14 @@ export default function EstimateTab({
 
   return (
     <div className="estimate-shell">
-      <div className="estimate-grid" style={{
-        display:"grid", gridTemplateColumns:"minmax(620px, 1fr) 420px", gap:18,
+
+      {/* ─── カード列 ─── */}
+      <div style={{
         background:"#FFFFFF", padding:16, borderRadius:16,
         border:"1px solid #E2E8F0", boxShadow:"0 1px 4px rgba(0,0,0,0.06)",
+        overflowX:"auto",
       }}>
-        {/* ─── カード列 ─── */}
-        <div className="estimate-lists" style={{ display:"grid", gridTemplateColumns:`repeat(${calcs.length}, minmax(190px, 1fr))`, gap:10 }}>
+        <div style={{ display:"grid", gridTemplateColumns:`repeat(${calcs.length}, minmax(190px, 1fr))`, gap:10, minWidth:"max-content", width:"100%" }}>
           {calcs.map((c, i) => {
             const color = COLORS[i % COLORS.length];
             const selected = activeCalc === i;
@@ -105,12 +149,14 @@ export default function EstimateTab({
             const totalText = fmt(calcTotal(c));
             const totalFontSize = totalText.length >= 9 ? 20 : totalText.length >= 7 ? 24 : 28;
             return (
-              <div key={i} className={`estimate-card ${selected ? "estimate-card-active" : ""}`} style={{ display:"flex", flexDirection:"column", minHeight:650 }}>
+              <div key={i} style={{ display:"flex", flexDirection:"column", minHeight:650 }}>
+                {/* カードヘッダー */}
                 <div onClick={() => setActiveCalc(i)} style={{
                   height:58, background:selected ? "#EBF8FF" : "#F7FAFC",
                   border:`1px solid ${selected ? color : "#E2E8F0"}`,
-                  borderBottom:"none", display:"flex", alignItems:"center", justifyContent:"space-between",
-                  gap:8, padding:"0 12px", cursor:"pointer", borderRadius:"10px 10px 0 0", overflow:"hidden",
+                  borderBottom:"none", display:"flex", alignItems:"center",
+                  gap:8, padding:"0 12px", cursor:"pointer",
+                  borderRadius:"10px 10px 0 0",
                 }}>
                   <input
                     value={c.label}
@@ -118,16 +164,17 @@ export default function EstimateTab({
                     placeholder={`List${i + 1}`}
                     style={{ flex:"1 1 52px", minWidth:44, border:"none", background:"transparent", outline:"none", color:"#1A202C", fontSize:16, fontWeight:800 }}
                   />
-                  <div style={{ color, fontSize:totalFontSize, fontWeight:800, lineHeight:1, whiteSpace:"nowrap", flexShrink:0, textAlign:"right" }}>{totalText}</div>
+                  <div style={{ color, fontSize:totalFontSize, fontWeight:800, lineHeight:1, whiteSpace:"nowrap", flexShrink:0 }}>{totalText}</div>
                   {calcs.length > 1 && (
-                    <button onClick={e => { e.stopPropagation(); removeCalc(i); if (activeCalc >= calcs.length - 1) setActiveCalc(Math.max(0, calcs.length - 2)); }} style={{
+                    <button onClick={e => { e.stopPropagation(); removeCalc(i); setActiveCalc(Math.max(0, i === 0 ? 0 : i - 1)); }} style={{
                       marginLeft:4, width:24, height:24, borderRadius:6, border:"none",
-                      background:"rgba(0,0,0,0.12)", color:"#4A5568", fontSize:13,
-                      cursor:"pointer", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center",
+                      background:"rgba(0,0,0,0.1)", color:"#4A5568", fontSize:13,
+                      cursor:"pointer", flexShrink:0,
                     }}>✕</button>
                   )}
                 </div>
 
+                {/* カード本体 */}
                 <div style={{
                   flex:1, background:"#fff", border:`1px solid ${selected ? color : "#E2E8F0"}`,
                   display:"grid", gridTemplateRows:"repeat(9, minmax(64px, auto))",
@@ -196,70 +243,100 @@ export default function EstimateTab({
             );
           })}
         </div>
-        {/* ＋ 追加 ／ － 削除 ボタン */}
+
+        {/* ＋ 追加 ／ － 削除 */}
         <div style={{ display:"flex", gap:8, marginTop:10 }}>
           <button onClick={addCalc} style={{
             flex:1, height:46, borderRadius:8, border:"2px dashed #CBD5E0",
             background:"#F7FAFC", color:"#718096", fontSize:18, fontWeight:800, cursor:"pointer",
           }}>＋ 追加</button>
-          <button onClick={() => { if (calcs.length <= 1) return; removeCalc(activeCalc); setActiveCalc(Math.max(0, activeCalc - 1)); }}
-            disabled={calcs.length <= 1} style={{
-            flex:1, height:46, borderRadius:8, border:"2px dashed #CBD5E0",
-            background: calcs.length <= 1 ? "#F0F0F0" : "#FFF5F5",
-            color: calcs.length <= 1 ? "#CBD5E0" : "#E53E3E",
-            fontSize:18, fontWeight:800, cursor: calcs.length <= 1 ? "default" : "pointer",
-          }}>－ 削除</button>
+          <button
+            onClick={() => { if (calcs.length <= 1) return; removeCalc(activeCalc); setActiveCalc(Math.max(0, activeCalc - 1)); }}
+            disabled={calcs.length <= 1}
+            style={{
+              flex:1, height:46, borderRadius:8, border:"2px dashed #CBD5E0",
+              background: calcs.length <= 1 ? "#F0F0F0" : "#FFF5F5",
+              color: calcs.length <= 1 ? "#CBD5E0" : "#E53E3E",
+              fontSize:18, fontWeight:800, cursor: calcs.length <= 1 ? "default" : "pointer",
+            }}
+          >－ 削除</button>
+        </div>
+      </div>
+
+      {/* ─── フローティング テンキー ─── */}
+      <div style={{
+        position:"fixed", left:keypadPos.x, top:keypadPos.y, zIndex:1000,
+        width:420, background:"#FFFFFF", borderRadius:14,
+        border:"1px solid #E2E8F0", boxShadow:"0 8px 28px rgba(0,0,0,0.18)",
+        padding:12, userSelect:"none",
+      }}>
+        {/* ドラッグハンドル */}
+        <div
+          onMouseDown={onDragStart}
+          onTouchStart={onDragStart}
+          style={{
+            textAlign:"center", paddingBottom:8, marginBottom:8,
+            borderBottom:"1px solid #E2E8F0",
+            cursor:"grab", color:"#A0AEC0", fontSize:13, letterSpacing:2,
+          }}
+        >
+          ⠿⠿⠿ ドラッグで移動
         </div>
 
-        {/* ─── テンキー ─── */}
-        <div className="estimate-keypad" style={{ display:"flex", flexDirection:"column", gap:12 }}>
-          <div className="estimate-keypad-list-tabs" style={{ display:"grid", gridTemplateColumns:`repeat(${calcs.length}, 1fr)`, gap:6 }}>
-            {calcs.map((_, i) => (
-              <button key={i} onClick={() => setActiveCalc(i)} style={{
-                ...smallKeyStyle,
-                background:activeCalc === i ? "#EBF8FF" : smallKeyStyle.background,
-                borderColor:activeCalc === i ? COLORS[i % COLORS.length] : "#CBD5E0",
-                color:activeCalc === i ? COLORS[i % COLORS.length] : "#2B6CB0", fontSize:15,
-              }}>L{i + 1}</button>
-            ))}
+        {/* List選択タブ */}
+        <div style={{ display:"grid", gridTemplateColumns:`repeat(${calcs.length}, 1fr)`, gap:6, marginBottom:10 }}>
+          {calcs.map((_, i) => (
+            <button key={i} onClick={() => setActiveCalc(i)} style={{
+              ...smallKeyStyle,
+              background:activeCalc === i ? "#EBF8FF" : smallKeyStyle.background,
+              borderColor:activeCalc === i ? COLORS[i % COLORS.length] : "#CBD5E0",
+              color:activeCalc === i ? COLORS[i % COLORS.length] : "#2B6CB0", fontSize:15,
+            }}>L{i + 1}</button>
+          ))}
+        </div>
+
+        {/* 入力フィールド選択 */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(5, 1fr)", gap:6, marginBottom:10, alignItems:"center" }}>
+          <div style={{ fontSize:24, textAlign:"center", color:"#718096" }}>⚙</div>
+          {["honka","nebiki","hosho"].map(field => (
+            <button key={field} onClick={() => setActiveField(field)} style={{
+              ...smallKeyStyle,
+              background:activeField === field ? "#F0FFF4" : smallKeyStyle.background,
+              borderColor:activeField === field ? "#38A169" : "#CBD5E0",
+              color:activeField === field ? "#276749" : "#2B6CB0", fontSize:15,
+            }}>{keypadTargets[field]}</button>
+          ))}
+          <div style={{ fontSize:20, textAlign:"center", color:"#718096" }}>📷</div>
+        </div>
+
+        {/* 数字キー */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10, marginBottom:10 }}>
+          {["7","8","9","4","5","6","1","2","3","0","00","back"].map(key => (
+            <button key={key} onClick={() => appendKey(key)} style={numberStyle}>{key === "back" ? "⌫" : key}</button>
+          ))}
+          <button onClick={() => appendKey("reset")} style={opStyle}>AC</button>
+          <button onClick={() => appendKey("clear")} style={opStyle}>C</button>
+          <button onClick={() => appendKey("clear")} style={opStyle}>−</button>
+        </div>
+
+        {/* アシスト */}
+        <div style={{ background:"#F7FAFC", border:"1px solid #E2E8F0", borderRadius:10, padding:10 }}>
+          <div style={{ fontSize:12, fontWeight:800, color:"#4A5568", marginBottom:6 }}>
+            入力先：L{activeCalc + 1} / {keypadTargets[activeField]}
           </div>
-          <div className="estimate-keypad-field-tabs" style={{ display:"grid", gridTemplateColumns:"repeat(5, 1fr)", gap:10, alignItems:"center" }}>
-            <div style={{ fontSize:28, textAlign:"center", color:"#718096" }}>⚙</div>
-            {["honka","nebiki","hosho"].map(field => (
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+            {["hyoji","sokone"].map(field => (
               <button key={field} onClick={() => setActiveField(field)} style={{
-                ...smallKeyStyle,
-                background:activeField === field ? "#F0FFF4" : smallKeyStyle.background,
-                borderColor:activeField === field ? "#38A169" : "#CBD5E0",
-                color:activeField === field ? "#276749" : "#2B6CB0", fontSize:15,
+                border:`1px solid ${activeField === field ? "#38A169" : "#CBD5E0"}`, borderRadius:8,
+                background:activeField === field ? "#F0FFF4" : "#FFFFFF",
+                color:activeField === field ? "#276749" : "#4A5568",
+                padding:"8px", fontSize:13, fontWeight:800, cursor:"pointer",
               }}>{keypadTargets[field]}</button>
             ))}
-            <button type="button" className="estimate-camera-key" style={{ ...smallKeyStyle, fontSize:20, cursor:"default", color:"#718096" }}>📷</button>
-          </div>
-          <div className="estimate-numbers" style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:12 }}>
-            {["7","8","9","4","5","6","1","2","3","0","00","back"].map(key => (
-              <button key={key} onClick={() => appendKey(key)} style={numberStyle}>{key === "back" ? "⌫" : key}</button>
-            ))}
-            <button onClick={() => appendKey("reset")} style={opStyle}>AC</button>
-            <button onClick={() => appendKey("clear")} style={opStyle}>C</button>
-            <button onClick={() => appendKey("clear")} style={opStyle}>−</button>
-          </div>
-          <div style={{ background:"#F7FAFC", border:"1px solid #E2E8F0", borderRadius:10, padding:12, color:"#1A202C" }}>
-            <div style={{ fontSize:13, fontWeight:800, marginBottom:8 }}>
-              入力先：List{activeCalc + 1} / {keypadTargets[activeField]}
-            </div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-              {["hyoji","sokone"].map(field => (
-                <button key={field} onClick={() => setActiveField(field)} style={{
-                  border:`1px solid ${activeField === field ? "#38A169" : "#CBD5E0"}`, borderRadius:8,
-                  background:activeField === field ? "#F0FFF4" : "#FFFFFF",
-                  color:activeField === field ? "#276749" : "#4A5568",
-                  padding:"9px 8px", fontSize:13, fontWeight:800, cursor:"pointer",
-                }}>{keypadTargets[field]}</button>
-              ))}
-            </div>
           </div>
         </div>
       </div>
+
     </div>
   );
 }
