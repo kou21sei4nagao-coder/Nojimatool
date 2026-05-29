@@ -1497,7 +1497,8 @@ export default function App() {
               borderRadius:8, padding:'10px 12px',
               cursor: hasDetail ? 'pointer' : 'default',
               transition:'all 0.15s',
-              minHeight:72,
+              minHeight:72, height:'100%', boxSizing:'border-box',
+              display:'flex', flexDirection:'column',
             }}
               onMouseEnter={e => { if(hasDetail) e.currentTarget.style.boxShadow = `0 4px 12px ${border}60`; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; }}
@@ -1512,8 +1513,8 @@ export default function App() {
                   color:'#fff', flexShrink:0,
                 }}>NO.{rank}</span>}
               </div>
-              {desc && <div style={{ fontSize:11, color: gray ? '#718096' : '#4A5568', lineHeight:1.5 }}>{desc}</div>}
-              {hasDetail && <div style={{ fontSize:10, color, marginTop:4, textAlign:'right' }}>詳細 →</div>}
+              {desc && <div style={{ fontSize:11, color: gray ? '#718096' : '#4A5568', lineHeight:1.5, flex:1 }}>{desc}</div>}
+              {hasDetail && <div style={{ fontSize:10, color, marginTop:'auto', textAlign:'right' }}>詳細 →</div>}
             </div>
             );
           };
@@ -1627,7 +1628,7 @@ export default function App() {
             {/* ── 14・18・20・23畳 全体マップ ── */}
             <div style={{ marginTop:32 }}>
               <div style={{ fontSize:15, fontWeight:700, color:'#1A202C', marginBottom:12 }}>● 14・18・20・23畳 全体マップ</div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 2fr 2fr 2fr', gap:10 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 2fr 4fr', gap:10 }}>
 
                 {/* ===== スタンダード（1列） ===== */}
                 <div>
@@ -1659,35 +1660,35 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* ===== 超省エネ ===== */}
+                {/* ===== 超省エネ（左右を結合して4列グリッド） ===== */}
                 <div>
-                  <div style={{ background:'#E53E3E', borderRadius:'8px 8px 0 0', padding:'8px', textAlign:'center', marginBottom:8 }}>
-                    <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>超省エネ</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:0, marginBottom:8 }}>
+                    <div style={{ background:'#E53E3E', borderRadius:'8px 0 0 0', padding:'8px', textAlign:'center' }}>
+                      <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>超省エネ</div>
+                    </div>
+                    <div style={{ background:'#3182CE', borderRadius:'0 8px 0 0', padding:'8px', textAlign:'center' }}>
+                      <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>超省エネ</div>
+                    </div>
                   </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:6 }}>
+                    {/* 1段目 */}
                     <C name='シャープ R' desc='感動最安。電気代コンサルならVの省エネモデル' />
                     <C name='パナ X' desc='条件付きで標準工事費込。複数台割なし' color='#0047AA' border='#0047AA' />
-                    <C name='日立 X' desc='内部銅合金で水の通り道も凍結。空気清浄機で脱臭' bg='#BEE3F8' border='#3182CE' color='#CE0F0F' />
-                    <C name='ダイキン A' desc='Rシリーズの加湿換気なしモデル' bg='#BEE3F8' border='#3182CE' color='#00A0E9' />
-                    <C name='' gray />
-                    <C name='三菱 Z' desc='エモコで体温判断し人にフォーカス' color='#E60012' border='#E60012' />
-                    <C name='' gray />
-                    <C name='東芝 DR' desc='換気・穴問題あり' />
-                  </div>
-                </div>
-
-                {/* ===== 超省エネ（右） ===== */}
-                <div>
-                  <div style={{ background:'#3182CE', borderRadius:'8px 8px 0 0', padding:'8px', textAlign:'center', marginBottom:8 }}>
-                    <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>超省エネ</div>
-                  </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
                     <C name='' gray />
                     <C name='パナ X' desc='省エネ最強。ナノイーX全部入り' color='#0047AA' border='#0047AA' />
+                    {/* 2段目 */}
+                    <C name='日立 X' desc='内部銅合金で水の通り道も凍結。空気清浄機で脱臭' bg='#BEE3F8' border='#3182CE' color='#CE0F0F' />
+                    <C name='ダイキン A' desc='Rシリーズの加湿換気なしモデル' bg='#BEE3F8' border='#3182CE' color='#00A0E9' />
                     <C name='ダイキン R' desc='換気・暖房時加湿。穴問題あり' bg='#BEE3F8' border='#3182CE' color='#00A0E9' />
                     <C name='日立 X' desc='内部銅合金で水の通り道も凍結' bg='#BEE3F8' border='#3182CE' color='#CE0F0F' />
+                    {/* 3段目 */}
+                    <C name='' gray />
+                    <C name='三菱 Z' desc='エモコで体温判断し人にフォーカス' color='#E60012' border='#E60012' />
                     <C name='パナ LV' desc='パナソニック上位省エネモデル' color='#0047AA' border='#0047AA' />
                     <C name='ダイキン R' desc='換気・暖房時加湿' bg='#BEE3F8' border='#3182CE' color='#00A0E9' />
+                    {/* 4段目 */}
+                    <C name='' gray />
+                    <C name='東芝 DR' desc='換気・穴問題あり' />
                     <C name='' gray />
                     <C name='三菱 Z' desc='エモコで体温判断し人にフォーカス' color='#E60012' border='#E60012' />
                   </div>
