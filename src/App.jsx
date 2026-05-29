@@ -10,6 +10,49 @@ const globalStyle = `
   ::-webkit-scrollbar-thumb { background: #CBD5E0; border-radius: 3px; }
   /* 全体フォントサイズ底上げ */
   button, div, span, a, p { -webkit-font-smoothing: antialiased; }
+  .estimate-shell { container-type: inline-size; }
+  @container (max-width: 920px) {
+    .estimate-grid {
+      grid-template-columns: minmax(270px, 1fr) minmax(250px, 0.9fr) !important;
+      gap: 10px !important;
+      padding: 12px !important;
+    }
+    .estimate-lists {
+      grid-template-columns: minmax(0, 1fr) !important;
+      min-width: 0 !important;
+    }
+    .estimate-card {
+      min-width: 0 !important;
+    }
+    .estimate-card:not(.estimate-card-active) {
+      display: none !important;
+    }
+    .estimate-keypad {
+      min-width: 0 !important;
+    }
+    .estimate-keypad-list-tabs {
+      gap: 6px !important;
+    }
+    .estimate-keypad-field-tabs {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 6px !important;
+    }
+    .estimate-keypad-field-tabs .estimate-camera-key {
+      display: none !important;
+    }
+    .estimate-numbers {
+      gap: 8px !important;
+    }
+    .estimate-numbers button {
+      height: 58px !important;
+      font-size: 26px !important;
+    }
+  }
+  @container (max-width: 620px) {
+    .estimate-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
 `;
 
 // ── 機能データベース ─────────────────────────────────────
@@ -1846,13 +1889,13 @@ export default function App() {
           };
 
           return (
-            <div>
-              <div style={{
+            <div className="estimate-shell">
+              <div className="estimate-grid" style={{
                 display:"grid", gridTemplateColumns:"minmax(620px, 1fr) 420px", gap:18,
                 background:"#FFFFFF", padding:16, borderRadius:16,
                 border:"1px solid #E2E8F0", boxShadow:"0 1px 4px rgba(0,0,0,0.06)",
               }}>
-                <div style={{ display:"grid", gridTemplateColumns:"repeat(3, minmax(190px, 1fr))", gap:10 }}>
+                <div className="estimate-lists" style={{ display:"grid", gridTemplateColumns:"repeat(3, minmax(190px, 1fr))", gap:10 }}>
                   {calcs.slice(0, 3).map((c, i) => {
                     const color = COLORS[i % COLORS.length];
                     const selected = activeCalc === i;
@@ -1861,7 +1904,7 @@ export default function App() {
                     const totalText = fmt(calcTotal(c));
                     const totalFontSize = totalText.length >= 9 ? 20 : totalText.length >= 7 ? 24 : 28;
                     return (
-                      <div key={i} style={{ display:"flex", flexDirection:"column", minHeight:650 }}>
+                      <div key={i} className={`estimate-card ${selected ? "estimate-card-active" : ""}`} style={{ display:"flex", flexDirection:"column", minHeight:650 }}>
                         <div onClick={() => setActiveCalc(i)} style={{
                           height:58, background:selected ? "#EBF8FF" : "#F7FAFC",
                           border:`1px solid ${selected ? color : "#E2E8F0"}`,
@@ -1954,8 +1997,8 @@ export default function App() {
                   })}
                 </div>
 
-                <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-                  <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10 }}>
+                <div className="estimate-keypad" style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                  <div className="estimate-keypad-list-tabs" style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10 }}>
                     {[0,1,2].map(i => (
                       <button key={i} onClick={() => setActiveCalc(i)} style={{
                         ...smallKeyStyle,
@@ -1966,7 +2009,7 @@ export default function App() {
                       }}>List{i + 1}</button>
                     ))}
                   </div>
-                  <div style={{ display:"grid", gridTemplateColumns:"repeat(5, 1fr)", gap:10, alignItems:"center" }}>
+                  <div className="estimate-keypad-field-tabs" style={{ display:"grid", gridTemplateColumns:"repeat(5, 1fr)", gap:10, alignItems:"center" }}>
                     <div style={{ fontSize:28, textAlign:"center", color:"#718096" }}>⚙</div>
                     {["honka","nebiki","hosho"].map(field => (
                       <button key={field} onClick={() => setActiveField(field)} style={{
@@ -1977,9 +2020,9 @@ export default function App() {
                         fontSize:15,
                       }}>{keypadTargets[field]}</button>
                     ))}
-                    <button type="button" style={{ ...smallKeyStyle, fontSize:20, cursor:"default", color:"#718096" }}>📷</button>
+                    <button type="button" className="estimate-camera-key" style={{ ...smallKeyStyle, fontSize:20, cursor:"default", color:"#718096" }}>📷</button>
                   </div>
-                  <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:12 }}>
+                  <div className="estimate-numbers" style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:12 }}>
                     {["7","8","9","4","5","6","1","2","3","0","00","back"].map(key => (
                       <button key={key} onClick={() => appendKey(key)} style={numberStyle}>{key === "back" ? "⌫" : key}</button>
                     ))}
