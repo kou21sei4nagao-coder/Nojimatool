@@ -1,264 +1,207 @@
-import { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
+import { useState } from "react";
 
-const fmt = (n) => (parseInt(n) || 0).toLocaleString('ja-JP');
-const COLORS = ["#0047AA","#38A169","#D69E2E","#805AD5","#E53E3E","#DD6B20","#2C7A7B","#702459"];
+const fmt   = (n) => Math.abs(n).toLocaleString('ja-JP');
+const LCOLORS = ["#3B5BDB", "#2F9E44", "#E67700"];
 
-export default function EstimateTab({
-  calcs, setCalcs, activeCalc, setActiveCalc, activeField, setActiveField,
-  updateCalc, toggleOption, initCalc, addCalc, removeCalc,
-}) {
-  // ── ドラッグ ──────────────────────────────────────────────
-  const [keypadPos, setKeypadPos] = useState(() => ({
-    x: Math.max(0, window.innerWidth - 450),
-    y: 60,
-  }));
-  const [scale, setScale]   = useState(1.0);
-  const isDragging  = useRef(false);
-  const isResizing  = useRef(false);
-  const dragOffset  = useRef({ x: 0, y: 0 });
-  const resizeStart = useRef({ x: 0, s: 1.0 });
+// ── 初期リスト ────────────────────────────────────────────
+const initList = (name) => ({ name, entries: [], memory: 0 });
 
-  useEffect(() => {
-    const onMove = (e) => {
-      const cx = e.touches ? e.touches[0].clientX : e.clientX;
-      const cy = e.touches ? e.touches[0].clientY : e.clientY;
-      if (isDragging.current) {
-        setKeypadPos({
-          x: Math.max(0, Math.min(window.innerWidth  - 430, cx - dragOffset.current.x)),
-          y: Math.max(0, Math.min(window.innerHeight - 200, cy - dragOffset.current.y)),
-        });
-      }
-      if (isResizing.current) {
-        const newScale = Math.max(0.5, Math.min(2.0,
-          resizeStart.current.s + (cx - resizeStart.current.x) / 300
-        ));
-        setScale(newScale);
-      }
-    };
-    const onEnd = () => { isDragging.current = false; isResizing.current = false; };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup',   onEnd);
-    window.addEventListener('touchmove', onMove, { passive: true });
-    window.addEventListener('touchend',  onEnd);
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup',   onEnd);
-      window.removeEventListener('touchmove', onMove);
-      window.removeEventListener('touchend',  onEnd);
-    };
-  }, []);
+export default function EstimateTab() {
+  const [lists,   setLists]   = useState([initList("List1"), initList("List2"), initList("List3")]);
+  const [active,  setActive]  = useState(0);
+  const [input,   setInput]   = useState("");       // 現在入力中の数字
+  const [history, setHistory] = useState([]);       // undoスタック
+  const [calcOp,  setCalcOp]  = useState(null);     // × ÷ 保留中
+  const [calcLhs, setCalcLhs] = useState(null);     // 左辺値
 
-  const onDragStart = (e) => {
-    e.preventDefault();
-    isDragging.current = true;
-    const cx = e.touches ? e.touches[0].clientX : e.clientX;
-    const cy = e.touches ? e.touches[0].clientY : e.clientY;
-    dragOffset.current = { x: cx - keypadPos.x, y: cy - keypadPos.y };
-  };
-  const onResizeStart = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    isResizing.current = true;
-    const cx = e.touches ? e.touches[0].clientX : e.clientX;
-    resizeStart.current = { x: cx, s: scale };
+  const list  = lists[active];
+  const total = list.entries.reduce((s, e) => s + e.value, 0);
+
+  // ── リスト更新ヘルパー ─────────────────────────────────
+  const updateList = (newList) =>
+    setLists(prev => prev.map((l, i) => i === active ? newList : l));
+
+  const saveHistory = () =>
+    setHistory(prev => [...prev.slice(-29), { idx: active, entries: [...list.entries] }]);
+
+  // ── テープへ追加 ────────────────────────────────────────
+  const pushEntry = (value) => {
+    if (value === 0 && input === "") return;
+    saveHistory();
+    updateList({ ...list, entries: [...list.entries, { value }] });
+    setInput("");
+    setCalcOp(null);
+    setCalcLhs(null);
   };
 
-  // ── テンキー入力 ──────────────────────────────────────────
-  // calcs[i].amount が各プランの金額
-  const appendKey = (key) => {
-    const current = String(calcs[activeCalc]?.amount || "");
-    if (key === "back")  { updateCalc(activeCalc, "amount", current.slice(0, -1)); return; }
-    if (key === "clear") { updateCalc(activeCalc, "amount", ""); return; }
-    if (key === "reset") { setCalcs(prev => prev.map((c, idx) => idx === activeCalc ? initCalc() : c)); return; }
-    updateCalc(activeCalc, "amount", `${current}${key}`);
+  // ── ボタンハンドラ ─────────────────────────────────────
+  const numPress = (k) => {
+    if (k === ".") { setInput(s => s.includes(".") ? s : (s || "0") + "."); return; }
+    if (k === "00") { setInput(s => s === "" ? "" : s + "00"); return; }
+    setInput(s => s === "0" ? k : s + k);
+  };
+  const inputVal = () => parseFloat(input) || 0;
+
+  const pressPlus  = () => pushEntry( inputVal());
+  const pressMinus = () => pushEntry(-inputVal());
+  const pressC     = () => setInput("");
+  const pressBack  = () => setInput(s => s.slice(0, -1));
+  const pressAC    = () => { saveHistory(); updateList({ ...list, entries: [] }); setInput(""); };
+  const pressSign  = () => setInput(s => s.startsWith("-") ? s.slice(1) : s === "" ? "" : "-" + s);
+
+  const pressMulDiv = (op) => {
+    setCalcLhs(inputVal());
+    setCalcOp(op);
+    setInput("");
+  };
+  const pressEquals = () => {
+    if (calcOp && calcLhs !== null) {
+      const rhs = inputVal();
+      const res = calcOp === "×" ? calcLhs * rhs : rhs !== 0 ? calcLhs / rhs : 0;
+      setInput(String(Math.round(res * 10000) / 10000));
+      setCalcOp(null); setCalcLhs(null);
+    } else {
+      pushEntry(inputVal());
+    }
   };
 
-  const numberStyle = {
-    height:64, borderRadius:8, border:"1px solid #CBD5E0",
-    background:"#FFFFFF", color:"#2B6CB0",
-    fontSize:30, fontWeight:800, cursor:"pointer",
-    boxShadow:"0 1px 3px rgba(0,0,0,0.08)",
+  const pressUndo = () => {
+    const prev = [...history].reverse().find(h => h.idx === active);
+    if (!prev) return;
+    updateList({ ...list, entries: prev.entries });
+    setHistory(h => h.filter(x => x !== prev));
   };
-  const opStyle = { ...numberStyle, background:"#4A5568", color:"#fff" };
-  const smallKeyStyle = {
-    height:46, borderRadius:8, border:"1px solid #CBD5E0",
-    background:"#FFFFFF", color:"#2B6CB0",
-    fontSize:15, fontWeight:800, cursor:"pointer",
-    boxShadow:"0 1px 3px rgba(0,0,0,0.08)",
+
+  const pressMemory = (op) => {
+    const v = inputVal();
+    if (op === "MC") { updateList({ ...list, memory: 0 }); return; }
+    const nm = op === "M+" ? list.memory + v : list.memory - v;
+    updateList({ ...list, memory: nm });
+    setInput(String(nm));
   };
+
+  // ── スタイル ───────────────────────────────────────────
+  const numBtn = (extra={}) => ({
+    borderRadius:10, border:"none", cursor:"pointer", fontSize:26, fontWeight:700,
+    background:"linear-gradient(180deg, #EAEAF4 0%, #C8C8DC 100%)",
+    color:"#2D3A8C", boxShadow:"0 3px 0 #9090A8",
+    display:"flex", alignItems:"center", justifyContent:"center",
+    ...extra,
+  });
+  const opBtn  = (bg1, bg2, sh) => ({ ...numBtn(), background:`linear-gradient(180deg,${bg1} 0%,${bg2} 100%)`, color:"#fff", boxShadow:`0 3px 0 ${sh}` });
+  const fnBtn  = () => ({ ...numBtn(), background:"linear-gradient(180deg,#8888A8 0%,#606078 100%)", color:"#fff", fontSize:18, boxShadow:"0 3px 0 #383850" });
+  const memBtn = () => ({ ...numBtn(), background:"linear-gradient(180deg,#C8C8F0 0%,#9898C8 100%)", color:"#2D3A8C", fontSize:16, fontWeight:800, boxShadow:"0 3px 0 #5858A0" });
+
+  const totalStr = (total < 0 ? "−" : "") + fmt(total);
+  const totalSize = totalStr.length >= 10 ? 24 : totalStr.length >= 8 ? 30 : 38;
+  const inputStr  = input !== "" ? parseInt(input).toLocaleString('ja-JP') || input : "";
+  const inputSize = inputStr.length >= 10 ? 18 : inputStr.length >= 8 ? 22 : 26;
 
   return (
-    <div className="estimate-shell">
+    <div style={{
+      display:"flex", height:"calc(100vh - 64px)",
+      background:"linear-gradient(160deg, #4A5CAE 0%, #1E2860 100%)",
+      borderRadius:14, overflow:"hidden",
+      fontFamily:"'Helvetica Neue','Noto Sans JP',sans-serif",
+    }}>
 
-      {/* ─── カード列 ─── */}
-      <div style={{
-        background:"#FFFFFF", padding:16, borderRadius:16,
-        border:"1px solid #E2E8F0", boxShadow:"0 1px 4px rgba(0,0,0,0.06)",
-        overflowX:"auto",
-      }}>
-        <div style={{ display:"grid", gridTemplateColumns:`repeat(${calcs.length}, minmax(160px, 1fr))`, gap:10, minWidth:"max-content", width:"100%" }}>
-          {calcs.map((c, i) => {
-            const color   = COLORS[i % COLORS.length];
-            const selected = activeCalc === i;
-            const amount   = parseInt(c.amount) || 0;
-            const dispLen  = fmt(amount).length;
-            const fontSize = dispLen >= 9 ? 22 : dispLen >= 7 ? 28 : 36;
-
-            return (
-              <div key={i} onClick={() => setActiveCalc(i)} style={{
-                display:"flex", flexDirection:"column",
-                border:`2px solid ${selected ? color : "#E2E8F0"}`,
-                borderRadius:12, overflow:"hidden", cursor:"pointer",
-                background: selected ? `${color}06` : "#FAFAFA",
-                transition:"all 0.15s",
-              }}>
-                {/* ヘッダー */}
-                <div style={{
-                  background: selected ? color : "#F0F4F8",
-                  padding:"8px 10px",
-                  display:"flex", alignItems:"center", gap:6,
-                }}>
-                  <input
-                    value={c.label}
-                    onChange={e => { e.stopPropagation(); updateCalc(i, "label", e.target.value); }}
-                    onClick={e => e.stopPropagation()}
-                    placeholder={`プラン${i + 1}`}
-                    style={{
-                      flex:1, border:"none", background:"transparent", outline:"none",
-                      color: selected ? "#fff" : "#1A202C",
-                      fontSize:15, fontWeight:800, minWidth:0,
-                    }}
-                  />
-                  {calcs.length > 1 && (
-                    <button onClick={e => { e.stopPropagation(); removeCalc(i); setActiveCalc(Math.max(0, i - 1)); }} style={{
-                      width:22, height:22, borderRadius:5, border:"none",
-                      background:"rgba(0,0,0,0.15)", color: selected ? "#fff" : "#666",
-                      fontSize:12, cursor:"pointer", flexShrink:0,
-                    }}>✕</button>
-                  )}
-                </div>
-
-                {/* 金額表示 */}
-                <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"20px 12px", minHeight:100 }}>
-                  <div style={{ fontSize, fontWeight:800, color: selected ? color : "#1A202C", lineHeight:1 }}>
-                    ¥{fmt(amount)}
-                  </div>
-                </div>
-
-                {/* ACボタン */}
-                <button onClick={e => { e.stopPropagation(); setCalcs(prev => prev.map((calc, idx) => idx===i ? initCalc() : calc)); }} style={{
-                  height:38, border:"none", borderTop:"1px solid #E2E8F0",
-                  background:"#F7FAFC", color:"#718096", fontSize:13, fontWeight:700, cursor:"pointer",
-                }}>AC</button>
-              </div>
-            );
-          })}
+      {/* ─── 左：テープ ─── */}
+      <div style={{ width:"40%", display:"flex", flexDirection:"column", background:"rgba(255,255,255,0.06)", borderRight:"1px solid rgba(255,255,255,0.12)" }}>
+        <div style={{ flex:1, overflowY:"auto", background:"#FFFFFF" }}>
+          {list.entries.length === 0 && (
+            <div style={{ height:"100%", background:"#FFFFFF" }} />
+          )}
+          {list.entries.map((e, i) => (
+            <div key={i} style={{
+              padding:"7px 16px 7px 10px",
+              textAlign:"right", fontSize:22, fontWeight:600, lineHeight:1.3,
+              color: e.value < 0 ? "#D63031" : "#2D3436",
+              borderBottom:"1px solid #EEF0F4",
+              background: i % 2 === 0 ? "#FFFFFF" : "#F8F8FC",
+            }}>
+              {e.value < 0 ? `−${fmt(e.value)}` : fmt(e.value)}
+            </div>
+          ))}
         </div>
-
-        {/* ＋ 追加 ／ － 削除 */}
-        <div style={{ display:"flex", gap:8, marginTop:10 }}>
-          <button onClick={addCalc} style={{
-            flex:1, height:42, borderRadius:8, border:"2px dashed #CBD5E0",
-            background:"#F7FAFC", color:"#718096", fontSize:16, fontWeight:800, cursor:"pointer",
-          }}>＋ 追加</button>
-          <button
-            onClick={() => { if (calcs.length <= 1) return; removeCalc(activeCalc); setActiveCalc(Math.max(0, activeCalc - 1)); }}
-            disabled={calcs.length <= 1}
-            style={{
-              flex:1, height:42, borderRadius:8, border:"2px dashed #CBD5E0",
-              background: calcs.length <= 1 ? "#F0F0F0" : "#FFF5F5",
-              color: calcs.length <= 1 ? "#CBD5E0" : "#E53E3E",
-              fontSize:16, fontWeight:800, cursor: calcs.length <= 1 ? "default" : "pointer",
-            }}
-          >－ 削除</button>
-        </div>
+        <button onClick={pressAC} style={{
+          height:54, border:"none", cursor:"pointer", fontSize:22, fontWeight:800,
+          background:"linear-gradient(180deg,#D0D0DC 0%,#A8A8B8 100%)",
+          color:"#1A202C", letterSpacing:3, boxShadow:"inset 0 1px 0 rgba(255,255,255,0.5)",
+        }}>AC</button>
       </div>
 
-      {/* ─── フローティング テンキー（portal で body 直下に描画） ─── */}
-      {createPortal(
-      <div style={{
-        position:"fixed", left:keypadPos.x, top:keypadPos.y, zIndex:9999,
-        width:420, background:"#FFFFFF", borderRadius:14,
-        border:"1px solid #E2E8F0", boxShadow:"0 8px 28px rgba(0,0,0,0.18)",
-        padding:12, userSelect:"none",
-        transform:`scale(${scale})`, transformOrigin:"top left",
-      }}>
-        <div style={{ position:"relative" }}>
+      {/* ─── 右：表示 ＋ キーパッド ─── */}
+      <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"8px 10px 10px", gap:5 }}>
 
-          {/* ドラッグハンドル + サイズ調整 */}
-          <div style={{ display:"flex", alignItems:"center", gap:6, paddingBottom:8, marginBottom:8, borderBottom:"1px solid #E2E8F0" }}>
-            <div
-              onMouseDown={onDragStart}
-              onTouchStart={onDragStart}
-              style={{ flex:1, textAlign:"center", cursor:"grab", color:"#A0AEC0", fontSize:13, letterSpacing:2 }}
-            >
-              ⠿⠿⠿ 移動
-            </div>
-            <button onClick={() => setScale(s => Math.max(0.5, Math.round((s - 0.1) * 10) / 10))} style={{
-              width:34, height:34, borderRadius:8, border:"1px solid #E2E8F0",
-              background:"#F7FAFC", color:"#4A5568", fontSize:20, fontWeight:800, cursor:"pointer",
-            }}>−</button>
-            <div style={{ fontSize:12, color:"#718096", minWidth:32, textAlign:"center" }}>
-              {Math.round(scale * 100)}%
-            </div>
-            <button onClick={() => setScale(s => Math.min(2.0, Math.round((s + 0.1) * 10) / 10))} style={{
-              width:34, height:34, borderRadius:8, border:"1px solid #E2E8F0",
-              background:"#F7FAFC", color:"#4A5568", fontSize:20, fontWeight:800, cursor:"pointer",
-            }}>＋</button>
-          </div>
+        {/* 合計 */}
+        <div style={{
+          background:"rgba(255,255,255,0.14)", borderRadius:10, padding:"6px 14px",
+          textAlign:"right", color:"#fff",
+          fontSize: totalSize, fontWeight:800, lineHeight:1, minHeight:52,
+          display:"flex", alignItems:"center", justifyContent:"flex-end",
+        }}>
+          {totalStr}
+        </div>
 
-          {/* 入力先 + List選択タブ */}
-          <div style={{ display:"grid", gridTemplateColumns:`repeat(${calcs.length}, 1fr)`, gap:6, marginBottom:10 }}>
-            {calcs.map((c, i) => (
-              <button key={i} onClick={() => setActiveCalc(i)} style={{
-                ...smallKeyStyle,
-                background: activeCalc === i ? `${COLORS[i%COLORS.length]}15` : "#F7FAFC",
-                borderColor: activeCalc === i ? COLORS[i%COLORS.length] : "#CBD5E0",
-                color: activeCalc === i ? COLORS[i%COLORS.length] : "#718096",
-              }}>L{i + 1}</button>
-            ))}
-          </div>
+        {/* Listタブ */}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:5 }}>
+          {lists.map((l, i) => (
+            <button key={i} onClick={() => { setActive(i); setInput(""); }} style={{
+              height:40, border:`2px solid ${active===i ? "#fff" : "rgba(255,255,255,0.25)"}`,
+              borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:800,
+              background: active===i ? "#fff" : "rgba(255,255,255,0.1)",
+              color: active===i ? LCOLORS[i] : "rgba(255,255,255,0.8)",
+            }}>{l.name}</button>
+          ))}
+        </div>
 
-          {/* 現在の入力値プレビュー */}
-          <div style={{
-            textAlign:"right", padding:"6px 12px", marginBottom:8,
-            background:"#F7FAFC", borderRadius:8, border:"1px solid #E2E8F0",
-            fontSize:24, fontWeight:700, color: COLORS[activeCalc % COLORS.length],
-            minHeight:42,
-          }}>
-            ¥{fmt(calcs[activeCalc]?.amount || 0)}
-          </div>
+        {/* 現在入力値 */}
+        <div style={{
+          background:"rgba(0,0,0,0.3)", borderRadius:8, padding:"3px 12px",
+          textAlign:"right", color:"#FFE066", fontWeight:700,
+          fontSize: inputSize, minHeight:38,
+          display:"flex", alignItems:"center", justifyContent:"flex-end",
+        }}>
+          {inputStr}
+          {calcOp && <span style={{ fontSize:14, color:"rgba(255,255,255,0.6)", marginLeft:8 }}>{calcOp}</span>}
+        </div>
 
-          {/* 数字キー */}
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10, marginBottom:10 }}>
-            {["7","8","9","4","5","6","1","2","3","0","00","back"].map(key => (
-              <button key={key} onClick={() => appendKey(key)} style={numberStyle}>
-                {key === "back" ? "⌫" : key}
-              </button>
-            ))}
-            <button onClick={() => appendKey("reset")} style={opStyle}>AC</button>
-            <button onClick={() => appendKey("clear")} style={opStyle}>C</button>
-            <button style={{ ...opStyle, background:"#E2E8F0", color:"#718096", cursor:"default" }}>　</button>
-          </div>
+        {/* MC / M+ / M- / 📷 */}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:5 }}>
+          {["MC","M+","M−","📷"].map(k => (
+            <button key={k} onClick={() => k!=="📷" && pressMemory(k==="M−"?"M-":k)} style={{ ...memBtn(), height:40 }}>{k}</button>
+          ))}
+        </div>
 
-          {/* リサイズハンドル（右下角・大きめ） */}
-          <div
-            onMouseDown={onResizeStart}
-            onTouchStart={onResizeStart}
-            style={{
-              position:"absolute", right:0, bottom:0,
-              width:44, height:44, borderRadius:"0 0 14px 0",
-              cursor:"nwse-resize",
-              background:"linear-gradient(135deg, transparent 55%, #CBD5E0 55%)",
-              display:"flex", alignItems:"flex-end", justifyContent:"flex-end",
-              padding:"4px 6px", color:"#A0AEC0", fontSize:16,
-            }}
-          >⤡</div>
+        {/* キーパッド（5行×4列） */}
+        <div style={{ flex:1, display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gridTemplateRows:"repeat(5,1fr)", gap:5 }}>
+          {/* 行1 */}
+          <button onClick={() => numPress("7")}   style={numBtn()}>7</button>
+          <button onClick={() => numPress("8")}   style={numBtn()}>8</button>
+          <button onClick={() => numPress("9")}   style={numBtn()}>9</button>
+          <button onClick={pressSign}             style={fnBtn()}>+/−</button>
+          {/* 行2 */}
+          <button onClick={() => numPress("4")}   style={numBtn()}>4</button>
+          <button onClick={() => numPress("5")}   style={numBtn()}>5</button>
+          <button onClick={() => numPress("6")}   style={numBtn()}>6</button>
+          <button onClick={() => pressMulDiv("×")} style={fnBtn()}>×</button>
+          {/* 行3 */}
+          <button onClick={() => numPress("1")}   style={numBtn()}>1</button>
+          <button onClick={() => numPress("2")}   style={numBtn()}>2</button>
+          <button onClick={() => numPress("3")}   style={numBtn()}>3</button>
+          <button onClick={pressPlus}             style={opBtn("#5588EE","#2244CC","#1122AA")}>＋</button>
+          {/* 行4 */}
+          <button onClick={() => numPress("0")}   style={numBtn()}>0</button>
+          <button onClick={() => numPress("00")}  style={numBtn()}>00</button>
+          <button onClick={() => numPress(".")}   style={numBtn()}>.</button>
+          <button onClick={() => pressMulDiv("÷")} style={fnBtn()}>÷</button>
+          {/* 行5 */}
+          <button onClick={pressUndo}             style={fnBtn()}>↶</button>
+          <button onClick={pressC}                style={fnBtn()}>C</button>
+          <button onClick={pressEquals}           style={opBtn("#5090E0","#2060B0","#103880")}>=</button>
+          <button onClick={pressMinus}            style={opBtn("#E07060","#B04030","#702020")}>−</button>
         </div>
       </div>
-      , document.body)}
-
     </div>
   );
 }

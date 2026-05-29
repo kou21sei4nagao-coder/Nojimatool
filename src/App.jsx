@@ -76,15 +76,7 @@ export default function App() {
   // ── 機能ガイド ──
   const [selectedFeature, setSelectedFeature] = useState(null);
 
-  // ── 見積もり ──
-  const initCalc = () => ({ label:"", amount:"", honka:"", nebiki:"", kouji:true, koujiType:0, options:[], hosho:"", hyoji:"", sokone:"", applied:false });
-  const [calcs, setCalcs]           = useState([initCalc(), initCalc(), initCalc()]);
-  const [activeCalc, setActiveCalc] = useState(0);
-  const [activeField, setActiveField] = useState("honka");
-  const updateCalc   = (i, key, val) => setCalcs(prev => prev.map((c, idx) => idx===i ? {...c, [key]:val} : c));
-  const toggleOption = (i, opt)     => setCalcs(prev => prev.map((c, idx) => idx===i ? {...c, options: c.options.includes(opt) ? c.options.filter(o=>o!==opt) : [...c.options, opt]} : c));
-  const addCalc    = () => setCalcs(prev => [...prev, initCalc()]);
-  const removeCalc = (i) => setCalcs(prev => prev.filter((_, idx) => idx !== i));
+  // ── 見積もり（状態は EstimateTab 内で自己管理） ──
 
   // ── スワイプでメニューを開く ──
   const [edgeSwipe, setEdgeSwipe] = useState(null);
@@ -185,15 +177,7 @@ export default function App() {
           )}
 
           {/* 見積もりタブ */}
-          {tab === "estimate" && (
-            <EstimateTab
-              calcs={calcs} setCalcs={setCalcs}
-              activeCalc={activeCalc} setActiveCalc={setActiveCalc}
-              activeField={activeField} setActiveField={setActiveField}
-              updateCalc={updateCalc} toggleOption={toggleOption} initCalc={initCalc}
-              addCalc={addCalc} removeCalc={removeCalc}
-            />
-          )}
+          {tab === "estimate" && <EstimateTab />}
 
           {/* 工事内容タブ */}
           {tab === "kouji" && <KoujiTab />}
