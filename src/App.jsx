@@ -1858,24 +1858,30 @@ export default function App() {
                     const selected = activeCalc === i;
                     const koujiPrice = c.kouji ? KOUJI_OPTIONS[c.koujiType || 0].price : 0;
                     const selectedOptions = OPTIONS.filter(o => c.options.includes(o.key));
+                    const totalText = fmt(calcTotal(c));
+                    const totalFontSize = totalText.length >= 9 ? 20 : totalText.length >= 7 ? 24 : 28;
                     return (
                       <div key={i} style={{ display:"flex", flexDirection:"column", minHeight:650 }}>
                         <div onClick={() => setActiveCalc(i)} style={{
                           height:58, background:selected ? "#EBF8FF" : "#F7FAFC",
                           border:`1px solid ${selected ? color : "#E2E8F0"}`,
                           borderBottom:"none", display:"flex", alignItems:"center", justifyContent:"space-between",
-                          padding:"0 12px", cursor:"pointer", borderRadius:"10px 10px 0 0",
+                          gap:8, padding:"0 12px", cursor:"pointer", borderRadius:"10px 10px 0 0",
+                          overflow:"hidden",
                         }}>
                           <input
                             value={c.label}
                             onChange={e => updateCalc(i, "label", e.target.value)}
                             placeholder={`List${i + 1}`}
                             style={{
-                              width:110, border:"none", background:"transparent", outline:"none",
+                              flex:"1 1 52px", minWidth:44, border:"none", background:"transparent", outline:"none",
                               color:"#1A202C", fontSize:16, fontWeight:800,
                             }}
                           />
-                          <div style={{ color:color, fontSize:28, fontWeight:800 }}>{fmt(calcTotal(c))}</div>
+                          <div style={{
+                            color:color, fontSize:totalFontSize, fontWeight:800,
+                            lineHeight:1, whiteSpace:"nowrap", flexShrink:0, textAlign:"right",
+                          }}>{totalText}</div>
                         </div>
 
                         <div style={{
