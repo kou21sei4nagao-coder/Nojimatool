@@ -1805,31 +1805,31 @@ export default function App() {
             updateCalc(i, "nebiki", String(maxBiki));
           };
           const numberStyle = {
-            height:78, borderRadius:10, border:"2px solid #17213A",
-            background:"linear-gradient(#F8F8F8,#C9C9C9)", color:"#254A7C",
-            fontSize:40, fontWeight:800, cursor:"pointer",
-            boxShadow:"inset 0 2px 0 rgba(255,255,255,0.9), 0 2px 2px rgba(0,0,0,0.35)",
+            height:64, borderRadius:8, border:"1px solid #CBD5E0",
+            background:"#FFFFFF", color:"#2B6CB0",
+            fontSize:30, fontWeight:800, cursor:"pointer",
+            boxShadow:"0 1px 3px rgba(0,0,0,0.08)",
           };
           const opStyle = {
             ...numberStyle,
-            background:"linear-gradient(#A7A7A7,#5E5E5E)", color:"#fff",
-            fontSize:42,
+            background:"#4A5568", color:"#fff",
+            fontSize:30,
           };
           const smallKeyStyle = {
-            height:56, borderRadius:8, border:"2px solid #17213A",
-            background:"linear-gradient(#FFFFFF,#D7D7D7)", color:"#244D86",
-            fontSize:24, fontWeight:900, cursor:"pointer",
-            boxShadow:"inset 0 2px 0 rgba(255,255,255,0.9), 0 2px 2px rgba(0,0,0,0.35)",
+            height:46, borderRadius:8, border:"1px solid #CBD5E0",
+            background:"#FFFFFF", color:"#2B6CB0",
+            fontSize:18, fontWeight:800, cursor:"pointer",
+            boxShadow:"0 1px 3px rgba(0,0,0,0.08)",
           };
           const inputLine = (c, i, field, label, value, negative=false) => {
             const isActive = activeCalc === i && activeField === field;
             return (
               <div onClick={() => setActive(i, field)} style={{
-                minHeight:72, padding:"8px 8px 6px",
-                background:isActive ? "#D8D8DD" : "#FFFFFF",
+                minHeight:68, padding:"8px 10px 6px",
+                background:isActive ? "#EBF8FF" : "#FFFFFF",
                 borderBottom:"1px solid #E4E7EC", cursor:"pointer",
               }}>
-                <div style={{ fontSize:14, fontWeight:800, color:"#111827" }}>{label}</div>
+                <div style={{ fontSize:13, fontWeight:800, color:"#4A5568" }}>{label}</div>
                 <input
                   type="text"
                   value={value}
@@ -1837,8 +1837,8 @@ export default function App() {
                   onChange={e => updateCalc(i, field, e.target.value.replace(/[^\d]/g, ""))}
                   style={{
                     width:"100%", border:"none", outline:"none", background:"transparent",
-                    textAlign:"right", fontSize:32, lineHeight:1.1,
-                    color:negative ? "#E60020" : "#000", fontWeight:500,
+                    textAlign:"right", fontSize:28, lineHeight:1.1,
+                    color:negative ? "#E60020" : "#1A202C", fontWeight:600,
                   }}
                 />
               </div>
@@ -1846,19 +1846,11 @@ export default function App() {
           };
 
           return (
-            <div style={{ minHeight:"calc(100vh - 150px)" }}>
-              <div style={{
-                background:"#000", height:70, display:"flex", alignItems:"center", justifyContent:"center",
-                color:"#fff", fontSize:24, fontWeight:900, letterSpacing:0, margin:"-4px -4px 0",
-              }}>
-                <div style={{ background:"#E1271B", padding:"10px 44px", minWidth:420, textAlign:"center" }}>見積もり電卓</div>
-              </div>
-
+            <div>
               <div style={{
                 display:"grid", gridTemplateColumns:"minmax(620px, 1fr) 420px", gap:18,
-                background:"#0824A2", padding:14, borderRadius:0,
-                backgroundImage:"radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px)",
-                backgroundSize:"4px 4px",
+                background:"#FFFFFF", padding:16, borderRadius:16,
+                border:"1px solid #E2E8F0", boxShadow:"0 1px 4px rgba(0,0,0,0.06)",
               }}>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3, minmax(190px, 1fr))", gap:10 }}>
                   {calcs.slice(0, 3).map((c, i) => {
@@ -1867,12 +1859,12 @@ export default function App() {
                     const koujiPrice = c.kouji ? KOUJI_OPTIONS[c.koujiType || 0].price : 0;
                     const selectedOptions = OPTIONS.filter(o => c.options.includes(o.key));
                     return (
-                      <div key={i} style={{ display:"flex", flexDirection:"column", minHeight:690 }}>
+                      <div key={i} style={{ display:"flex", flexDirection:"column", minHeight:650 }}>
                         <div onClick={() => setActiveCalc(i)} style={{
-                          height:62, background:selected ? "#B8C0F0" : "#AEB6E3",
-                          border:`4px solid ${selected ? "#0047FF" : "#253190"}`,
+                          height:58, background:selected ? "#EBF8FF" : "#F7FAFC",
+                          border:`1px solid ${selected ? color : "#E2E8F0"}`,
                           borderBottom:"none", display:"flex", alignItems:"center", justifyContent:"space-between",
-                          padding:"0 10px", cursor:"pointer",
+                          padding:"0 12px", cursor:"pointer", borderRadius:"10px 10px 0 0",
                         }}>
                           <input
                             value={c.label}
@@ -1880,20 +1872,21 @@ export default function App() {
                             placeholder={`List${i + 1}`}
                             style={{
                               width:110, border:"none", background:"transparent", outline:"none",
-                              color:"#111827", fontSize:18, fontWeight:900,
+                              color:"#1A202C", fontSize:16, fontWeight:800,
                             }}
                           />
-                          <div style={{ color:"#000", fontSize:36, fontWeight:500 }}>{fmt(calcTotal(c))}</div>
+                          <div style={{ color:color, fontSize:28, fontWeight:800 }}>{fmt(calcTotal(c))}</div>
                         </div>
 
                         <div style={{
-                          flex:1, background:"#fff", border:`4px solid ${selected ? "#0047FF" : "#253190"}`,
-                          display:"grid", gridTemplateRows:"repeat(9, minmax(66px, auto))",
+                          flex:1, background:"#fff", border:`1px solid ${selected ? color : "#E2E8F0"}`,
+                          display:"grid", gridTemplateRows:"repeat(9, minmax(64px, auto))",
+                          borderRadius:"0 0 10px 10px", overflow:"hidden",
                         }}>
                           {inputLine(c, i, "honka", "本体", c.honka)}
                           {inputLine(c, i, "hosho", "保証", c.hosho)}
-                          <div style={{ minHeight:72, padding:"8px", borderBottom:"1px solid #E4E7EC" }}>
-                            <div style={{ fontSize:14, fontWeight:800 }}>標準工事</div>
+                          <div style={{ minHeight:68, padding:"8px 10px", borderBottom:"1px solid #E4E7EC" }}>
+                            <div style={{ fontSize:13, fontWeight:800, color:"#4A5568" }}>標準工事</div>
                             <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginTop:6 }}>
                               {KOUJI_OPTIONS.map((opt, ki) => {
                                 const sel = c.kouji && c.koujiType === ki;
@@ -1911,10 +1904,10 @@ export default function App() {
                                 padding:"4px 6px", fontSize:11, fontWeight:800, cursor:"pointer",
                               }}>なし</button>
                             </div>
-                            <div style={{ marginTop:4, textAlign:"right", fontSize:26, color:"#000" }}>{koujiPrice ? fmt(koujiPrice) : ""}</div>
+                            <div style={{ marginTop:4, textAlign:"right", fontSize:22, color:"#1A202C", fontWeight:700 }}>{koujiPrice ? fmt(koujiPrice) : ""}</div>
                           </div>
-                          <div style={{ minHeight:72, padding:"8px", borderBottom:"1px solid #E4E7EC" }}>
-                            <div style={{ fontSize:14, fontWeight:800 }}>追加工事</div>
+                          <div style={{ minHeight:68, padding:"8px 10px", borderBottom:"1px solid #E4E7EC" }}>
+                            <div style={{ fontSize:13, fontWeight:800, color:"#4A5568" }}>追加工事</div>
                             <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginTop:6 }}>
                               {OPTIONS.map(opt => {
                                 const on = c.options.includes(opt.key);
@@ -1927,28 +1920,28 @@ export default function App() {
                                 );
                               })}
                             </div>
-                            <div style={{ marginTop:4, textAlign:"right", fontSize:24, color:"#000" }}>
+                            <div style={{ marginTop:4, textAlign:"right", fontSize:22, color:"#1A202C", fontWeight:700 }}>
                               {selectedOptions.length ? fmt(selectedOptions.reduce((s, o) => s + o.price, 0)) : ""}
                             </div>
                           </div>
                           {inputLine(c, i, "nebiki", "値引き", c.nebiki, true)}
                           {inputLine(c, i, "hyoji", "表示価格", c.hyoji)}
                           {inputLine(c, i, "sokone", "底値", c.sokone)}
-                          <div style={{ minHeight:72, padding:"8px", borderBottom:"1px solid #E4E7EC" }}>
+                          <div style={{ minHeight:68, padding:"8px 10px", borderBottom:"1px solid #E4E7EC" }}>
                             <button onClick={() => applyAssist(i)} style={{
                               width:"100%", height:40, border:"none", borderRadius:8,
                               background:"#276749", color:"#fff", fontWeight:900, cursor:"pointer",
                             }}>底値から値引き適用</button>
                           </div>
-                          <div style={{ minHeight:72, padding:"8px", textAlign:"right" }}>
-                            <div style={{ color:"#E60020", fontSize:30 }}>-{fmt(parseInt(c.nebiki) || 0)}</div>
+                          <div style={{ minHeight:68, padding:"8px 10px", textAlign:"right" }}>
+                            <div style={{ color:"#E60020", fontSize:26, fontWeight:700 }}>-{fmt(parseInt(c.nebiki) || 0)}</div>
                           </div>
                         </div>
 
                         <button onClick={() => setCalcs(prev => prev.map((calc, idx) => idx === i ? initCalc() : calc))} style={{
-                          marginTop:8, height:58, borderRadius:8, border:"2px solid #3F4654",
-                          background:"linear-gradient(#F5F5F5,#CFCFCF)", color:"#254A7C",
-                          fontSize:34, fontWeight:900, cursor:"pointer",
+                          marginTop:8, height:46, borderRadius:8, border:"1px solid #CBD5E0",
+                          background:"#F7FAFC", color:"#2B6CB0",
+                          fontSize:22, fontWeight:900, cursor:"pointer",
                         }}>AC</button>
                       </div>
                     );
@@ -1960,23 +1953,25 @@ export default function App() {
                     {[0,1,2].map(i => (
                       <button key={i} onClick={() => setActiveCalc(i)} style={{
                         ...smallKeyStyle,
-                        background:activeCalc === i ? "linear-gradient(#FFF4A8,#D7C655)" : smallKeyStyle.background,
-                        color:activeCalc === i ? "#1F2A44" : "#0070D9",
-                        fontSize:24,
+                        background:activeCalc === i ? "#EBF8FF" : smallKeyStyle.background,
+                        borderColor:activeCalc === i ? COLORS[i] : "#CBD5E0",
+                        color:activeCalc === i ? COLORS[i] : "#2B6CB0",
+                        fontSize:18,
                       }}>List{i + 1}</button>
                     ))}
                   </div>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(5, 1fr)", gap:10, alignItems:"center" }}>
-                    <div style={{ fontSize:42, textAlign:"center", color:"#6B7280" }}>⚙</div>
+                    <div style={{ fontSize:28, textAlign:"center", color:"#718096" }}>⚙</div>
                     {["honka","nebiki","hosho"].map(field => (
                       <button key={field} onClick={() => setActiveField(field)} style={{
                         ...smallKeyStyle,
-                        background:activeField === field ? "linear-gradient(#FFFFFF,#FFF2A8)" : smallKeyStyle.background,
-                        color:activeField === field ? "#6B21A8" : "#3B1BA8",
-                        fontSize:22,
+                        background:activeField === field ? "#F0FFF4" : smallKeyStyle.background,
+                        borderColor:activeField === field ? "#38A169" : "#CBD5E0",
+                        color:activeField === field ? "#276749" : "#2B6CB0",
+                        fontSize:15,
                       }}>{keypadTargets[field]}</button>
                     ))}
-                    <button type="button" style={{ ...smallKeyStyle, fontSize:28, cursor:"default" }}>📷</button>
+                    <button type="button" style={{ ...smallKeyStyle, fontSize:20, cursor:"default", color:"#718096" }}>📷</button>
                   </div>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:12 }}>
                     {["7","8","9","4","5","6","1","2","3","0","00","back"].map(key => (
@@ -1987,8 +1982,8 @@ export default function App() {
                     <button onClick={() => appendKey("clear")} style={opStyle}>−</button>
                   </div>
                   <div style={{
-                    background:"rgba(255,255,255,0.12)", border:"1px solid rgba(255,255,255,0.22)",
-                    borderRadius:10, padding:12, color:"#fff",
+                    background:"#F7FAFC", border:"1px solid #E2E8F0",
+                    borderRadius:10, padding:12, color:"#1A202C",
                   }}>
                     <div style={{ fontSize:13, fontWeight:800, marginBottom:8 }}>
                       入力先：List{activeCalc + 1} / {keypadTargets[activeField]}
@@ -1996,9 +1991,9 @@ export default function App() {
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                       {["hyoji","sokone"].map(field => (
                         <button key={field} onClick={() => setActiveField(field)} style={{
-                          border:"1px solid rgba(255,255,255,0.35)", borderRadius:8,
-                          background:activeField === field ? "#FDE68A" : "rgba(255,255,255,0.12)",
-                          color:activeField === field ? "#111827" : "#fff",
+                          border:`1px solid ${activeField === field ? "#38A169" : "#CBD5E0"}`, borderRadius:8,
+                          background:activeField === field ? "#F0FFF4" : "#FFFFFF",
+                          color:activeField === field ? "#276749" : "#4A5568",
                           padding:"9px 8px", fontSize:13, fontWeight:800, cursor:"pointer",
                         }}>{keypadTargets[field]}</button>
                       ))}
