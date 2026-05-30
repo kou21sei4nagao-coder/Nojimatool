@@ -1,9 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 
 // ── 定数 ─────────────────────────────────────────────────────
 const LIST_COLORS = ["#0047AA","#38A169","#D69E2E","#805AD5","#E53E3E","#DD6B20","#2C7A7B","#702459"];
 
-// フィールド定義
 const FIELDS = [
   { key: "honsha",  label: "本体" },
   { key: "hosho",   label: "保証" },
@@ -14,7 +14,6 @@ const FIELDS = [
   { key: "zaichi",  label: "座値" },
 ];
 
-// テンキータブ（入力フィールド選択）
 const KEYPAD_FIELD_TABS = [
   { key: "honsha", label: "本体" },
   { key: "nebiki", label: "値引" },
@@ -24,15 +23,14 @@ const KEYPAD_FIELD_TABS = [
 
 const fmt = (n) => {
   const num = parseInt(n);
-  if (isNaN(num)) return "";
-  return num.toLocaleString("ja-JP");
+  return isNaN(num) ? "" : num.toLocaleString("ja-JP");
 };
 
 const initList = (name) => ({
   name, honsha:"", hosho:"", kouji:"", tsuika:"", nebiki:"", hyoji:"", zaichi:"",
 });
 
-const clearData = () => ({
+const emptyData = () => ({
   honsha:"", hosho:"", kouji:"", tsuika:"", nebiki:"", hyoji:"", zaichi:"",
 });
 
@@ -46,19 +44,24 @@ export default function EstimateTab() {
   const [activeField, setActiveField] = useState("honsha");
   const [inputBuf,    setInputBuf]    = useState("");
 
+  // ── フローティングテンキーの位置・サイズ ──
+  const [kPos,  setKPos]  = useState(() => ({
+    x: Math.max(10, window.innerWidth - 264),
+    y: 64,
+  }));
+  const [kSize, setKSize] = useState({ w: 244, h: null }); // null = auto
+  const panelRef = useRef(null);
+
   const getColor = (li) => LIST_COLORS[li % LIST_COLORS.length];
 
-  // ── 合計（本体+保証+工事+追加+値引き）──
   const getTotal = (list) =>
     ["honsha","hosho","kouji","tsuika","nebiki"]
       .reduce((s, k) => s + (parseInt(list[k]) || 0), 0);
 
-  // ── フィールド更新 ──
   const updateField = useCallback((li, field, val) => {
     setLists(prev => prev.map((l, i) => i === li ? { ...l, [field]: val } : l));
   }, []);
 
-  // ── テンキー入力 ──
   const pressKey = (key) => {
     if (activeField === "camera") return;
     setInputBuf(prev => {
@@ -76,26 +79,22 @@ export default function EstimateTab() {
     });
   };
 
-  // ── セル選択 ──
   const selectCell = (li, field) => {
     setActiveList(li);
     setActiveField(field);
     setInputBuf(lists[li][field] || "");
   };
 
-  // ── 列クリア（AC）──
   const clearList = (li) => {
-    setLists(prev => prev.map((l, i) => i === li ? { ...l, ...clearData() } : l));
+    setLists(prev => prev.map((l, i) => i === li ? { ...l, ...emptyData() } : l));
     if (li === activeList) setInputBuf("");
   };
 
-  // ── 列削除 ──
   const removeList = (li) => {
     setLists(prev => prev.filter((_, i) => i !== li));
     setActiveList(prev => (prev >= li && prev > 0) ? prev - 1 : prev);
   };
 
-  // ── 表示価格をセット ──
   const setHyoji = () => {
     const total = getTotal(lists[activeList]);
     updateField(activeList, "hyoji", String(total));
@@ -103,15 +102,13 @@ export default function EstimateTab() {
     setActiveField("hyoji");
   };
 
-  // ── 座値にフォーカス ──
   const focusZaichi = () => {
     setActiveField("zaichi");
     setInputBuf(lists[activeList].zaichi || "");
   };
 
-  // ── 座値から値引き適用 ──
   const applyZaichiDiscount = (li) => {
-    const list = lists[li];
+    const list   = lists[li];
     const hyoji  = parseInt(list.hyoji)  || 0;
     const zaichi = parseInt(list.zaichi) || 0;
     if (!hyoji || !zaichi) return;
@@ -123,159 +120,105 @@ export default function EstimateTab() {
 
   const fieldLabel = (key) => FIELDS.find(f => f.key === key)?.label ?? key;
 
-  return (
-    <div style={{ display:"flex", gap:10, height:"100%", alignItems:"flex-start" }}>
+  // ── ドラッグ開始 ──
+  const startDrag = (e) => {
+    if (e.type === "touchstart") e.preventDefault();
+    const isTouch = e.type === "touchstart";
+    const cx0 = isTouch ? e.touches[0].clientX : e.clientX;
+    const cy0 = isTouch ? e.touches[0].clientY : e.clientY;
+    const ox = cx0 - kPos.x;
+    const oy = cy0 - kPos.y;
 
-      {/* ── 左側：リスト列 ────────────────────── */}
-      <div style={{ flex:1, overflowX:"auto", minWidth:0 }}>
-        <div style={{ display:"flex", gap:6, minWidth:"max-content", alignItems:"stretch" }}>
+    const onMove = (ev) => {
+      const cx = isTouch ? ev.touches[0].clientX : ev.clientX;
+      const cy = isTouch ? ev.touches[0].clientY : ev.clientY;
+      setKPos({
+        x: Math.max(0, Math.min(window.innerWidth  - 60, cx - ox)),
+        y: Math.max(0, Math.min(window.innerHeight - 60, cy - oy)),
+      });
+    };
+    const onEnd = () => {
+      window.removeEventListener(isTouch ? "touchmove" : "mousemove", onMove);
+      window.removeEventListener(isTouch ? "touchend"  : "mouseup",   onEnd);
+    };
+    window.addEventListener(isTouch ? "touchmove" : "mousemove", onMove, { passive: false });
+    window.addEventListener(isTouch ? "touchend"  : "mouseup",   onEnd);
+  };
 
-          {lists.map((list, li) => {
-            const color = getColor(li);
-            const total = getTotal(list);
-            const totalNeg = total < 0;
+  // ── リサイズ開始 ──
+  const startResize = (e) => {
+    e.stopPropagation();
+    if (e.type === "touchstart") e.preventDefault();
+    const isTouch = e.type === "touchstart";
+    const sx = isTouch ? e.touches[0].clientX : e.clientX;
+    const sy = isTouch ? e.touches[0].clientY : e.clientY;
+    // 現在の実際の高さを取得
+    const sw = kSize.w;
+    const sh = panelRef.current ? panelRef.current.offsetHeight : 480;
 
-            return (
-              <div key={li} style={{
-                width:185, display:"flex", flexDirection:"column",
-                background:"#fff",
-                border:`2px solid ${color}`,
-                boxShadow:`2px 2px 0 ${color}55`,
-                borderRadius:4,
-                overflow:"hidden",
-              }}>
+    const onMove = (ev) => {
+      const cx = isTouch ? ev.touches[0].clientX : ev.clientX;
+      const cy = isTouch ? ev.touches[0].clientY : ev.clientY;
+      setKSize({
+        w: Math.max(200, sw + cx - sx),
+        h: Math.max(280, sh + cy - sy),
+      });
+    };
+    const onEnd = () => {
+      window.removeEventListener(isTouch ? "touchmove" : "mousemove", onMove);
+      window.removeEventListener(isTouch ? "touchend"  : "mouseup",   onEnd);
+    };
+    window.addEventListener(isTouch ? "touchmove" : "mousemove", onMove, { passive: false });
+    window.addEventListener(isTouch ? "touchend"  : "mouseup",   onEnd);
+  };
 
-                {/* ── 合計（最上部）── */}
-                <div style={{
-                  background: "#FAFAFA",
-                  borderBottom:`1px solid ${color}50`,
-                  padding:"8px 10px 6px",
-                }}>
-                  <div style={{
-                    textAlign:"right",
-                    fontSize: Math.abs(total) >= 1000000 ? 20 : Math.abs(total) >= 100000 ? 24 : 28,
-                    fontWeight:700,
-                    color: totalNeg ? "#E53E3E" : "#1A202C",
-                    fontVariantNumeric:"tabular-nums",
-                    letterSpacing:-0.5,
-                  }}>
-                    {total !== 0 ? fmt(total) : "0"}
-                  </div>
-                </div>
-
-                {/* ── 各フィールド行 ── */}
-                <div style={{ flex:1 }}>
-                  {FIELDS.map(({ key, label }) => {
-                    const val      = list[key];
-                    const numVal   = parseInt(val) || 0;
-                    const isActive = activeList === li && activeField === key;
-                    const isNeg    = numVal < 0;
-                    const isEmpty  = !val;
-                    const isHyoji  = key === "hyoji";
-
-                    return (
-                      <div
-                        key={key}
-                        onClick={() => !isHyoji && selectCell(li, key)}
-                        style={{
-                          borderBottom:"1px solid #EDF2F7",
-                          background: isActive ? `${color}18` : "transparent",
-                          padding:"3px 10px 4px",
-                          cursor: isHyoji ? "default" : "pointer",
-                          transition:"background 0.1s",
-                          minHeight:42,
-                        }}
-                      >
-                        <div style={{ fontSize:10, color:"#A0AEC0", marginBottom:1 }}>{label}</div>
-                        <div style={{
-                          textAlign:"right",
-                          fontSize:20, fontWeight:600,
-                          color: isEmpty ? "#CBD5E0" : isNeg ? "#E53E3E" : "#1A202C",
-                          fontVariantNumeric:"tabular-nums",
-                        }}>
-                          {isEmpty ? "—" : fmt(val)}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* ── 座値から値引き適用 ── */}
-                <div style={{ padding:"6px 8px 0" }}>
-                  <button
-                    onClick={() => applyZaichiDiscount(li)}
-                    style={{
-                      width:"100%", padding:"6px 0",
-                      background:`${color}18`, border:`1px solid ${color}50`,
-                      borderRadius:3, color, fontSize:11, fontWeight:700,
-                      cursor:"pointer",
-                    }}
-                  >座値から値引き適用</button>
-                </div>
-
-                {/* ── ボトム：AC + 削除 ── */}
-                <div style={{
-                  display:"flex", gap:6, padding:"8px 8px 10px",
-                  borderTop:`1px solid ${color}30`, marginTop:6,
-                }}>
-                  {lists.length > 1 && (
-                    <button
-                      onClick={() => removeList(li)}
-                      style={{
-                        flexShrink:0, padding:"8px 10px",
-                        background:"#EDF2F7", border:"none", borderRadius:3,
-                        color:"#718096", fontSize:13, fontWeight:700, cursor:"pointer",
-                      }}
-                    >✕</button>
-                  )}
-                  <button
-                    onClick={() => clearList(li)}
-                    style={{
-                      flex:1, padding:"8px 0",
-                      background:"#EDF2F7", border:"none", borderRadius:3,
-                      color:"#4A5568", fontSize:15, fontWeight:800,
-                      cursor:"pointer", letterSpacing:1,
-                    }}
-                  >AC</button>
-                </div>
-              </div>
-            );
-          })}
-
-          {/* ── ＋ 追加ボタン ── */}
-          {lists.length < 8 && (
-            <div
-              onClick={() => {
-                const next = lists.length;
-                setLists(prev => [...prev, initList(`List${next + 1}`)]);
-                setActiveList(next);
-              }}
-              style={{
-                width:50, alignSelf:"stretch", minHeight:120,
-                border:"2px dashed #CBD5E0", borderRadius:4,
-                background:"#F7FAFC",
-                display:"flex", alignItems:"center", justifyContent:"center",
-                cursor:"pointer", color:"#A0AEC0", fontSize:28, flexShrink:0,
-                transition:"all 0.15s",
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor="#3182CE"; e.currentTarget.style.color="#3182CE"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor="#CBD5E0"; e.currentTarget.style.color="#A0AEC0"; }}
-            >＋</div>
-          )}
+  // ── フローティングテンキー ──
+  const keypadPanel = createPortal(
+    <div
+      ref={panelRef}
+      style={{
+        position: "fixed",
+        left: kPos.x, top: kPos.y,
+        width: kSize.w,
+        height: kSize.h ?? "auto",
+        background: "#fff",
+        borderRadius: 12,
+        border: "1.5px solid #E2E8F0",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+        zIndex: 9999,
+        display: "flex", flexDirection: "column",
+        overflow: "hidden",
+        userSelect: "none",
+        minWidth: 200,
+      }}
+    >
+      {/* ── ドラッグハンドル ── */}
+      <div
+        onMouseDown={startDrag}
+        onTouchStart={startDrag}
+        style={{
+          padding: "7px 10px",
+          background: "#F7FAFC",
+          borderBottom: "1.5px solid #E2E8F0",
+          cursor: "move",
+          display: "flex", alignItems: "center", gap: 8,
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ display:"flex", flexDirection:"column", gap:3, opacity:0.5 }}>
+          {[0,1,2].map(i => (
+            <div key={i} style={{ width:18, height:2, background:"#718096", borderRadius:1 }}/>
+          ))}
         </div>
+        <div style={{ fontSize:11, color:"#A0AEC0", flex:1 }}>見積もり電卓</div>
+        <div style={{ fontSize:9, color:"#CBD5E0" }}>↔↕</div>
       </div>
 
-      {/* ── 右側：テンキー ────────────────────── */}
-      <div style={{
-        width:244, flexShrink:0,
-        background:"#fff", borderRadius:12,
-        border:"1.5px solid #E2E8F0",
-        boxShadow:"0 4px 16px rgba(0,0,0,0.08)",
-        overflow:"hidden", position:"sticky", top:0,
-      }}>
+      {/* スクロール可能コンテンツ */}
+      <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column" }}>
 
         {/* List選択タブ */}
-        <div style={{ display:"flex", borderBottom:"1.5px solid #E2E8F0", overflowX:"auto" }}>
+        <div style={{ display:"flex", borderBottom:"1.5px solid #E2E8F0", overflowX:"auto", flexShrink:0 }}>
           {lists.map((list, li) => {
             const color    = getColor(li);
             const isActive = activeList === li;
@@ -284,7 +227,7 @@ export default function EstimateTab() {
                 key={li}
                 onClick={() => { setActiveList(li); setInputBuf(lists[li][activeField] || ""); }}
                 style={{
-                  flex:"0 0 auto", minWidth:60,
+                  flex:"0 0 auto", minWidth:58,
                   background: isActive ? color : "#F7FAFC",
                   borderRight:"1px solid #E2E8F0",
                   display:"flex", alignItems:"center", justifyContent:"center",
@@ -301,7 +244,7 @@ export default function EstimateTab() {
                     background:"transparent", border:"none", outline:"none",
                     color: isActive ? "#fff" : "#718096",
                     fontSize:11, fontWeight: isActive ? 800 : 500,
-                    textAlign:"center", width:48, cursor:"pointer",
+                    textAlign:"center", width:44, cursor:"pointer",
                     caretColor: isActive ? "#fff" : "#718096",
                   }}
                 />
@@ -322,7 +265,7 @@ export default function EstimateTab() {
         </div>
 
         {/* フィールドタブ */}
-        <div style={{ display:"flex", borderBottom:"1.5px solid #E2E8F0", background:"#F7FAFC" }}>
+        <div style={{ display:"flex", borderBottom:"1.5px solid #E2E8F0", background:"#F7FAFC", flexShrink:0 }}>
           {KEYPAD_FIELD_TABS.map(({ key, label, isCamera }) => {
             const isActive = activeField === key;
             const color    = getColor(activeList);
@@ -334,13 +277,13 @@ export default function EstimateTab() {
                   setInputBuf(!isCamera ? (lists[activeList][key] || "") : "");
                 }}
                 style={{
-                  flex:1, padding:"7px 4px",
+                  flex:1, padding:"7px 2px",
                   background: isActive ? "#fff" : "transparent",
                   color: isActive ? color : "#999",
                   border:"none",
                   borderBottom: isActive ? `2px solid ${color}` : "2px solid transparent",
                   borderRight:"1px solid #E2E8F0",
-                  fontSize: isCamera ? 16 : 12, fontWeight: isActive ? 800 : 500,
+                  fontSize: isCamera ? 14 : 11, fontWeight: isActive ? 800 : 500,
                   cursor:"pointer",
                 }}
               >{label}</button>
@@ -349,9 +292,9 @@ export default function EstimateTab() {
         </div>
 
         {/* 数字キー */}
-        <div style={{ padding:"10px 10px 0" }}>
+        <div style={{ padding:"8px 8px 0", flexShrink:0 }}>
           {[["7","8","9"],["4","5","6"],["1","2","3"],["0","00","⌫"]].map((row, ri) => (
-            <div key={ri} style={{ display:"flex", gap:6, marginBottom:6 }}>
+            <div key={ri} style={{ display:"flex", gap:5, marginBottom:5 }}>
               {row.map(key => {
                 const isDel = key === "⌫";
                 return (
@@ -359,11 +302,11 @@ export default function EstimateTab() {
                     key={key}
                     onClick={() => pressKey(isDel ? "C" : key)}
                     style={{
-                      flex:1, height:58,
+                      flex:1, height:52,
                       background: isDel ? "#EBF8FF" : "#F0F4F8",
                       color: isDel ? "#3182CE" : "#1A6FC4",
-                      border:"none", borderRadius:10,
-                      fontSize: isDel ? 20 : 26, fontWeight:700,
+                      border:"none", borderRadius:9,
+                      fontSize: isDel ? 18 : 24, fontWeight:700,
                       cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,0.08)",
                       transition:"transform 0.08s",
                     }}
@@ -377,16 +320,16 @@ export default function EstimateTab() {
           ))}
 
           {/* AC / C / − */}
-          <div style={{ display:"flex", gap:6, marginBottom:10 }}>
-            {[["AC","#2D3748","#fff"],["C","#4A5568","#fff"],["−","#4A5568","#fff"]].map(([key, bg, fg]) => (
+          <div style={{ display:"flex", gap:5, marginBottom:8 }}>
+            {[["AC","#2D3748","#fff"],["C","#4A5568","#fff"],["−","#4A5568","#fff"]].map(([key,bg,fg]) => (
               <button
                 key={key}
                 onClick={() => pressKey(key === "−" ? "-" : key)}
                 style={{
-                  flex:1, height:50,
+                  flex:1, height:46,
                   background:bg, color:fg,
-                  border:"none", borderRadius:10,
-                  fontSize:15, fontWeight:800,
+                  border:"none", borderRadius:9,
+                  fontSize:14, fontWeight:800,
                   cursor:"pointer", boxShadow:"0 2px 6px rgba(0,0,0,0.15)",
                   transition:"transform 0.08s",
                 }}
@@ -401,7 +344,7 @@ export default function EstimateTab() {
         {/* 入力先表示 */}
         <div style={{
           background:"#F7FAFC", borderTop:"1px solid #E2E8F0",
-          padding:"6px 12px", fontSize:11, color:"#718096", textAlign:"center",
+          padding:"5px 10px", fontSize:10, color:"#718096", textAlign:"center", flexShrink:0,
         }}>
           入力先：
           <span style={{ fontWeight:700, color:getColor(activeList) }}>
@@ -413,17 +356,17 @@ export default function EstimateTab() {
           </span>
         </div>
 
-        {/* 表示価格 / 座値 ボタン */}
-        <div style={{ display:"flex", gap:8, padding:"8px 10px 12px" }}>
+        {/* 表示価格 / 座値 */}
+        <div style={{ display:"flex", gap:6, padding:"6px 8px 10px", flexShrink:0 }}>
           {[["表示価格", setHyoji], ["座値", focusZaichi]].map(([label, fn]) => (
             <button
               key={label}
               onClick={fn}
               style={{
-                flex:1, padding:"9px 0",
+                flex:1, padding:"8px 0",
                 background:"#fff", color:"#4A5568",
-                border:"1.5px solid #CBD5E0", borderRadius:8,
-                fontSize:12, fontWeight:700, cursor:"pointer",
+                border:"1.5px solid #CBD5E0", borderRadius:7,
+                fontSize:11, fontWeight:700, cursor:"pointer",
                 transition:"all 0.12s",
               }}
               onMouseEnter={e => { e.currentTarget.style.borderColor="#3182CE"; e.currentTarget.style.color="#3182CE"; }}
@@ -432,6 +375,159 @@ export default function EstimateTab() {
           ))}
         </div>
       </div>
-    </div>
+
+      {/* ── リサイズハンドル（右下） ── */}
+      <div
+        onMouseDown={startResize}
+        onTouchStart={startResize}
+        style={{
+          position:"absolute", right:0, bottom:0,
+          width:20, height:20,
+          cursor:"se-resize",
+          display:"flex", alignItems:"flex-end", justifyContent:"flex-end",
+          padding:"3px",
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 10L10 2M6 10L10 6M10 10L10 10" stroke="#CBD5E0" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </div>
+    </div>,
+    document.body
+  );
+
+  return (
+    <>
+      {/* ── リスト列 ── */}
+      <div style={{ display:"flex", gap:6, minWidth:"max-content", alignItems:"stretch" }}>
+        {lists.map((list, li) => {
+          const color = getColor(li);
+          const total = getTotal(list);
+          return (
+            <div key={li} style={{
+              width:185, display:"flex", flexDirection:"column",
+              background:"#fff",
+              border:`2px solid ${color}`,
+              boxShadow:`2px 2px 0 ${color}55`,
+              borderRadius:4, overflow:"hidden",
+            }}>
+              {/* 合計（最上部） */}
+              <div style={{
+                background:"#FAFAFA",
+                borderBottom:`1px solid ${color}50`,
+                padding:"8px 10px 6px",
+              }}>
+                <div style={{
+                  textAlign:"right",
+                  fontSize: Math.abs(total) >= 1000000 ? 20 : Math.abs(total) >= 100000 ? 24 : 28,
+                  fontWeight:700,
+                  color: total < 0 ? "#E53E3E" : "#1A202C",
+                  fontVariantNumeric:"tabular-nums",
+                  letterSpacing:-0.5,
+                }}>
+                  {total !== 0 ? fmt(total) : "0"}
+                </div>
+              </div>
+
+              {/* 各フィールド行 */}
+              <div style={{ flex:1 }}>
+                {FIELDS.map(({ key, label }) => {
+                  const val      = list[key];
+                  const numVal   = parseInt(val) || 0;
+                  const isActive = activeList === li && activeField === key;
+                  const isEmpty  = !val;
+                  const isHyoji  = key === "hyoji";
+                  return (
+                    <div
+                      key={key}
+                      onClick={() => !isHyoji && selectCell(li, key)}
+                      style={{
+                        borderBottom:"1px solid #EDF2F7",
+                        background: isActive ? `${color}18` : "transparent",
+                        padding:"3px 10px 4px",
+                        cursor: isHyoji ? "default" : "pointer",
+                        transition:"background 0.1s",
+                        minHeight:42,
+                      }}
+                    >
+                      <div style={{ fontSize:10, color:"#A0AEC0", marginBottom:1 }}>{label}</div>
+                      <div style={{
+                        textAlign:"right", fontSize:20, fontWeight:600,
+                        color: isEmpty ? "#CBD5E0" : numVal < 0 ? "#E53E3E" : "#1A202C",
+                        fontVariantNumeric:"tabular-nums",
+                      }}>
+                        {isEmpty ? "—" : fmt(val)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* 座値から値引き適用 */}
+              <div style={{ padding:"6px 8px 0" }}>
+                <button
+                  onClick={() => applyZaichiDiscount(li)}
+                  style={{
+                    width:"100%", padding:"6px 0",
+                    background:`${color}18`, border:`1px solid ${color}50`,
+                    borderRadius:3, color, fontSize:11, fontWeight:700, cursor:"pointer",
+                  }}
+                >座値から値引き適用</button>
+              </div>
+
+              {/* ボトム：AC + 削除 */}
+              <div style={{
+                display:"flex", gap:6, padding:"8px 8px 10px",
+                borderTop:`1px solid ${color}30`, marginTop:6,
+              }}>
+                {lists.length > 1 && (
+                  <button
+                    onClick={() => removeList(li)}
+                    style={{
+                      flexShrink:0, padding:"8px 10px",
+                      background:"#EDF2F7", border:"none", borderRadius:3,
+                      color:"#718096", fontSize:13, fontWeight:700, cursor:"pointer",
+                    }}
+                  >✕</button>
+                )}
+                <button
+                  onClick={() => clearList(li)}
+                  style={{
+                    flex:1, padding:"8px 0",
+                    background:"#EDF2F7", border:"none", borderRadius:3,
+                    color:"#4A5568", fontSize:15, fontWeight:800,
+                    cursor:"pointer", letterSpacing:1,
+                  }}
+                >AC</button>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* ＋ 追加ボタン */}
+        {lists.length < 8 && (
+          <div
+            onClick={() => {
+              const next = lists.length;
+              setLists(prev => [...prev, initList(`List${next + 1}`)]);
+              setActiveList(next);
+            }}
+            style={{
+              width:50, alignSelf:"stretch", minHeight:120,
+              border:"2px dashed #CBD5E0", borderRadius:4,
+              background:"#F7FAFC",
+              display:"flex", alignItems:"center", justifyContent:"center",
+              cursor:"pointer", color:"#A0AEC0", fontSize:28, flexShrink:0,
+              transition:"all 0.15s",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor="#3182CE"; e.currentTarget.style.color="#3182CE"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor="#CBD5E0"; e.currentTarget.style.color="#A0AEC0"; }}
+          >＋</div>
+        )}
+      </div>
+
+      {/* フローティングテンキー */}
+      {keypadPanel}
+    </>
   );
 }
