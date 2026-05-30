@@ -166,7 +166,16 @@ export default function EstimateTab() {
                   background: `${color}12`, borderBottom: `2px solid ${color}30`,
                   padding: "8px 12px", display: "flex", alignItems: "center", gap: 8,
                 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color }}>{list.name}</div>
+                  <input
+                    value={list.name}
+                    onChange={e => setLists(prev => prev.map((l, i) => i === li ? { ...l, name: e.target.value } : l))}
+                    style={{
+                      fontSize: 13, fontWeight: 800, color,
+                      background: "transparent", border: "none", outline: "none",
+                      borderBottom: `1.5px solid ${color}60`,
+                      width: 80, minWidth: 0, padding: "1px 2px",
+                    }}
+                  />
                   <div style={{ flex: 1, textAlign: "right", fontSize: 20, fontWeight: 800, color }}>
                     {total > 0 ? fmt(total) : "—"}
                   </div>
@@ -234,18 +243,31 @@ export default function EstimateTab() {
       }}>
         {/* List選択タブ */}
         <div style={{ display: "flex", borderBottom: "1.5px solid #E2E8F0" }}>
-          {LIST_LABELS.map((label, li) => {
+          {lists.map((list, li) => {
             const color = getColor(li);
             const isActive = activeList === li;
             return (
-              <button key={li} onClick={() => { setActiveList(li); setInputBuf(lists[li][activeField] || ""); }} style={{
-                flex: 1, padding: "9px 0",
+              <div key={li} onClick={() => { setActiveList(li); setInputBuf(lists[li][activeField] || ""); }} style={{
+                flex: 1,
                 background: isActive ? color : "#F7FAFC",
-                color: isActive ? "#fff" : "#718096",
-                border: "none", borderRight: li < 2 ? "1px solid #E2E8F0" : "none",
-                fontSize: 13, fontWeight: isActive ? 800 : 500,
+                borderRight: li < 2 ? "1px solid #E2E8F0" : "none",
+                display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer", transition: "all 0.12s",
-              }}>{label}</button>
+                padding: "6px 4px",
+              }}>
+                <input
+                  value={list.name}
+                  onChange={e => setLists(prev => prev.map((l, i) => i === li ? { ...l, name: e.target.value } : l))}
+                  onClick={e => e.stopPropagation()}
+                  style={{
+                    background: "transparent", border: "none", outline: "none",
+                    color: isActive ? "#fff" : "#718096",
+                    fontSize: 12, fontWeight: isActive ? 800 : 500,
+                    textAlign: "center", width: "100%", cursor: "pointer",
+                    caretColor: isActive ? "#fff" : "#718096",
+                  }}
+                />
+              </div>
             );
           })}
         </div>
