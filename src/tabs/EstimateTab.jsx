@@ -42,21 +42,41 @@ const emptyData = () => ({
 });
 
 // ── スライド削除機能付きの行コンポーネント ─────────────────────
-function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete }) {
+function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete, onLongPress }) {
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startXRef = useRef(0);
+  const longPressTimerRef = useRef(null);
+
+  const startLongPressTimer = () => {
+    clearLongPressTimer();
+    longPressTimerRef.current = setTimeout(() => {
+      onLongPress(li, fieldKey);
+      setSwipeOffset(0);
+      if (navigator.vibrate) navigator.vibrate(40);
+    }, 600);
+  };
+
+  const clearLongPressTimer = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
 
   // タッチ開始
   const handleTouchStart = (e) => {
     setIsDragging(true);
     startXRef.current = e.touches[0].clientX - swipeOffset;
+    startLongPressTimer();
   };
 
   // タッチ移動
   const handleTouchMove = (e) => {
     const diffX = e.touches[0].clientX - startXRef.current;
-    // 左方向へのスライドのみ許容（最大 -60px まで）
+    if (Math.abs(diffX) > 5) {
+      clearLongPressTimer();
+    }
     const newOffset = Math.max(-60, Math.min(0, diffX));
     setSwipeOffset(newOffset);
   };
@@ -64,6 +84,7 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete }) {
   // タッチ終了
   const handleTouchEnd = () => {
     setIsDragging(false);
+    clearLongPressTimer();
     if (swipeOffset < -25) {
       setSwipeOffset(-60);
     } else {
@@ -76,8 +97,12 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete }) {
     setIsDragging(true);
     const startX = e.clientX - swipeOffset;
     let lastOffset = swipeOffset;
+    startLongPressTimer();
 
     const handleMouseMove = (ev) => {
+      if (Math.abs(ev.clientX - startX) > 5) {
+        clearLongPressTimer();
+      }
       const diffX = ev.clientX - startX;
       const newOffset = Math.max(-60, Math.min(0, diffX));
       lastOffset = newOffset;
@@ -86,6 +111,7 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete }) {
 
     const handleMouseUp = () => {
       setIsDragging(false);
+      clearLongPressTimer();
       if (lastOffset < -25) {
         setSwipeOffset(-60);
       } else {
@@ -104,6 +130,14 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete }) {
       setSwipeOffset(0);
     }
   }, [val]);
+
+  useEffect(() => {
+    return () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+    };
+  }, []);
 
   const numVal = parseInt(val) || 0;
   const isEmpty = !val;
@@ -291,6 +325,34 @@ export default function EstimateTab() {
     }
   }, [activeList, activeField, lists]);
 
+  const shiftDownCell = useCallback((li, field) => {
+    const idx = FIELDS.findIndex(f => f.key === field);
+    if (idx === -1) return;
+
+    setLists(prev => prev.map((list, i) => {
+      if (i !== li) return list;
+
+      const newList = { ...list };
+      for (let j = FIELDS.length - 1; j > idx; j--) {
+        const prevKey = FIELDS[j - 1].key;
+        const currKey = FIELDS[j].key;
+        newList[currKey] = list[prevKey] || "";
+      }
+      newList[FIELDS[idx].key] = "";
+      return newList;
+    }));
+
+    if (li === activeList) {
+      const activeIdx = FIELDS.findIndex(f => f.key === activeField);
+      if (activeIdx === idx) {
+        setInputBuf("");
+      } else if (activeIdx > idx) {
+        const prevKey = FIELDS[activeIdx - 1]?.key;
+        setInputBuf(prevKey ? (lists[li][prevKey] || "") : "");
+      }
+    }
+  }, [activeList, activeField, lists]);
+
   const fieldLabel = (key) => FIELDS.find(f => f.key === key)?.label ?? key;
 
   const renderDigitKey = (key) => (
@@ -470,6 +532,7 @@ export default function EstimateTab() {
                       isActive={isRowActive}
                       selectCell={selectCell}
                       onDelete={deleteCell}
+                      onLongPress={shiftDownCell}
                     />
                   );
                 })}
