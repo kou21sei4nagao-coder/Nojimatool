@@ -242,6 +242,26 @@ export default function EstimateTab() {
               </div>
             );
           })}
+          {/* ── ＋ 追加ボタン ── */}
+          {lists.length < 8 && (
+            <div
+              onClick={() => {
+                const next = lists.length;
+                setLists(prev => [...prev, initList(`List${next + 1}`)]);
+                setActiveList(next);
+              }}
+              style={{
+                width: 56, alignSelf: "stretch", minHeight: 120,
+                borderRadius: 12, border: "2px dashed #CBD5E0",
+                background: "#F7FAFC",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", color: "#A0AEC0", fontSize: 28,
+                transition: "all 0.15s", flexShrink: 0,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "#3182CE"; e.currentTarget.style.color = "#3182CE"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "#CBD5E0"; e.currentTarget.style.color = "#A0AEC0"; }}
+            >＋</div>
+          )}
         </div>
       </div>
 
@@ -299,22 +319,6 @@ export default function EstimateTab() {
               </div>
             );
           })}
-          {/* 追加ボタン */}
-          {lists.length < 8 && (
-            <button
-              onClick={() => {
-                const next = lists.length;
-                setLists(prev => [...prev, initList(`List${next + 1}`)]);
-                setActiveList(next);
-              }}
-              style={{
-                flexShrink: 0, width: 32, padding: "6px 0",
-                background: "#F0F4F8", border: "none", borderLeft: "1px solid #E2E8F0",
-                color: "#A0AEC0", fontSize: 18, cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-            >+</button>
-          )}
         </div>
 
         {/* フィールドタブ */}
