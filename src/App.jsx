@@ -142,6 +142,32 @@ export default function App() {
         </>
       )}
 
+      {/* ── トップバー ── */}
+      <div style={{
+        height:48, background:"#FFFFFF", borderBottom:"1px solid #E2E8F0",
+        display:"flex", alignItems:"center", padding:"0 12px", gap:10,
+        flexShrink:0, boxShadow:"0 1px 4px rgba(0,0,0,0.06)",
+      }}>
+        {/* 三本線ボタン */}
+        <button
+          onClick={() => setTabMenuOpen(true)}
+          style={{
+            width:40, height:40, borderRadius:10, border:"1px solid #E2E8F0",
+            background:"#F7FAFC", cursor:"pointer",
+            display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:5,
+            flexShrink:0,
+          }}
+        >
+          <span style={{ display:"block", width:18, height:2, background:"#4A5568", borderRadius:1 }} />
+          <span style={{ display:"block", width:18, height:2, background:"#4A5568", borderRadius:1 }} />
+          <span style={{ display:"block", width:18, height:2, background:"#4A5568", borderRadius:1 }} />
+        </button>
+        {/* 現在のタブ名 */}
+        <div style={{ fontSize:14, fontWeight:700, color:"#1A202C" }}>
+          {NAV_ITEMS.find(([key]) => key === tab)?.[1] ?? ""}
+        </div>
+      </div>
+
       {/* ── コンテンツエリア ── */}
       <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
         <div style={{ flex:1, minWidth:0, overflowY:"auto", padding:"12px 14px", background:"#F5F7FA" }}>
