@@ -563,44 +563,7 @@ export default function EstimateTab() {
               }}>
                 {FIELDS.map(({ key, label }) => {
                   const val = list[key];
-                  const numVal = parseInt(val) || 0;
                   const isRowActive = activeList === li && activeField === key;
-                  const isEmpty = !val;
-                  const isHyoji = key === "hyoji";
-
-                  if (isHyoji) {
-                    return (
-                      <div
-                        key={key}
-                        style={{
-                          height: 50,
-                          flexShrink: 0,
-                          borderBottom: "1px solid #EDF2F7",
-                          background: isRowActive ? "#EDF2F7" : "transparent",
-                          padding: "6px 14px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "flex-end",
-                          userSelect: "none",
-                          WebkitUserSelect: "none",
-                          WebkitTouchCallout: "none",
-                        }}
-                      >
-                        <div style={{
-                          textAlign: "right",
-                          fontSize: 22,
-                          fontWeight: 700,
-                          color: isEmpty ? "#E2E8F0" : numVal < 0 ? "#E53E3E" : "#1A202C",
-                          fontVariantNumeric: "tabular-nums",
-                          userSelect: "none",
-                          WebkitUserSelect: "none",
-                          WebkitTouchCallout: "none",
-                        }}>
-                          {isEmpty ? "—" : fmt(val)}
-                        </div>
-                      </div>
-                    );
-                  }
 
                   return (
                     <FieldRow
