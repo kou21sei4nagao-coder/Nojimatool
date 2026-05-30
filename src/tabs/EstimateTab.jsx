@@ -145,9 +145,9 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete, onLongPre
   return (
     <div style={{
       position: "relative",
-      flex: 1,
+      height: 38,
+      flexShrink: 0,
       borderBottom: "1px solid #EDF2F7",
-      minHeight: 36,
       overflow: "hidden",
     }}>
       {/* 背面の削除ボタン */}
@@ -487,7 +487,13 @@ export default function EstimateTab() {
               </div>
 
               {/* フィールド行 */}
-              <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <div style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                overflowY: "auto",
+                maxHeight: 380,
+              }}>
                 {FIELDS.map(({ key, label }) => {
                   const val = list[key];
                   const numVal = parseInt(val) || 0;
@@ -500,14 +506,14 @@ export default function EstimateTab() {
                       <div
                         key={key}
                         style={{
-                          flex: 1,
+                          height: 38,
+                          flexShrink: 0,
                           borderBottom: "1px solid #EDF2F7",
                           background: isRowActive ? "#EDF2F7" : "transparent",
                           padding: "6px 14px",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "flex-end",
-                          minHeight: 36,
                         }}
                       >
                         <div style={{
