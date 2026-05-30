@@ -507,16 +507,7 @@ export default function EstimateTab() {
                 display:"flex", gap:6, padding:"8px 8px 10px",
                 borderTop:`1px solid ${color}30`, marginTop:6,
               }}>
-                {lists.length > 1 && (
-                  <button
-                    onClick={() => removeList(li)}
-                    style={{
-                      flexShrink:0, padding:"8px 10px",
-                      background:"#EDF2F7", border:"none", borderRadius:3,
-                      color:"#718096", fontSize:13, fontWeight:700, cursor:"pointer",
-                    }}
-                  >✕</button>
-                )}
+
                 <button
                   onClick={() => clearList(li)}
                   style={{
