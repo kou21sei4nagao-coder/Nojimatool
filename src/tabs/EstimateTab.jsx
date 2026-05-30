@@ -149,6 +149,9 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete, onLongPre
       flexShrink: 0,
       borderBottom: "1px solid #EDF2F7",
       overflow: "hidden",
+      userSelect: "none",
+      WebkitUserSelect: "none",
+      WebkitTouchCallout: "none",
     }}>
       {/* 背面の削除ボタン */}
       <div 
@@ -172,6 +175,9 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete, onLongPre
           fontWeight: "bold",
           cursor: "pointer",
           zIndex: 1,
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          WebkitTouchCallout: "none",
         }}
       >
         削除
@@ -205,6 +211,8 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete, onLongPre
           padding: "6px 14px",
           cursor: "pointer",
           userSelect: "none",
+          WebkitUserSelect: "none",
+          WebkitTouchCallout: "none",
         }}
       >
         <div style={{
@@ -213,6 +221,9 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete, onLongPre
           fontWeight: 700,
           color: isEmpty ? "#E2E8F0" : numVal < 0 ? "#E53E3E" : "#1A202C",
           fontVariantNumeric: "tabular-nums",
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          WebkitTouchCallout: "none",
         }}>
           {isEmpty ? "—" : fmt(val)}
         </div>
@@ -474,6 +485,9 @@ export default function EstimateTab() {
                 background: "#FAFAFA",
                 borderBottom: `2.5px solid ${color}`,
                 padding: "10px 14px 8px",
+                userSelect: "none",
+                WebkitUserSelect: "none",
+                WebkitTouchCallout: "none",
               }}>
                 <div style={{
                   textAlign: "right",
@@ -481,6 +495,9 @@ export default function EstimateTab() {
                   fontWeight: 800,
                   color: total < 0 ? "#E53E3E" : "#0F265C",
                   fontVariantNumeric: "tabular-nums",
+                  userSelect: "none",
+                  WebkitUserSelect: "none",
+                  WebkitTouchCallout: "none",
                 }}>
                   {total !== 0 ? fmt(total) : "0"}
                 </div>
@@ -514,6 +531,9 @@ export default function EstimateTab() {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "flex-end",
+                          userSelect: "none",
+                          WebkitUserSelect: "none",
+                          WebkitTouchCallout: "none",
                         }}
                       >
                         <div style={{
@@ -522,6 +542,9 @@ export default function EstimateTab() {
                           fontWeight: 700,
                           color: isEmpty ? "#E2E8F0" : numVal < 0 ? "#E53E3E" : "#1A202C",
                           fontVariantNumeric: "tabular-nums",
+                          userSelect: "none",
+                          WebkitUserSelect: "none",
+                          WebkitTouchCallout: "none",
                         }}>
                           {isEmpty ? "—" : fmt(val)}
                         </div>
