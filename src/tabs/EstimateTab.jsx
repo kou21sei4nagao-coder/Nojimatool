@@ -406,22 +406,26 @@ export default function EstimateTab() {
 
   return (
     <>
-      {/* ── リスト列 ── */}
-      <div style={{
-        display:"flex", gap:6, minWidth:"max-content", alignItems:"stretch",
-        minHeight:"calc(100vh - 130px)",
-      }}>
-        {lists.map((list, li) => {
-          const color = getColor(li);
-          const total = getTotal(list);
-          return (
-            <div key={li} style={{
-              width:185, display:"flex", flexDirection:"column",
-              background:"#fff",
-              border:`2px solid ${color}`,
-              boxShadow:`2px 2px 0 ${color}55`,
-              borderRadius:4, overflow:"hidden",
-            }}>
+      <div style={{ width: "100%", overflowX: "auto", paddingBottom: 10 }}>
+        {/* ── リスト列 ── */}
+        <div style={{
+          display:"flex", gap:10, minWidth:"max-content", width:"100%", alignItems:"stretch",
+          minHeight:"calc(100vh - 130px)",
+        }}>
+          {lists.map((list, li) => {
+            const color = getColor(li);
+            const total = getTotal(list);
+            return (
+              <div key={li} style={{
+                flex: "1 1 240px",
+                minWidth: 200,
+                maxWidth: 480,
+                display:"flex", flexDirection:"column",
+                background:"#fff",
+                border:`2px solid ${color}`,
+                boxShadow:`2px 2px 0 ${color}55`,
+                borderRadius:4, overflow:"hidden",
+              }}>
               {/* リスト名ヘッダー */}
               <div style={{
                 background: color,
@@ -555,9 +559,10 @@ export default function EstimateTab() {
           >＋</div>
         )}
       </div>
+    </div>
 
-      {/* フローティングテンキー */}
-      {keypadPanel}
-    </>
+    {/* フローティングテンキー */}
+    {keypadPanel}
+  </>
   );
 }
