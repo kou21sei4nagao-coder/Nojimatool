@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 
 // ── 定数 ──────────────────────────────────────────────────
 const LIST_LABELS = ["List1", "List2", "List3"];
-const LIST_COLORS = ["#0047AA", "#38A169", "#D69E2E"];
+const LIST_COLORS = ["#0047AA", "#38A169", "#D69E2E", "#805AD5", "#E53E3E", "#DD6B20", "#2C7A7B", "#702459"];
 
 // フィールド定義
 const FIELDS = [
@@ -174,12 +174,24 @@ export default function EstimateTab() {
                       fontSize: 13, fontWeight: 800, color,
                       background: "transparent", border: "none", outline: "none",
                       borderBottom: `1.5px solid ${color}60`,
-                      width: 80, minWidth: 0, padding: "1px 2px",
+                      width: 70, minWidth: 0, padding: "1px 2px",
                     }}
                   />
                   <div style={{ flex: 1, textAlign: "right", fontSize: 20, fontWeight: 800, color }}>
                     {total > 0 ? fmt(total) : "—"}
                   </div>
+                  {lists.length > 1 && (
+                    <button
+                      onClick={() => {
+                        setLists(prev => prev.filter((_, i) => i !== li));
+                        setActiveList(prev => prev >= li && prev > 0 ? prev - 1 : prev);
+                      }}
+                      style={{
+                        background: "rgba(0,0,0,0.08)", border: "none", borderRadius: 5,
+                        color, fontSize: 13, cursor: "pointer", padding: "1px 6px", flexShrink: 0,
+                      }}
+                    >×</button>
+                  )}
                 </div>
 
                 {/* 各行 */}
@@ -242,19 +254,19 @@ export default function EstimateTab() {
         overflow: "hidden",
         position: "sticky", top: 0,
       }}>
-        {/* List選択タブ */}
-        <div style={{ display: "flex", borderBottom: "1.5px solid #E2E8F0" }}>
+        {/* List選択タブ + 追加ボタン */}
+        <div style={{ display: "flex", borderBottom: "1.5px solid #E2E8F0", overflowX: "auto" }}>
           {lists.map((list, li) => {
             const color = getColor(li);
             const isActive = activeList === li;
             return (
               <div key={li} onClick={() => { setActiveList(li); setInputBuf(lists[li][activeField] || ""); }} style={{
-                flex: 1,
+                flex: "0 0 auto", minWidth: 60,
                 background: isActive ? color : "#F7FAFC",
-                borderRight: li < 2 ? "1px solid #E2E8F0" : "none",
+                borderRight: "1px solid #E2E8F0",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer", transition: "all 0.12s",
-                padding: "6px 4px",
+                padding: "6px 4px", position: "relative",
               }}>
                 <input
                   value={list.name}
@@ -264,14 +276,45 @@ export default function EstimateTab() {
                   style={{
                     background: "transparent", border: "none", outline: "none",
                     color: isActive ? "#fff" : "#718096",
-                    fontSize: 12, fontWeight: isActive ? 800 : 500,
-                    textAlign: "center", width: "100%", cursor: "pointer",
+                    fontSize: 11, fontWeight: isActive ? 800 : 500,
+                    textAlign: "center", width: 48, cursor: "pointer",
                     caretColor: isActive ? "#fff" : "#718096",
                   }}
                 />
+                {lists.length > 1 && isActive && (
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      setLists(prev => prev.filter((_, i) => i !== li));
+                      setActiveList(prev => prev >= li && prev > 0 ? prev - 1 : prev);
+                    }}
+                    style={{
+                      position: "absolute", top: 1, right: 1,
+                      background: "rgba(255,255,255,0.25)", border: "none",
+                      borderRadius: 3, color: "#fff", fontSize: 9,
+                      cursor: "pointer", padding: "0 3px", lineHeight: "14px",
+                    }}
+                  >×</button>
+                )}
               </div>
             );
           })}
+          {/* 追加ボタン */}
+          {lists.length < 8 && (
+            <button
+              onClick={() => {
+                const next = lists.length;
+                setLists(prev => [...prev, initList(`List${next + 1}`)]);
+                setActiveList(next);
+              }}
+              style={{
+                flexShrink: 0, width: 32, padding: "6px 0",
+                background: "#F0F4F8", border: "none", borderLeft: "1px solid #E2E8F0",
+                color: "#A0AEC0", fontSize: 18, cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >+</button>
+          )}
         </div>
 
         {/* フィールドタブ */}
