@@ -213,6 +213,7 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete, onLongPre
           userSelect: "none",
           WebkitUserSelect: "none",
           WebkitTouchCallout: "none",
+          touchAction: "pan-y",
         }}
       >
         <div style={{
@@ -417,6 +418,7 @@ export default function EstimateTab() {
       boxSizing: "border-box",
       borderRadius: 12,
       color: "#FFF",
+      overscrollBehavior: "none",
     }}>
       {/* ── 左側：リスト列コンテナ ── */}
       <div style={{
@@ -425,6 +427,7 @@ export default function EstimateTab() {
         display: "flex",
         gap: 10,
         alignItems: "stretch",
+        overscrollBehaviorX: "none",
       }}>
         {lists.map((list, li) => {
           const isActive = activeList === li;
@@ -510,6 +513,7 @@ export default function EstimateTab() {
                 flexDirection: "column",
                 overflowY: "auto",
                 maxHeight: 380,
+                overscrollBehaviorY: "none",
               }}>
                 {FIELDS.map(({ key, label }) => {
                   const val = list[key];
