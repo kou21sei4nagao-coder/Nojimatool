@@ -1,5 +1,4 @@
-import { useState, useCallback, useRef } from "react";
-import { createPortal } from "react-dom";
+import { useState, useCallback } from "react";
 
 // ── 定数 ─────────────────────────────────────────────────────
 const LIST_COLORS = ["#0047AA","#38A169","#D69E2E","#805AD5","#E53E3E","#DD6B20","#2C7A7B","#702459"];
@@ -51,14 +50,7 @@ export default function EstimateTab() {
   const [activeList,  setActiveList]  = useState(0);
   const [activeField, setActiveField] = useState("honsha");
   const [inputBuf,    setInputBuf]    = useState("");
-
-  // ── フローティングテンキーの位置・サイズ ──
-  const [kPos,  setKPos]  = useState(() => ({
-    x: Math.max(10, window.innerWidth - 264),
-    y: 64,
-  }));
-  const [kSize, setKSize] = useState({ w: 244, h: null }); // null = auto
-  const panelRef = useRef(null);
+  const [memory,      setMemory]      = useState(0);
 
   const getColor = (li) => LIST_COLORS[li % LIST_COLORS.length];
 
@@ -75,7 +67,7 @@ export default function EstimateTab() {
     setInputBuf(prev => {
       let next = prev;
       if      (key === "AC")  { next = ""; }
-      else if (key === "C")   { next = prev.slice(0, -1); }
+      else if (key === "C" || key === "⌫")   { next = prev.slice(0, -1); }
       else if (key === "00")  { next = (prev && prev !== "0") ? prev + "00" : prev; }
       else if (key === "-")   { next = prev.startsWith("-") ? prev.slice(1) : (prev ? "-" + prev : ""); }
       else {
@@ -110,11 +102,6 @@ export default function EstimateTab() {
     setActiveField("hyoji");
   };
 
-  const focusZaichi = () => {
-    setActiveField("zaichi");
-    setInputBuf(lists[activeList].zaichi || "");
-  };
-
   const applyZaichiDiscount = (li) => {
     const list   = lists[li];
     const hyoji  = parseInt(list.hyoji)  || 0;
@@ -128,376 +115,170 @@ export default function EstimateTab() {
 
   const fieldLabel = (key) => FIELDS.find(f => f.key === key)?.label ?? key;
 
-  // ── ドラッグ開始 ──
-  const startDrag = (e) => {
-    if (e.type === "touchstart") e.preventDefault();
-    const isTouch = e.type === "touchstart";
-    const cx0 = isTouch ? e.touches[0].clientX : e.clientX;
-    const cy0 = isTouch ? e.touches[0].clientY : e.clientY;
-    const ox = cx0 - kPos.x;
-    const oy = cy0 - kPos.y;
-
-    const onMove = (ev) => {
-      const cx = isTouch ? ev.touches[0].clientX : ev.clientX;
-      const cy = isTouch ? ev.touches[0].clientY : ev.clientY;
-      setKPos({
-        x: Math.max(0, Math.min(window.innerWidth  - 60, cx - ox)),
-        y: Math.max(0, Math.min(window.innerHeight - 60, cy - oy)),
-      });
-    };
-    const onEnd = () => {
-      window.removeEventListener(isTouch ? "touchmove" : "mousemove", onMove);
-      window.removeEventListener(isTouch ? "touchend"  : "mouseup",   onEnd);
-    };
-    window.addEventListener(isTouch ? "touchmove" : "mousemove", onMove, { passive: false });
-    window.addEventListener(isTouch ? "touchend"  : "mouseup",   onEnd);
-  };
-
-  // ── リサイズ開始 ──
-  const startResize = (e) => {
-    e.stopPropagation();
-    if (e.type === "touchstart") e.preventDefault();
-    const isTouch = e.type === "touchstart";
-    const sx = isTouch ? e.touches[0].clientX : e.clientX;
-    const sy = isTouch ? e.touches[0].clientY : e.clientY;
-    // 現在の実際の高さを取得
-    const sw = kSize.w;
-    const sh = panelRef.current ? panelRef.current.offsetHeight : 480;
-
-    const onMove = (ev) => {
-      const cx = isTouch ? ev.touches[0].clientX : ev.clientX;
-      const cy = isTouch ? ev.touches[0].clientY : ev.clientY;
-      setKSize({
-        w: Math.max(200, sw + cx - sx),
-        h: Math.max(280, sh + cy - sy),
-      });
-    };
-    const onEnd = () => {
-      window.removeEventListener(isTouch ? "touchmove" : "mousemove", onMove);
-      window.removeEventListener(isTouch ? "touchend"  : "mouseup",   onEnd);
-    };
-    window.addEventListener(isTouch ? "touchmove" : "mousemove", onMove, { passive: false });
-    window.addEventListener(isTouch ? "touchend"  : "mouseup",   onEnd);
-  };
-
-  // ── フローティングテンキー ──
-  const keypadPanel = createPortal(
-    <div
-      ref={panelRef}
+  const renderDigitKey = (key) => (
+    <button
+      key={key}
+      onClick={() => pressKey(key === "." ? "-" : key)}
       style={{
-        position: "fixed",
-        left: kPos.x, top: kPos.y,
-        width: kSize.w,
-        height: kSize.h ?? "auto",
-        background: "#fff",
-        borderRadius: 12,
-        border: "1.5px solid #E2E8F0",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
-        zIndex: 9999,
-        display: "flex", flexDirection: "column",
-        overflow: "hidden",
-        userSelect: "none",
-        minWidth: 200,
+        flex: 1, height: 46,
+        background: "linear-gradient(to bottom, #E8ECF2, #B8C4D6)",
+        border: "1px solid #9BA9C1", borderRadius: 8,
+        color: "#0F265C", fontSize: 20, fontWeight: "bold",
+        cursor: "pointer", boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+        transition: "transform 0.08s",
       }}
+      onMouseDown={e => e.currentTarget.style.transform="scale(0.92)"}
+      onMouseUp={e => e.currentTarget.style.transform="scale(1)"}
+      onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
     >
-      {/* ── ドラッグハンドル ── */}
-      <div
-        onMouseDown={startDrag}
-        onTouchStart={startDrag}
-        style={{
-          padding: "7px 10px",
-          background: "#F7FAFC",
-          borderBottom: "1.5px solid #E2E8F0",
-          cursor: "move",
-          display: "flex", alignItems: "center", gap: 8,
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ display:"flex", flexDirection:"column", gap:3, opacity:0.5 }}>
-          {[0,1,2].map(i => (
-            <div key={i} style={{ width:18, height:2, background:"#718096", borderRadius:1 }}/>
-          ))}
-        </div>
-        <div style={{ fontSize:11, color:"#A0AEC0", flex:1 }}>見積もり電卓</div>
-        <div style={{ fontSize:9, color:"#CBD5E0" }}>↔↕</div>
-      </div>
+      {key}
+    </button>
+  );
 
-      {/* スクロール可能コンテンツ */}
-      <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column" }}>
-
-        {/* List選択タブ */}
-        <div style={{ display:"flex", borderBottom:"1.5px solid #E2E8F0", overflowX:"auto", flexShrink:0 }}>
-          {lists.map((list, li) => {
-            const color    = getColor(li);
-            const isActive = activeList === li;
-            return (
-              <div
-                key={li}
-                onClick={() => { setActiveList(li); setInputBuf(lists[li][activeField] || ""); }}
-                style={{
-                  flex:"0 0 auto", minWidth:58,
-                  background: isActive ? color : "#F7FAFC",
-                  borderRight:"1px solid #E2E8F0",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  cursor:"pointer", transition:"background 0.12s",
-                  padding:"6px 4px", position:"relative",
-                }}
-              >
-                <input
-                  value={list.name}
-                  onChange={e => setLists(prev => prev.map((l, i) => i === li ? { ...l, name: e.target.value } : l))}
-                  onClick={e => e.stopPropagation()}
-                  onFocus={e => { e.stopPropagation(); e.target.select(); }}
-                  style={{
-                    background:"transparent", border:"none", outline:"none",
-                    color: isActive ? "#fff" : "#718096",
-                    fontSize:11, fontWeight: isActive ? 800 : 500,
-                    textAlign:"center", width:44, cursor:"pointer",
-                    caretColor: isActive ? "#fff" : "#718096",
-                  }}
-                />
-                {lists.length > 1 && isActive && (
-                  <button
-                    onClick={e => { e.stopPropagation(); removeList(li); }}
-                    style={{
-                      position:"absolute", top:1, right:1,
-                      background:"rgba(255,255,255,0.25)", border:"none",
-                      borderRadius:3, color:"#fff", fontSize:9,
-                      cursor:"pointer", padding:"0 3px", lineHeight:"14px",
-                    }}
-                  >×</button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* フィールドタブ */}
-        <div style={{ display:"flex", borderBottom:"1.5px solid #E2E8F0", background:"#F7FAFC", flexShrink:0 }}>
-          {KEYPAD_FIELD_TABS.map(({ key, label, isCamera }) => {
-            const isActive = activeField === key;
-            const color    = getColor(activeList);
-            return (
-              <button
-                key={key}
-                onClick={() => {
-                  setActiveField(key);
-                  setInputBuf(!isCamera ? (lists[activeList][key] || "") : "");
-                }}
-                style={{
-                  flex:1, padding:"7px 2px",
-                  background: isActive ? "#fff" : "transparent",
-                  color: isActive ? color : "#999",
-                  border:"none",
-                  borderBottom: isActive ? `2px solid ${color}` : "2px solid transparent",
-                  borderRight:"1px solid #E2E8F0",
-                  fontSize: isCamera ? 14 : 11, fontWeight: isActive ? 800 : 500,
-                  cursor:"pointer",
-                }}
-              >{label}</button>
-            );
-          })}
-        </div>
-
-        {/* 数字キー */}
-        <div style={{ padding:"8px 8px 0", flexShrink:0 }}>
-          {[["7","8","9"],["4","5","6"],["1","2","3"],["0","00","⌫"]].map((row, ri) => (
-            <div key={ri} style={{ display:"flex", gap:5, marginBottom:5 }}>
-              {row.map(key => {
-                const isDel = key === "⌫";
-                return (
-                  <button
-                    key={key}
-                    onClick={() => pressKey(isDel ? "C" : key)}
-                    style={{
-                      flex:1, height:52,
-                      background: isDel ? "#EBF8FF" : "#F0F4F8",
-                      color: isDel ? "#3182CE" : "#1A6FC4",
-                      border:"none", borderRadius:9,
-                      fontSize: isDel ? 18 : 24, fontWeight:700,
-                      cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,0.08)",
-                      transition:"transform 0.08s",
-                    }}
-                    onMouseDown={e => e.currentTarget.style.transform="scale(0.92)"}
-                    onMouseUp={e => e.currentTarget.style.transform="scale(1)"}
-                    onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
-                  >{key}</button>
-                );
-              })}
-            </div>
-          ))}
-
-          {/* AC / C / − */}
-          <div style={{ display:"flex", gap:5, marginBottom:8 }}>
-            {[["AC","#2D3748","#fff"],["C","#4A5568","#fff"],["−","#4A5568","#fff"]].map(([key,bg,fg]) => (
-              <button
-                key={key}
-                onClick={() => pressKey(key === "−" ? "-" : key)}
-                style={{
-                  flex:1, height:46,
-                  background:bg, color:fg,
-                  border:"none", borderRadius:9,
-                  fontSize:14, fontWeight:800,
-                  cursor:"pointer", boxShadow:"0 2px 6px rgba(0,0,0,0.15)",
-                  transition:"transform 0.08s",
-                }}
-                onMouseDown={e => e.currentTarget.style.transform="scale(0.92)"}
-                onMouseUp={e => e.currentTarget.style.transform="scale(1)"}
-                onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
-              >{key}</button>
-            ))}
-          </div>
-        </div>
-
-        {/* 入力先表示 */}
-        <div style={{
-          background:"#F7FAFC", borderTop:"1px solid #E2E8F0",
-          padding:"5px 10px", fontSize:10, color:"#718096", textAlign:"center", flexShrink:0,
-        }}>
-          入力先：
-          <span style={{ fontWeight:700, color:getColor(activeList) }}>
-            {lists[activeList]?.name}
-          </span>
-          {" / "}
-          <span style={{ fontWeight:700, color:"#1A202C" }}>
-            {fieldLabel(activeField)}
-          </span>
-        </div>
-
-        {/* 表示価格 / 座値 */}
-        <div style={{ display:"flex", gap:6, padding:"6px 8px 10px", flexShrink:0 }}>
-          {[["表示価格", setHyoji], ["座値", focusZaichi]].map(([label, fn]) => (
-            <button
-              key={label}
-              onClick={fn}
-              style={{
-                flex:1, padding:"8px 0",
-                background:"#fff", color:"#4A5568",
-                border:"1.5px solid #CBD5E0", borderRadius:7,
-                fontSize:11, fontWeight:700, cursor:"pointer",
-                transition:"all 0.12s",
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor="#3182CE"; e.currentTarget.style.color="#3182CE"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor="#CBD5E0"; e.currentTarget.style.color="#4A5568"; }}
-            >{label}</button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── リサイズハンドル（右下） ── */}
-      <div
-        onMouseDown={startResize}
-        onTouchStart={startResize}
-        style={{
-          position:"absolute", right:0, bottom:0,
-          width:20, height:20,
-          cursor:"se-resize",
-          display:"flex", alignItems:"flex-end", justifyContent:"flex-end",
-          padding:"3px",
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2 10L10 2M6 10L10 6M10 10L10 10" stroke="#CBD5E0" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      </div>
-    </div>,
-    document.body
+  const renderOpKey = (key, onClick) => (
+    <button
+      key={key}
+      onClick={onClick}
+      style={{
+        flex: 1, height: 42,
+        background: "linear-gradient(to bottom, #6B7D93, #38485A)",
+        border: "1px solid #232F3D", borderRadius: 8,
+        color: "#FFF", fontSize: 18, fontWeight: "bold",
+        cursor: "pointer", boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+        transition: "transform 0.08s",
+      }}
+      onMouseDown={e => e.currentTarget.style.transform="scale(0.92)"}
+      onMouseUp={e => e.currentTarget.style.transform="scale(1)"}
+      onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
+    >
+      {key}
+    </button>
   );
 
   return (
-    <>
-      <div style={{ width: "100%", overflowX: "auto", paddingBottom: 10 }}>
-        {/* ── リスト列 ── */}
-        <div style={{
-          display:"flex", gap:10, minWidth:"max-content", width:"100%", alignItems:"stretch",
-          minHeight:"calc(100vh - 130px)",
-        }}>
-          {lists.map((list, li) => {
-            const color = getColor(li);
-            const total = getTotal(list);
-            return (
-              <div key={li} style={{
-                flex: "1 1 240px",
-                minWidth: 200,
-                maxWidth: 480,
-                display:"flex", flexDirection:"column",
-                background:"#fff",
-                border:`2px solid ${color}`,
-                boxShadow:`2px 2px 0 ${color}55`,
-                borderRadius:4, overflow:"hidden",
-              }}>
-              {/* リスト名ヘッダー */}
+    <div style={{
+      display: "flex",
+      gap: 12,
+      minHeight: "calc(100vh - 120px)",
+      width: "100%",
+      background: "#0C1E43",
+      padding: 12,
+      boxSizing: "border-box",
+      borderRadius: 12,
+      color: "#FFF",
+    }}>
+      {/* ── 左側：リスト列コンテナ ── */}
+      <div style={{
+        flex: 1,
+        overflowX: "auto",
+        display: "flex",
+        gap: 10,
+        alignItems: "stretch",
+      }}>
+        {lists.map((list, li) => {
+          const isActive = activeList === li;
+          const color = getColor(li);
+          const total = getTotal(list);
+          return (
+            <div
+              key={li}
+              onClick={() => setActiveList(li)}
+              style={{
+                flex: "1 1 260px",
+                minWidth: 220,
+                maxWidth: 450,
+                display: "flex",
+                flexDirection: "column",
+                background: "#fff",
+                border: isActive ? `3.5px solid #1E88E5` : `1.5px solid #CBD5E0`,
+                boxShadow: isActive ? "0 4px 16px rgba(0,0,0,0.2)" : "none",
+                borderRadius: 8,
+                overflow: "hidden",
+                cursor: "pointer",
+              }}
+            >
+              {/* リリスト名ヘッダー */}
               <div style={{
                 background: color,
-                padding:"4px 6px 4px 10px",
-                display:"flex", alignItems:"center", gap:4,
+                padding: "6px 8px 6px 12px",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
               }}>
                 <input
                   value={list.name}
                   onChange={e => setLists(prev => prev.map((l, i) => i === li ? { ...l, name: e.target.value } : l))}
                   onFocus={e => e.target.select()}
                   style={{
-                    flex:1, background:"transparent", border:"none", outline:"none",
-                    color:"#fff", fontSize:12, fontWeight:800, minWidth:0,
+                    flex: 1, background: "transparent", border: "none", outline: "none",
+                    color: "#fff", fontSize: 13, fontWeight: 800, minWidth: 0,
                   }}
                 />
                 {lists.length > 1 && (
                   <button
-                    onClick={() => removeList(li)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeList(li);
+                    }}
                     style={{
-                      background:"rgba(255,255,255,0.2)", border:"none", borderRadius:4,
-                      color:"#fff", fontSize:13, fontWeight:700,
-                      cursor:"pointer", padding:"1px 7px", flexShrink:0,
+                      background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 4,
+                      color: "#fff", fontSize: 13, fontWeight: 700,
+                      cursor: "pointer", padding: "1px 7px", flexShrink: 0,
                     }}
                   >×</button>
                 )}
               </div>
 
-              {/* 合計（最上部） */}
+              {/* 合計金額ヘッダー */}
               <div style={{
-                background:"#FAFAFA",
-                borderBottom:`1px solid ${color}50`,
-                padding:"8px 10px 6px",
+                background: "#FAFAFA",
+                borderBottom: `2.5px solid ${color}`,
+                padding: "10px 14px 8px",
               }}>
                 <div style={{
-                  textAlign:"right",
-                  fontSize: Math.abs(total) >= 1000000 ? 20 : Math.abs(total) >= 100000 ? 24 : 28,
-                  fontWeight:700,
-                  color: total < 0 ? "#E53E3E" : "#1A202C",
-                  fontVariantNumeric:"tabular-nums",
-                  letterSpacing:-0.5,
+                  textAlign: "right",
+                  fontSize: 28,
+                  fontWeight: 800,
+                  color: total < 0 ? "#E53E3E" : "#0F265C",
+                  fontVariantNumeric: "tabular-nums",
                 }}>
                   {total !== 0 ? fmt(total) : "0"}
                 </div>
               </div>
 
-              {/* 各フィールド行 */}
-              <div style={{ flex:1, display:"flex", flexDirection:"column" }}>
+              {/* フィールド行 */}
+              <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 {FIELDS.map(({ key, label }) => {
-                  const val      = list[key];
-                  const numVal   = parseInt(val) || 0;
-                  const isActive = activeList === li && activeField === key;
-                  const isEmpty  = !val;
-                  const isHyoji  = key === "hyoji";
+                  const val = list[key];
+                  const numVal = parseInt(val) || 0;
+                  const isRowActive = activeList === li && activeField === key;
+                  const isEmpty = !val;
+                  const isHyoji = key === "hyoji";
                   return (
                     <div
                       key={key}
-                      onClick={() => !isHyoji && selectCell(li, key)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isHyoji) selectCell(li, key);
+                      }}
                       style={{
-                        flex:1,
-                        borderBottom:"1px solid #EDF2F7",
-                        background: isActive ? `${color}18` : "transparent",
-                        padding:"4px 10px",
+                        flex: 1,
+                        borderBottom: "1px solid #EDF2F7",
+                        background: isRowActive ? "#EDF2F7" : "transparent",
+                        padding: "6px 14px",
                         cursor: isHyoji ? "default" : "pointer",
-                        transition:"background 0.1s",
-                        display:"flex", alignItems:"center", justifyContent:"flex-end",
-                        minHeight:36,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                        minHeight: 36,
                       }}
                     >
                       <div style={{
-                        textAlign:"right", fontSize:20, fontWeight:600,
-                        color: isEmpty ? "#CBD5E0" : numVal < 0 ? "#E53E3E" : "#1A202C",
-                        fontVariantNumeric:"tabular-nums",
+                        textAlign: "right",
+                        fontSize: 22,
+                        fontWeight: 700,
+                        color: isEmpty ? "#E2E8F0" : numVal < 0 ? "#E53E3E" : "#1A202C",
+                        fontVariantNumeric: "tabular-nums",
                       }}>
                         {isEmpty ? "—" : fmt(val)}
                       </div>
@@ -507,32 +288,46 @@ export default function EstimateTab() {
               </div>
 
               {/* 座値から値引き適用 */}
-              <div style={{ padding:"6px 8px 0" }}>
+              <div style={{ padding: "6px 8px 0" }}>
                 <button
-                  onClick={() => applyZaichiDiscount(li)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyZaichiDiscount(li);
+                  }}
                   style={{
-                    width:"100%", padding:"6px 0",
-                    background:`${color}18`, border:`1px solid ${color}50`,
-                    borderRadius:3, color, fontSize:11, fontWeight:700, cursor:"pointer",
+                    width: "100%", padding: "8px 0",
+                    background: `${color}18`, border: `1.5px solid ${color}50`,
+                    borderRadius: 4, color, fontSize: 12, fontWeight: 700, cursor: "pointer",
                   }}
                 >座値から値引き適用</button>
               </div>
 
-              {/* ボトム：AC + 削除 */}
-              <div style={{
-                display:"flex", gap:6, padding:"8px 8px 10px",
-                borderTop:`1px solid ${color}30`, marginTop:6,
-              }}>
-
+              {/* ACボタン */}
+              <div style={{ padding: "10px 12px 12px" }}>
                 <button
-                  onClick={() => clearList(li)}
-                  style={{
-                    flex:1, padding:"8px 0",
-                    background:"#EDF2F7", border:"none", borderRadius:3,
-                    color:"#4A5568", fontSize:15, fontWeight:800,
-                    cursor:"pointer", letterSpacing:1,
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    clearList(li);
                   }}
-                >AC</button>
+                  style={{
+                    width: "100%",
+                    padding: "10px 0",
+                    background: "linear-gradient(to bottom, #F7FAFC, #CBD5E0)",
+                    border: "1.5px solid #A0AEC0",
+                    borderRadius: 8,
+                    color: "#0F265C",
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    transition: "transform 0.08s",
+                  }}
+                  onMouseDown={e => e.currentTarget.style.transform="scale(0.97)"}
+                  onMouseUp={e => e.currentTarget.style.transform="scale(1)"}
+                  onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
+                >
+                  AC
+                </button>
               </div>
             </div>
           );
@@ -547,22 +342,207 @@ export default function EstimateTab() {
               setActiveList(next);
             }}
             style={{
-              width:50, alignSelf:"stretch", minHeight:120,
-              border:"2px dashed #CBD5E0", borderRadius:4,
-              background:"#F7FAFC",
-              display:"flex", alignItems:"center", justifyContent:"center",
-              cursor:"pointer", color:"#A0AEC0", fontSize:28, flexShrink:0,
-              transition:"all 0.15s",
+              width: 60,
+              alignSelf: "stretch",
+              minHeight: 120,
+              border: "2px dashed rgba(255,255,255,0.3)",
+              borderRadius: 8,
+              background: "rgba(255,255,255,0.05)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "rgba(255,255,255,0.4)",
+              fontSize: 32,
+              flexShrink: 0,
+              transition: "all 0.15s",
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor="#3182CE"; e.currentTarget.style.color="#3182CE"; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor="#CBD5E0"; e.currentTarget.style.color="#A0AEC0"; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(255,255,255,0.8)"; e.currentTarget.style.color="rgba(255,255,255,0.8)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor="rgba(255,255,255,0.3)"; e.currentTarget.style.color="rgba(255,255,255,0.4)"; }}
           >＋</div>
         )}
       </div>
-    </div>
 
-    {/* フローティングテンキー */}
-    {keypadPanel}
-  </>
+      {/* ── 右側：固定電卓テンキー ── */}
+      <div style={{
+        width: 320,
+        background: "#08132D",
+        borderRadius: 12,
+        border: "1.5px solid rgba(255,255,255,0.1)",
+        display: "flex",
+        flexDirection: "column",
+        padding: 12,
+        flexShrink: 0,
+        boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+        userSelect: "none",
+      }}>
+        {/* List選択タブ */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+          {lists.map((list, li) => {
+            const isActive = activeList === li;
+            return (
+              <button
+                key={li}
+                onClick={() => {
+                  setActiveList(li);
+                  setInputBuf(lists[li][activeField] || "");
+                }}
+                style={{
+                  flex: 1,
+                  padding: "8px 4px",
+                  background: isActive 
+                    ? "linear-gradient(to bottom, #4299E1, #3182CE)" 
+                    : "linear-gradient(to bottom, #FFFFFF, #E2E8F0)",
+                  border: "1px solid rgba(0,0,0,0.15)",
+                  borderRadius: 20,
+                  color: isActive ? "#FFE000" : "#2B6CB0",
+                  fontSize: 12,
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                  textAlign: "center",
+                }}
+              >
+                {list.name}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* コントロール行: ⚙️, MC, M+, M-, 📷 */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+          <button style={{
+            flex: 1, height: 42,
+            background: "linear-gradient(to bottom, #4A5568, #2D3748)",
+            border: "1px solid #1A202C", borderRadius: 8,
+            color: "#FFF", fontSize: 16, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>⚙️</button>
+          
+          <button 
+            onClick={() => setMemory(0)}
+            style={{
+              flex: 1, height: 42,
+              background: "linear-gradient(to bottom, #3A4A5D, #1E2833)",
+              border: "1px solid #10161C", borderRadius: 8,
+              color: "#A0AEC0", fontSize: 13, fontWeight: "bold", cursor: "pointer",
+            }}
+          >MC</button>
+          
+          <button 
+            onClick={() => setMemory(prev => prev + (parseInt(lists[activeList][activeField]) || 0))}
+            style={{
+              flex: 1, height: 42,
+              background: "linear-gradient(to bottom, #FFFFFF, #E2E8F0)",
+              border: "1px solid #CBD5E0", borderRadius: 8,
+              color: "#2B6CB0", fontSize: 13, fontWeight: "bold", cursor: "pointer",
+            }}
+          >M+</button>
+
+          <button 
+            onClick={() => setMemory(prev => prev - (parseInt(lists[activeList][activeField]) || 0))}
+            style={{
+              flex: 1, height: 42,
+              background: "linear-gradient(to bottom, #FFFFFF, #E2E8F0)",
+              border: "1px solid #CBD5E0", borderRadius: 8,
+              color: "#2B6CB0", fontSize: 13, fontWeight: "bold", cursor: "pointer",
+            }}
+          >M-</button>
+
+          <button 
+            onClick={() => setActiveField("camera")}
+            style={{
+              flex: 1, height: 42,
+              background: "linear-gradient(to bottom, #4A5568, #2D3748)",
+              border: "1px solid #1A202C", borderRadius: 8,
+              color: "#FFF", fontSize: 16, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >📷</button>
+        </div>
+
+        {/* コントロール行: フィールド選択 */}
+        <div style={{ display: "flex", gap: 4, marginBottom: 10, background: "rgba(255,255,255,0.05)", padding: 3, borderRadius: 8 }}>
+          {KEYPAD_FIELD_TABS.map(({ key, label, isCamera }) => {
+            const isActive = activeField === key;
+            return (
+              <button
+                key={key}
+                onClick={() => {
+                  setActiveField(key);
+                  setInputBuf(!isCamera ? (lists[activeList][key] || "") : "");
+                }}
+                style={{
+                  flex: 1, padding: "8px 2px",
+                  background: isActive ? "linear-gradient(to bottom, #FFFFFF, #E2E8F0)" : "transparent",
+                  color: isActive ? "#0F265C" : "#A0AEC0",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: isCamera ? 14 : 11, fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+              >{label}</button>
+            );
+          })}
+        </div>
+
+        {/* 入力先表示ステータス */}
+        <div style={{
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: 6,
+          padding: "4px 8px",
+          fontSize: 11,
+          color: "#CBD5E0",
+          textAlign: "center",
+          marginBottom: 10,
+          border: "1px solid rgba(255,255,255,0.05)",
+        }}>
+          入力先：
+          <span style={{ fontWeight: 700, color: "#4299E1" }}>
+            {lists[activeList]?.name}
+          </span>
+          {" / "}
+          <span style={{ fontWeight: 700, color: "#FFF" }}>
+            {fieldLabel(activeField)}
+          </span>
+          {memory !== 0 && (
+            <span style={{ marginLeft: 8, color: "#ED8936" }}>
+              (M: {fmt(memory)})
+            </span>
+          )}
+        </div>
+
+        {/* 電卓ボタングリッド */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+          <div style={{ display: "flex", gap: 6 }}>
+            {["7", "8", "9"].map(key => renderDigitKey(key))}
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {["4", "5", "6"].map(key => renderDigitKey(key))}
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {["1", "2", "3"].map(key => renderDigitKey(key))}
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {["0", "00", "."].map(key => renderDigitKey(key))}
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {renderOpKey("🔃", () => pressKey("−"))}
+            {renderOpKey("×", () => {})}
+            {renderOpKey("＋", () => {})}
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {renderOpKey("C", () => pressKey("AC"))}
+            {renderOpKey("÷", () => {})}
+            {renderOpKey("－", () => {})}
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {renderOpKey("↩", () => pressKey("⌫"))}
+            {renderOpKey("↪", () => {})}
+            {renderOpKey("＝", () => setHyoji())}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
