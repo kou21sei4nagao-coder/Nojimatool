@@ -411,6 +411,33 @@ export default function EstimateTab() {
               boxShadow:`2px 2px 0 ${color}55`,
               borderRadius:4, overflow:"hidden",
             }}>
+              {/* リスト名ヘッダー */}
+              <div style={{
+                background: color,
+                padding:"4px 6px 4px 10px",
+                display:"flex", alignItems:"center", gap:4,
+              }}>
+                <input
+                  value={list.name}
+                  onChange={e => setLists(prev => prev.map((l, i) => i === li ? { ...l, name: e.target.value } : l))}
+                  onFocus={e => e.target.select()}
+                  style={{
+                    flex:1, background:"transparent", border:"none", outline:"none",
+                    color:"#fff", fontSize:12, fontWeight:800, minWidth:0,
+                  }}
+                />
+                {lists.length > 1 && (
+                  <button
+                    onClick={() => removeList(li)}
+                    style={{
+                      background:"rgba(255,255,255,0.2)", border:"none", borderRadius:4,
+                      color:"#fff", fontSize:13, fontWeight:700,
+                      cursor:"pointer", padding:"1px 7px", flexShrink:0,
+                    }}
+                  >×</button>
+                )}
+              </div>
+
               {/* 合計（最上部） */}
               <div style={{
                 background:"#FAFAFA",
