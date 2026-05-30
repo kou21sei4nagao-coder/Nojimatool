@@ -191,7 +191,7 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete, onLongPre
   return (
     <div style={{
       position: "relative",
-      height: 38,
+      height: 44,
       flexShrink: 0,
       borderBottom: "1px solid #EDF2F7",
       overflow: "hidden",
@@ -558,7 +558,7 @@ export default function EstimateTab() {
                 display: "flex",
                 flexDirection: "column",
                 overflowY: "auto",
-                maxHeight: 380,
+                maxHeight: 400,
                 overscrollBehaviorY: "none",
               }}>
                 {FIELDS.map(({ key, label }) => {
@@ -573,7 +573,7 @@ export default function EstimateTab() {
                       <div
                         key={key}
                         style={{
-                          height: 38,
+                          height: 44,
                           flexShrink: 0,
                           borderBottom: "1px solid #EDF2F7",
                           background: isRowActive ? "#EDF2F7" : "transparent",
