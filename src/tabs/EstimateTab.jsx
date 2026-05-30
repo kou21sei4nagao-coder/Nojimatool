@@ -64,27 +64,54 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete, onLongPre
     }
   };
 
+  const touchStartXRef = useRef(0);
+  const touchStartYRef = useRef(0);
+  const touchStartTimeRef = useRef(0);
+
   // タッチ開始
   const handleTouchStart = (e) => {
     setIsDragging(true);
-    startXRef.current = e.touches[0].clientX - swipeOffset;
+    const clientX = e.touches[0].clientX;
+    const clientY = e.touches[0].clientY;
+    startXRef.current = clientX - swipeOffset;
+    touchStartXRef.current = clientX;
+    touchStartYRef.current = clientY;
+    touchStartTimeRef.current = Date.now();
     startLongPressTimer();
   };
 
   // タッチ移動
   const handleTouchMove = (e) => {
-    const diffX = e.touches[0].clientX - startXRef.current;
-    if (Math.abs(diffX) > 5) {
+    const diffX = e.touches[0].clientX - touchStartXRef.current;
+    const diffY = e.touches[0].clientY - touchStartYRef.current;
+    if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) {
       clearLongPressTimer();
     }
-    const newOffset = Math.max(-60, Math.min(0, diffX));
+    const newOffset = Math.max(-60, Math.min(0, e.touches[0].clientX - startXRef.current));
     setSwipeOffset(newOffset);
   };
 
   // タッチ終了
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e) => {
     setIsDragging(false);
     clearLongPressTimer();
+
+    const elapsed = Date.now() - touchStartTimeRef.current;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const diffX = Math.abs(endX - touchStartXRef.current);
+    const diffY = Math.abs(endY - touchStartYRef.current);
+
+    // 短いタップかつ指の移動が極めて小さい場合は、即座にセルを選択（タップ応答性向上）
+    if (elapsed < 250 && diffX < 6 && diffY < 6) {
+      if (swipeOffset === -60) {
+        setSwipeOffset(0);
+      } else {
+        selectCell(li, fieldKey);
+      }
+      return;
+    }
+
     if (swipeOffset < -25) {
       setSwipeOffset(-60);
     } else {
@@ -96,22 +123,41 @@ function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete, onLongPre
   const handleMouseDown = (e) => {
     setIsDragging(true);
     const startX = e.clientX - swipeOffset;
+    const startY = e.clientY;
+    const startTime = Date.now();
     let lastOffset = swipeOffset;
     startLongPressTimer();
 
     const handleMouseMove = (ev) => {
-      if (Math.abs(ev.clientX - startX) > 5) {
+      const diffX = ev.clientX - e.clientX;
+      const diffY = ev.clientY - startY;
+      if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) {
         clearLongPressTimer();
       }
-      const diffX = ev.clientX - startX;
-      const newOffset = Math.max(-60, Math.min(0, diffX));
+      const newOffset = Math.max(-60, Math.min(0, ev.clientX - startX));
       lastOffset = newOffset;
       setSwipeOffset(newOffset);
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (ev) => {
       setIsDragging(false);
       clearLongPressTimer();
+
+      const elapsed = Date.now() - startTime;
+      const diffX = Math.abs(ev.clientX - e.clientX);
+      const diffY = Math.abs(ev.clientY - startY);
+
+      if (elapsed < 250 && diffX < 6 && diffY < 6) {
+        if (swipeOffset === -60) {
+          setSwipeOffset(0);
+        } else {
+          selectCell(li, fieldKey);
+        }
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
+        return;
+      }
+
       if (lastOffset < -25) {
         setSwipeOffset(-60);
       } else {
