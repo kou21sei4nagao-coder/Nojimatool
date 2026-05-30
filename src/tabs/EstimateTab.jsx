@@ -260,11 +260,36 @@ export default function EstimateTab() {
   };
 
   const deleteCell = useCallback((li, field) => {
-    updateField(li, field, "");
-    if (li === activeList && field === activeField) {
-      setInputBuf("");
+    const delIdx = FIELDS.findIndex(f => f.key === field);
+    if (delIdx === -1) return;
+
+    setLists(prev => prev.map((list, i) => {
+      if (i !== li) return list;
+
+      const newList = { ...list };
+      for (let j = delIdx; j < FIELDS.length - 1; j++) {
+        const nextKey = FIELDS[j + 1].key;
+        const currKey = FIELDS[j].key;
+        newList[currKey] = list[nextKey] || "";
+      }
+      newList[FIELDS[FIELDS.length - 1].key] = "";
+      return newList;
+    }));
+
+    if (li === activeList) {
+      const activeIdx = FIELDS.findIndex(f => f.key === activeField);
+      if (activeIdx === delIdx) {
+        const nextKey = FIELDS[delIdx + 1]?.key;
+        setInputBuf(nextKey ? (lists[li][nextKey] || "") : "");
+      } else if (activeIdx > delIdx) {
+        const prevKey = FIELDS[activeIdx - 1]?.key;
+        if (prevKey) {
+          setActiveField(prevKey);
+          setInputBuf(lists[li][FIELDS[activeIdx].key] || "");
+        }
+      }
     }
-  }, [activeList, activeField, updateField]);
+  }, [activeList, activeField, lists]);
 
   const fieldLabel = (key) => FIELDS.find(f => f.key === key)?.label ?? key;
 
