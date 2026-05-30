@@ -12,6 +12,11 @@ const FIELDS = [
   { key: "nebiki",  label: "値引き" },
   { key: "hyoji",   label: "表示価格" },
   { key: "zaichi",  label: "座値" },
+  { key: "r8",      label: "" },
+  { key: "r9",      label: "" },
+  { key: "r10",     label: "" },
+  { key: "r11",     label: "" },
+  { key: "r12",     label: "" },
 ];
 
 const KEYPAD_FIELD_TABS = [
@@ -27,11 +32,14 @@ const fmt = (n) => {
 };
 
 const initList = (name) => ({
-  name, honsha:"", hosho:"", kouji:"", tsuika:"", nebiki:"", hyoji:"", zaichi:"",
+  name,
+  honsha:"", hosho:"", kouji:"", tsuika:"", nebiki:"", hyoji:"", zaichi:"",
+  r8:"", r9:"", r10:"", r11:"", r12:"",
 });
 
 const emptyData = () => ({
   honsha:"", hosho:"", kouji:"", tsuika:"", nebiki:"", hyoji:"", zaichi:"",
+  r8:"", r9:"", r10:"", r11:"", r12:"",
 });
 
 // ── メインコンポーネント ──────────────────────────────────────
@@ -55,7 +63,7 @@ export default function EstimateTab() {
   const getColor = (li) => LIST_COLORS[li % LIST_COLORS.length];
 
   const getTotal = (list) =>
-    ["honsha","hosho","kouji","tsuika","nebiki"]
+    ["honsha","hosho","kouji","tsuika","nebiki","r8","r9","r10","r11","r12"]
       .reduce((s, k) => s + (parseInt(list[k]) || 0), 0);
 
   const updateField = useCallback((li, field, val) => {
@@ -399,7 +407,10 @@ export default function EstimateTab() {
   return (
     <>
       {/* ── リスト列 ── */}
-      <div style={{ display:"flex", gap:6, minWidth:"max-content", alignItems:"stretch" }}>
+      <div style={{
+        display:"flex", gap:6, minWidth:"max-content", alignItems:"stretch",
+        minHeight:"calc(100vh - 130px)",
+      }}>
         {lists.map((list, li) => {
           const color = getColor(li);
           const total = getTotal(list);
@@ -457,7 +468,7 @@ export default function EstimateTab() {
               </div>
 
               {/* 各フィールド行 */}
-              <div style={{ flex:1 }}>
+              <div style={{ flex:1, display:"flex", flexDirection:"column" }}>
                 {FIELDS.map(({ key, label }) => {
                   const val      = list[key];
                   const numVal   = parseInt(val) || 0;
@@ -469,15 +480,16 @@ export default function EstimateTab() {
                       key={key}
                       onClick={() => !isHyoji && selectCell(li, key)}
                       style={{
+                        flex:1,
                         borderBottom:"1px solid #EDF2F7",
                         background: isActive ? `${color}18` : "transparent",
-                        padding:"3px 10px 4px",
+                        padding:"4px 10px",
                         cursor: isHyoji ? "default" : "pointer",
                         transition:"background 0.1s",
-                        minHeight:42,
+                        display:"flex", alignItems:"center", justifyContent:"flex-end",
+                        minHeight:36,
                       }}
                     >
-
                       <div style={{
                         textAlign:"right", fontSize:20, fontWeight:600,
                         color: isEmpty ? "#CBD5E0" : numVal < 0 ? "#E53E3E" : "#1A202C",
