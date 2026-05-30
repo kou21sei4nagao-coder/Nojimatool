@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 // ── 定数 ─────────────────────────────────────────────────────
 const LIST_COLORS = ["#0047AA","#38A169","#D69E2E","#805AD5","#E53E3E","#DD6B20","#2C7A7B","#702459"];
@@ -40,6 +40,152 @@ const emptyData = () => ({
   honsha:"", hosho:"", kouji:"", tsuika:"", nebiki:"", hyoji:"", zaichi:"",
   r8:"", r9:"", r10:"", r11:"", r12:"",
 });
+
+// ── スライド削除機能付きの行コンポーネント ─────────────────────
+function FieldRow({ li, fieldKey, val, isActive, selectCell, onDelete }) {
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const startXRef = useRef(0);
+
+  // タッチ開始
+  const handleTouchStart = (e) => {
+    setIsDragging(true);
+    startXRef.current = e.touches[0].clientX - swipeOffset;
+  };
+
+  // タッチ移動
+  const handleTouchMove = (e) => {
+    const diffX = e.touches[0].clientX - startXRef.current;
+    // 左方向へのスライドのみ許容（最大 -60px まで）
+    const newOffset = Math.max(-60, Math.min(0, diffX));
+    setSwipeOffset(newOffset);
+  };
+
+  // タッチ終了
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    if (swipeOffset < -25) {
+      setSwipeOffset(-60);
+    } else {
+      setSwipeOffset(0);
+    }
+  };
+
+  // マウスドラッグ開始 (PCやシミュレータ用)
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    const startX = e.clientX - swipeOffset;
+    let lastOffset = swipeOffset;
+
+    const handleMouseMove = (ev) => {
+      const diffX = ev.clientX - startX;
+      const newOffset = Math.max(-60, Math.min(0, diffX));
+      lastOffset = newOffset;
+      setSwipeOffset(newOffset);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      if (lastOffset < -25) {
+        setSwipeOffset(-60);
+      } else {
+        setSwipeOffset(0);
+      }
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  useEffect(() => {
+    if (!val) {
+      setSwipeOffset(0);
+    }
+  }, [val]);
+
+  const numVal = parseInt(val) || 0;
+  const isEmpty = !val;
+
+  return (
+    <div style={{
+      position: "relative",
+      flex: 1,
+      borderBottom: "1px solid #EDF2F7",
+      minHeight: 36,
+      overflow: "hidden",
+    }}>
+      {/* 背面の削除ボタン */}
+      <div 
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(li, fieldKey);
+          setSwipeOffset(0);
+        }}
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: 60,
+          background: "#E53E3E",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#FFF",
+          fontSize: 12,
+          fontWeight: "bold",
+          cursor: "pointer",
+          zIndex: 1,
+        }}
+      >
+        削除
+      </div>
+
+      {/* 前面のスライドするセル本体 */}
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          if (swipeOffset === -60) {
+            setSwipeOffset(0);
+          } else {
+            selectCell(li, fieldKey);
+          }
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          zIndex: 2,
+          transform: `translateX(${swipeOffset}px)`,
+          transition: isDragging ? "none" : "transform 0.15s ease-out",
+          background: isActive ? "#EDF2F7" : "#FFFFFF",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          padding: "6px 14px",
+          cursor: "pointer",
+          userSelect: "none",
+        }}
+      >
+        <div style={{
+          textAlign: "right",
+          fontSize: 22,
+          fontWeight: 700,
+          color: isEmpty ? "#E2E8F0" : numVal < 0 ? "#E53E3E" : "#1A202C",
+          fontVariantNumeric: "tabular-nums",
+        }}>
+          {isEmpty ? "—" : fmt(val)}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ── メインコンポーネント ──────────────────────────────────────
 export default function EstimateTab() {
@@ -107,11 +253,18 @@ export default function EstimateTab() {
     const hyoji  = parseInt(list.hyoji)  || 0;
     const zaichi = parseInt(list.zaichi) || 0;
     if (!hyoji || !zaichi) return;
-    const disc = hyoji - zaichi;
-    if (disc < 0) return;
-    updateField(li, "nebiki", String(-disc));
-    if (li === activeList) { setActiveField("nebiki"); setInputBuf(String(-disc)); }
+    const diff = hyoji - zaichi;
+    if (diff < 0) return;
+    updateField(li, "nebiki", String(-diff));
+    if (li === activeList) { setActiveField("nebiki"); setInputBuf(String(-diff)); }
   };
+
+  const deleteCell = useCallback((li, field) => {
+    updateField(li, field, "");
+    if (li === activeList && field === activeField) {
+      setInputBuf("");
+    }
+  }, [activeList, activeField, updateField]);
 
   const fieldLabel = (key) => FIELDS.find(f => f.key === key)?.label ?? key;
 
@@ -197,7 +350,7 @@ export default function EstimateTab() {
                 cursor: "pointer",
               }}
             >
-              {/* リリスト名ヘッダー */}
+              {/* リスト名ヘッダー */}
               <div style={{
                 background: color,
                 padding: "6px 8px 6px 12px",
@@ -254,35 +407,45 @@ export default function EstimateTab() {
                   const isRowActive = activeList === li && activeField === key;
                   const isEmpty = !val;
                   const isHyoji = key === "hyoji";
-                  return (
-                    <div
-                      key={key}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!isHyoji) selectCell(li, key);
-                      }}
-                      style={{
-                        flex: 1,
-                        borderBottom: "1px solid #EDF2F7",
-                        background: isRowActive ? "#EDF2F7" : "transparent",
-                        padding: "6px 14px",
-                        cursor: isHyoji ? "default" : "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "flex-end",
-                        minHeight: 36,
-                      }}
-                    >
-                      <div style={{
-                        textAlign: "right",
-                        fontSize: 22,
-                        fontWeight: 700,
-                        color: isEmpty ? "#E2E8F0" : numVal < 0 ? "#E53E3E" : "#1A202C",
-                        fontVariantNumeric: "tabular-nums",
-                      }}>
-                        {isEmpty ? "—" : fmt(val)}
+
+                  if (isHyoji) {
+                    return (
+                      <div
+                        key={key}
+                        style={{
+                          flex: 1,
+                          borderBottom: "1px solid #EDF2F7",
+                          background: isRowActive ? "#EDF2F7" : "transparent",
+                          padding: "6px 14px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "flex-end",
+                          minHeight: 36,
+                        }}
+                      >
+                        <div style={{
+                          textAlign: "right",
+                          fontSize: 22,
+                          fontWeight: 700,
+                          color: isEmpty ? "#E2E8F0" : numVal < 0 ? "#E53E3E" : "#1A202C",
+                          fontVariantNumeric: "tabular-nums",
+                        }}>
+                          {isEmpty ? "—" : fmt(val)}
+                        </div>
                       </div>
-                    </div>
+                    );
+                  }
+
+                  return (
+                    <FieldRow
+                      key={key}
+                      li={li}
+                      fieldKey={key}
+                      val={val}
+                      isActive={isRowActive}
+                      selectCell={selectCell}
+                      onDelete={deleteCell}
+                    />
                   );
                 })}
               </div>
