@@ -450,7 +450,7 @@ export default function EstimateTab() {
                         minHeight:42,
                       }}
                     >
-                      <div style={{ fontSize:10, color:"#A0AEC0", marginBottom:1 }}>{label}</div>
+
                       <div style={{
                         textAlign:"right", fontSize:20, fontWeight:600,
                         color: isEmpty ? "#CBD5E0" : numVal < 0 ? "#E53E3E" : "#1A202C",
