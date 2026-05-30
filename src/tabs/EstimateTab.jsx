@@ -169,6 +169,7 @@ export default function EstimateTab() {
                   <input
                     value={list.name}
                     onChange={e => setLists(prev => prev.map((l, i) => i === li ? { ...l, name: e.target.value } : l))}
+                    onFocus={e => e.target.select()}
                     style={{
                       fontSize: 13, fontWeight: 800, color,
                       background: "transparent", border: "none", outline: "none",
@@ -259,6 +260,7 @@ export default function EstimateTab() {
                   value={list.name}
                   onChange={e => setLists(prev => prev.map((l, i) => i === li ? { ...l, name: e.target.value } : l))}
                   onClick={e => e.stopPropagation()}
+                  onFocus={e => { e.stopPropagation(); e.target.select(); }}
                   style={{
                     background: "transparent", border: "none", outline: "none",
                     color: isActive ? "#fff" : "#718096",
